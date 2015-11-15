@@ -53,7 +53,7 @@ CMD to execute and the rest an ARGS list. Calls eclim with CMD
 and the expanded ARGS list and binds RESULT to the results. If
 RESULT is non-nil, BODY is executed."
   (declare (indent defun))
-  (let ((sync (eclim--args-contains (rest params) (list "-f" "-o"))))
+  (let ((sync (eclim--args-contains (cdr params) (list "-f" "-o"))))
     `(let* ((,result (eclim/execute-command ,@params))
             (eclim-auto-save (and eclim-auto-save (not ,sync))))
        (when ,result
@@ -65,7 +65,7 @@ is CMD to execute and the rest an ARGS list.  Calls Eclim with CMD
 and the expanded ARGS list and binds RESULT to the results.  If
 RESULT is non-nil, BODY is executed."
   (declare (indent defun))
-  (let ((sync (eclim--args-contains (rest params) (list "-f" "-o"))))
+  (let ((sync (eclim--args-contains (cdr params) (list "-f" "-o"))))
     `(eclim/execute-command-async
       (lambda (,result)
         (let ((eclim-auto-save (and eclim-auto-save (not ,sync))))

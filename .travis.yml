@@ -4,7 +4,8 @@ env:
   global:
     - CI=true
   matrix:
-    - EVM_EMACS=emacs-24.4-travis
+    - EVM_EMACS=emacs-24.5-travis
+    - EVM_EMACS=emacs-25.1-travis
     - EVM_EMACS=emacs-git-snapshot-travis
 
 notifications:
@@ -13,21 +14,23 @@ notifications:
       - https://webhooks.gitter.im/e/bde5c3d7214f513e47cb
     on_success: change  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
-    on_start: false     # default: false
+    on_start: never     # default: false
 
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > travis.sh && source ./travis.sh
   - evm install "$EVM_EMACS" --use --skip
 install:
   - cask install
-  - cd /tmp
+  - cask update
+#  - cd /tmp
 #  - mkdir /home/travis/opt && wget http://download.eclipse.org/technology/epp/downloads/release/luna/R/eclipse-java-luna-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz && tar -xf eclipse.tar.gz -C /home/travis/opt
 #  - wget http://sourceforge.net/projects/eclim/files/latest/download -O eclim.jar && java -Dvim.skip=true -Declipse.home=/home/travis/opt/eclipse -jar eclim.jar install
-  - cd - && cd test && git clone https://github.com/nschum/elisp-lint.git
-  - cd -
+#  - cd - && cd test && git clone https://github.com/nschum/elisp-lint.git
+#  - cd -
 script:
-  - emacs -Q --batch -l test/emacs-eclim-linter-init.el -f elisp-lint-files-batch *.el
-  - emacs -Q --batch -l ert -l test/emacs-eclim-linter-init.el -f ert-run-tests-batch-and-exit
+  - make compile
+  - make lint
+  - make test
 
 branches:
   only:

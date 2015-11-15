@@ -46,6 +46,10 @@
     map)
   "The keymap used in `eclim-mode'.")
 
+;;;###autoload
+(defun eclim/workspace-dir ()
+  (eclim--call-process "workspace_dir"))
+
 (defvar eclim--file-coding-system-mapping
   '(("undecided-dos" . "iso-8859-1")
     ("dos" . "iso-8859-1")
@@ -182,11 +186,6 @@ time, but it also works globally."
 (defvar-local eclim--project-name nil)
 
 (defvar-local eclim--project-current-file nil)
-
-(defun eclim--args-contains (args flags)
-  "Validates that ARGS (not expanded) has the specified FLAGS."
-  (cl-loop for f in flags
-           return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
 
 (defun eclim--command-should-sync-p (cmd args)
   (and (eclim--args-contains args '("-f" "-o"))
@@ -358,7 +357,7 @@ eclimd."
     (error "Eclim installation not found. Please set eclim-executable."))
   (cl-reduce (lambda (a b) (format "%s %s" a b))
           (append (list eclim-executable "-command" (first args))
-                  (cl-loop for a = (rest args) then (rest (rest a))
+                  (cl-loop for a = (cdr args) then (cdr (cdr a))
                            for arg = (first a)
                            for val = (second a)
                            while arg append (if val (list arg (shell-quote-argument val)) (list arg))))))

@@ -19,5 +19,5 @@ We use [Cask](https://github.com/cask/cask) to compile and test the
 project. Install all dependencies with `cask install` and use `cask exec
 ert-runner` to run all tests with the apropriate development dependencies.
 
-Before submitting a pull request, ensure that `cask exec make lint`
-does not report any errors.
+Before submitting a pull request, ensure that `make lint` does not
+report any errors.

@@ -17,11 +17,15 @@
 
 ;;; Commentary:
 
-;; Tests for eclim.el
+;; Test helper for eclim.el
 
 ;;; Code:
 (when (require 'undercover nil t)
   (undercover "*.el" (:exclude "*-test.el")))
+
+(require 'f)
+(require 'eclim)
+(require 'elisp-lint)
 
 (defvar eclim-test-path
   (f-dirname (f-this-file)))
@@ -32,7 +36,49 @@
 (add-to-list 'load-path eclim-test-path)
 (add-to-list 'load-path eclim-code-path)
 
-(require 'eclim)
+(defun eclim-emacs-init (action)
+  "Initialize Emacs with Cask packages an invoke ACTION."
+  (let* ((load-prefer-newer t)
+         (source-directory (locate-dominating-file eclim-test-path "Cask"))
+         (pkg-rel-dir (format ".cask/%s.%S/elpa" emacs-major-version emacs-minor-version)))
 
-(provide 'test-helper)
+    (setq package-user-dir (expand-file-name pkg-rel-dir source-directory))
+    (package-initialize)
+
+    (message "Running tests on Emacs %s, built at %s"
+             emacs-version (format-time-string "%F" emacs-build-time))
+    (funcall action)))
+
+(defun eclim-lint-files ()
+  "Main entry point for linter."
+  (eclim-emacs-init
+   (lambda ()
+     ;; since we are invoking elisp-lint-files-batch from this function,
+     ;; we need to pop off 2 command line arguments
+     (pop command-line-args-left)
+     (pop command-line-args-left)
+
+     (add-hook 'emacs-lisp-mode-hook
+               (lambda ()
+                 (setq indent-tabs-mode nil)
+                 (setq fill-column 80)
+                 (setq elisp-lint-ignored-validators '("package-format"
+                                                       "fill-column"
+                                                       "byte-compile"
+                                                       "indent"))))
+     (let ((debug-on-error t))
+       (elisp-lint-files-batch)))))
+
+(defun eclim-run-tests ()
+  "Main entry point for linter."
+  (eclim-emacs-init
+   (lambda ()
+     (let ((tests (directory-files "./test" t "test.el")))
+       (while tests
+         (load-file (car tests))
+         (setq tests (cdr tests))))
+     (let ((debug-on-error t))
+       (ert-run-tests-batch-and-exit)))))
+
+
 ;;; test-helper.el ends here
