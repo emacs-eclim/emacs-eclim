@@ -31,4 +31,4 @@
 
 
 (provide 'parser-tests)
-;;; parser-tests.el ends here
+;;; parser-test.el ends here

@@ -1,7 +1,7 @@
 (source gnu)
 (source melpa)
 
-(package "eclim" "0.3.1" "Eclim provides the ability to access Eclipse code editing features")
+(package "eclim" "@VERSION" "Eclim provides the ability to access Eclipse code editing features")
 
 (depends-on "dash")
 (depends-on "json")
@@ -14,5 +14,7 @@
  (depends-on "elisp-lint")
  (depends-on "ert")
  (depends-on "ert-runner")
+ (depends-on "el-mock")
+ (depends-on "noflet")
  (depends-on "cask-package-toolset")
  (depends-on "undercover"))

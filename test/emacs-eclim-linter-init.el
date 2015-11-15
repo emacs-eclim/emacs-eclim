@@ -9,6 +9,8 @@
 (package-refresh-contents)
 (defvar optional-dependencies '((company "0.8.12")))
 (package-install (caar optional-dependencies))
+(package-install 'noflet)
+(package-install 'el-mock)
 
 (require 'cl)
 

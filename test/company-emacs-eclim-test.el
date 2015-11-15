@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'company-emacs-eclim)
+(require 'noflet)
 
 (ert-deftest compute-full-prefix-when-complete-import ()
   (with-temp-buffer
@@ -56,7 +57,7 @@
   (with-temp-buffer
     (insert (cdr (assoc 'content arg)))
     (goto-char (point-max))
-    (flet ((eclim--completion-candidates () (cdr (assoc 'mocked-response arg))))
+    (noflet ((eclim--completion-candidates () (cdr (assoc 'mocked-response arg))))
       (company-emacs-eclim--candidates (cdr (assoc 'prefix arg))))))
 
 (provide 'company-emacs-eclim-tests)
