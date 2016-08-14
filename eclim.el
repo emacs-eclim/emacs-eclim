@@ -31,6 +31,7 @@
 ;;* Eclim
 
 (eval-when-compile (require 'cl))
+(require 'cl-lib)
 (require 'etags)
 (require 's)
 
@@ -146,10 +147,10 @@ eclimd."
     (error "Eclim installation not found. Please set eclim-executable."))
   (cl-reduce (lambda (a b) (format "%s %s" a b))
           (append (list eclim-executable "-command" (first args))
-                  (loop for a = (rest args) then (rest (rest a))
-                        for arg = (first a)
-                        for val = (second a)
-                        while arg append (if val (list arg (shell-quote-argument val)) (list arg))))))
+                  (cl-loop for a = (rest args) then (rest (rest a))
+                           for arg = (first a)
+                           for val = (second a)
+                           while arg append (if val (list arg (shell-quote-argument val)) (list arg))))))
 
 (defun eclim--parse-result (result)
   "Parses the result of an eclim operation, raising an error if
@@ -225,8 +226,8 @@ strings and will be called on completion."
 (defun eclim--args-contains (args flags)
   "Check if an (unexpanded) ARGS list contains any of the
 specified FLAGS."
-  (loop for f in flags
-        return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
+  (cl-loop for f in flags
+           return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
 
 (defun eclim--expand-args (args)
   "Takes a list of command-line arguments with which to call the
@@ -235,13 +236,13 @@ list. If it is a string, its default value is looked up in
 `eclim--default-args' and used to construct a list. The argument
 lists are then appended together."
   (mapcar (lambda (a) (if (numberp a) (number-to-string a) a))
-          (loop for a in args
-                append (if (listp a)
-                           (if (stringp (car a))
-                               (list (car a) (eval (cadr a)))
-                             (or (eval a) (list nil nil)))
-                         (list a (eval (cdr (or (assoc a eclim--default-args)
-                                                (error "sorry, no default value for: %s" a)))))))))
+          (cl-loop for a in args
+                   append (if (listp a)
+                              (if (stringp (car a))
+                                  (list (car a) (eval (cadr a)))
+                                (or (eval a) (list nil nil)))
+                            (list a (eval (cdr (or (assoc a eclim--default-args)
+                                                   (error "sorry, no default value for: %s" a)))))))))
 
 (defun eclim--command-should-sync-p (cmd args)
   (and (eclim--args-contains args '("-f" "-o"))
@@ -383,11 +384,11 @@ FILENAME is given, return that file's  project name instead."
 
 (defun eclim--find-display-results (pattern results &optional open-single-file)
   (let ((results
-         (loop for result across results
-               for file = (cdr (assoc 'filename result))
-               if (string-match (rx bol (or "jar" "zip") ":") file)
-                 do (setf (cdr (assoc 'filename result)) (eclim-java-archive-file file))
-               finally (return results))))
+         (cl-loop for result across results
+                  for file = (cdr (assoc 'filename result))
+                  if (string-match (rx bol (or "jar" "zip") ":") file)
+                  do (setf (cdr (assoc 'filename result)) (eclim-java-archive-file file))
+                  finally (return results))))
     (if (and (= 1 (length results)) open-single-file)
       (eclim--visit-declaration (elt results 0))
       (pop-to-buffer (get-buffer-create "*eclim: find"))
@@ -397,8 +398,8 @@ FILENAME is given, return that file's  project name instead."
         (newline 2)
         (insert (concat "eclim java_search -p " pattern))
         (newline)
-        (loop for result across results
-              do (insert (eclim--format-find-result result default-directory)))
+        (cl-loop for result across results
+                 do (insert (eclim--format-find-result result default-directory)))
         (goto-char 0)
         (grep-mode)))))
 
@@ -555,7 +556,7 @@ the use of eclim to java and ant files."
   (when (eclim--accepted-p (buffer-file-name))
     (ignore-errors
       (apply 'eclim--call-process
-             (case major-mode
+             (cl-case major-mode
                (java-mode "java_src_update")
                (groovy-mode "groovy_src_update")
                (ruby-mode "ruby_src_update")

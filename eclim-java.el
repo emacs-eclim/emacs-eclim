@@ -29,6 +29,8 @@
 
 (require 'json)
 (require 'dash)
+(require 'cl-lib)
+(eval-when-compile (require 'cl)) ;; lexical-let
 
 (define-key eclim-mode-map (kbd "C-c C-e s") 'eclim-java-method-signature-at-point)
 (define-key eclim-mode-map (kbd "C-c C-e f d") 'eclim-java-find-declaration)
@@ -141,7 +143,7 @@ in eclim when appropriate."
       (ignore-errors (apply 'eclim--call-process (list "java_src_update" "-p" pr "-f" fn))))))
 
 (defun eclim--java-parser-read (str)
-  (first
+  (cl-first
    (read-from-string
     (format "(%s)"
             (replace-regexp-in-string
@@ -156,13 +158,13 @@ in eclim when appropriate."
   (cl-flet ((parser3/parse-arg (arg)
                                (let ((arg-rev (reverse arg)))
                                  (cond ((null arg) nil)
-                                       ((= (length arg) 1) (list (list :type (first arg))))
-                                       ((listp (first arg-rev)) (list (cons :type arg)))
-                                       (t (list (cons :name (first arg-rev)) (cons :type (reverse (rest arg-rev)))))))))
+                                       ((= (length arg) 1) (list (list :type (cl-first arg))))
+                                       ((listp (cl-first arg-rev)) (list (cons :type arg)))
+                                       (t (list (cons :name (cl-first arg-rev)) (cons :type (reverse (cl-rest arg-rev)))))))))
     (let ((ast (reverse (eclim--java-parser-read signature))))
-      (list (cons :arglist (mapcar #'parser3/parse-arg (first ast)))
-            (cons :name (second ast))
-            (cons :return (reverse (rest (rest ast))))))))
+      (list (cons :arglist (mapcar #'parser3/parse-arg (cl-first ast)))
+            (cons :name (cl-second ast))
+            (cons :return (reverse (cl-rest (cl-rest ast))))))))
 
 (defun eclim--java-current-type-name (&optional type)
   "Searches backward in the current buffer until a type
@@ -194,17 +196,17 @@ has been found."
   "Processes the resulst of a refactor command. RESULT is the
   results of invoking eclim/execute-command."
   (if (stringp result) (error "%s" result))
-  (loop for (from to) in (mapcar (lambda (x) (list (assoc-default 'from x) (assoc-default 'to x))) result)
-        do (when (and from to)
-             (kill-buffer (find-buffer-visiting from))
-             (find-file to)))
+  (cl-loop for (from to) in (mapcar (lambda (x) (list (assoc-default 'from x) (assoc-default 'to x))) result)
+           do (when (and from to)
+                (kill-buffer (find-buffer-visiting from))
+                (find-file to)))
   (save-excursion
-    (loop for file in (mapcar (lambda (x) (assoc-default 'file x)) result)
-          do (when file
-               (let ((buf (get-file-buffer (file-name-nondirectory file))))
-                 (when buf
-                   (switch-to-buffer buf)
-                   (revert-buffer t t t))))))
+    (cl-loop for file in (mapcar (lambda (x) (assoc-default 'file x)) result)
+             do (when file
+                  (let ((buf (get-file-buffer (file-name-nondirectory file))))
+                    (when buf
+                      (switch-to-buffer buf)
+                      (revert-buffer t t t))))))
   (message "Done"))
 
 (defun eclim/java-classpath (project)
@@ -233,7 +235,7 @@ has been found."
   (let ((proj-list (eclim/project-list)))
     (if (y-or-n-p "Run Javadoc for all projects?")
         (dotimes (i (length proj-list))
-            (eclim--call-process-no-parse "javadoc" "-p" (rest (assq 'name (elt proj-list i)))))
+            (eclim--call-process-no-parse "javadoc" "-p" (cl-rest (assq 'name (elt proj-list i)))))
       (eclim--call-process-no-parse "javadoc" "-p"))
     (message "Javadoc creation finished.")))
 
@@ -334,8 +336,8 @@ until a class declaration has been found."
                                           (eclim--visit-declaration position)))
         (insert declaration)))
     (newline)
-    (loop for caller across (cdr (assoc 'callers node))
-          do (eclim--java-insert-call-hierarchy-node project caller (1+ level)))))
+    (cl-loop for caller across (cdr (assoc 'callers node))
+             do (eclim--java-insert-call-hierarchy-node project caller (1+ level)))))
 
 (defun eclim-java-hierarchy (project file offset encoding)
   (interactive (list (eclim-project-name)
@@ -370,8 +372,8 @@ until a class declaration has been found."
         (insert declaration))))
   (newline)
   (let ((children (cdr (assoc 'children node))))
-    (loop for child across children do
-          (eclim--java-insert-hierarchy-node project child (+ level 1)))))
+    (cl-loop for child across children do
+             (eclim--java-insert-hierarchy-node project child (+ level 1)))))
 
 (defun eclim-java-find-declaration ()
   "Find and display the declaration of the java identifier at point."
@@ -504,7 +506,7 @@ sorts import statements. "
   (interactive)
   (let ((revert-buffer-function 'eclim-soft-revert-imports))
     (eclim/with-results res ("java_import_organize" "-p" "-f" "-o" "-e"
-                             (when types (list "-t" (reduce (lambda (a b) (concat a "," b)) types))))
+                             (when types (list "-t" (cl-reduce (lambda (a b) (concat a "," b)) types))))
       (eclim--problems-update-maybe)
       (when (vectorp res)
         (save-excursion
@@ -553,7 +555,7 @@ sub block)."
            ;; Maps a choice to a (supertype method1 method2...), needed
            ;; when we request eclim to implement that method.
            (choice-data (make-hash-table :test 'equal)))
-      (loop
+      (cl-loop
        for super-entry across supertypes do
        (let* ((package (assoc-default 'packageName super-entry))
               (super-sig (assoc-default 'signature super-entry))
@@ -566,7 +568,7 @@ sub block)."
                              super-sig "interface"))
               (methods (assoc-default 'methods super-entry))
               (required-methods nil))   ;; Eclim names here
-         (loop
+         (cl-loop
           for method across methods
           ;; Skip if specified name doesn't match.
           if (or (null name)
@@ -626,7 +628,7 @@ sub block)."
       ;; we were called programmatically a for specific method.
       (let ((choice
              (if (and name (eq 1 (length choices)))
-                 (first choices)
+                 (cl-first choices)
                (funcall eclim-interactive-completion-function
                         "Implement: "
                         (mapcar #'eclim--colorize-signature choices)

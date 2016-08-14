@@ -25,6 +25,8 @@
 
 ;;* Eclim Project
 
+(require 'cl-lib)
+
 (defvar eclim-project-mode-hook nil)
 (defvar eclim-project-info-mode-hook nil)
 
@@ -96,8 +98,8 @@
     (let ((inhibit-read-only t)
           (line-number (line-number-at-pos)))
       (erase-buffer)
-      (loop for project across (eclim/project-list)
-            do (eclim--insert-project project))
+      (cl-loop for project across (eclim/project-list)
+               do (eclim--insert-project project))
       (goto-char (point-min))
       (forward-line (1- line-number)))))
 
@@ -284,14 +286,14 @@
 (defun eclim-project-nature-remove (nature)
   (interactive (list (completing-read "Remove nature: "
                                       (append
-                                       (cdadr (aref (eclim/project-natures (eclim--project-current-line)) 0))
+                                       (cl-cdadr (aref (eclim/project-natures (eclim--project-current-line)) 0))
                                        nil))))
   (message (eclim/project-nature-remove (eclim--project-current-line) nature)))
 
 (defun eclim-project-natures ()
   (interactive)
   (message (with-output-to-string
-             (princ (cdadr (aref (eclim/project-natures (eclim--project-current-line)) 0))))))
+             (princ (cl-cdadr (aref (eclim/project-natures (eclim--project-current-line)) 0))))))
 
 (defun eclim-project-dependencies (project)
   (cdr (assoc 'depends (eclim/project-info project))))
@@ -338,8 +340,8 @@
   (interactive)
   (save-excursion
     (goto-char (point-min))
-    (loop do (eclim--project-insert-mark-current 'dired-mark)
-          until (not (forward-line 1)))))
+    (cl-loop do (eclim--project-insert-mark-current 'dired-mark)
+             until (not (forward-line 1)))))
 
 (defun eclim-project-unmark-current ()
   (interactive)
@@ -350,8 +352,8 @@
   (interactive)
   (save-excursion
     (goto-char (point-min))
-    (loop do (eclim--project-remove-mark-current)
-          until (not (forward-line 1)))))
+    (cl-loop do (eclim--project-remove-mark-current)
+             until (not (forward-line 1)))))
 
 (defun eclim-project-goto (project)
   (interactive (list (eclim--project-read t)))
@@ -370,11 +372,11 @@
     (with-current-buffer "*eclim: info*"
       (kill-all-local-variables)
       (save-excursion
-        (loop for attr in (eclim/project-info project)
-              do (princ (format "%s: %s\n" (car attr) (cdr attr))))
+        (cl-loop for attr in (eclim/project-info project)
+                 do (princ (format "%s: %s\n" (car attr) (cdr attr))))
         (princ "\n\nSETTINGS:\n")
-        (loop for attr across (eclim/project-settings project)
-              do (princ (format "%s: %s\n" (assoc-default 'name attr) (assoc-default 'value attr))))
+        (cl-loop for attr across (eclim/project-settings project)
+                 do (princ (format "%s: %s\n" (assoc-default 'name attr) (assoc-default 'value attr))))
         (use-local-map eclim-project-info-mode-map)
         (setq major-mode 'eclim-project-info-mode
               mode-name "eclim/project-info")

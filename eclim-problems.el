@@ -1,4 +1,6 @@
 (require 'popup)
+(require 'cl-lib)
+(eval-when-compile (require 'cl)) ;; lexical-let
 
 (defgroup eclim-problems nil
   "Problems: settings for displaying the problems buffer and highlighting errors in code."
@@ -182,8 +184,8 @@ if `eclim-problems-suppress-highlights' allows it."
       (unless (if (functionp eclim-problems-suppress-highlights)
                   (funcall eclim-problems-suppress-highlights)
                 eclim-problems-suppress-highlights)
-        (loop for problem across (cl-remove-if-not (lambda (p) (string= (assoc-default 'filename p) (buffer-file-name))) eclim--problems-list)
-              do (eclim--problems-insert-highlight problem))))))
+        (cl-loop for problem across (cl-remove-if-not (lambda (p) (string= (assoc-default 'filename p) (buffer-file-name))) eclim--problems-list)
+                 do (eclim--problems-insert-highlight problem))))))
 
 (defadvice find-file (after eclim-problems-highlight-on-find-file activate)
   (eclim-problems-highlight))
@@ -246,9 +248,9 @@ it asynchronously."
     `(when eclim--problems-project
        (setq eclim--problems-refreshing t)
        (eclim/with-results-async ,res ("problems" ("-p" eclim--problems-project) (when (string= "e" eclim--problems-filter) '("-e" "true")))
-         (loop for problem across ,res
-               do (let ((filecell (assq 'filename problem)))
-                    (when filecell (setcdr filecell (file-truename (cdr filecell))))))
+         (cl-loop for problem across ,res
+                  do (let ((filecell (assq 'filename problem)))
+                       (when filecell (setcdr filecell (file-truename (cdr filecell))))))
          (setq eclim--problems-list ,res)
          (let ((,problems ,res))
            (setq eclim--problems-refreshing nil)
@@ -303,8 +305,8 @@ it asynchronously."
               (line-number (line-number-at-pos))
               (filecol-size (eclim--problems-filecol-size)))
           (erase-buffer)
-          (loop for problem across (eclim--problems-filtered)
-                do (eclim--insert-problem problem filecol-size))
+          (cl-loop for problem across (eclim--problems-filtered)
+                   do (eclim--insert-problem problem filecol-size))
           (goto-char (point-min))
           (forward-line (1- line-number)))))))
 
@@ -488,12 +490,12 @@ is convenient as it lets the user navigate between errors using
           (setq saved-user-pos (point))
           (erase-buffer)
           (let ((errors 0) (warnings 0))
-            (loop for problem across (eclim--problems-filtered) do
-                  (eclim--insert-problem-compilation
-                   problem filecol-size project-directory)
-                (if (eq t (assoc-default 'warning problem)) ; :json-false, WTH
-                    (setq warnings (1+ warnings))
-                  (setq errors (1+ errors))))
+            (cl-loop for problem across (eclim--problems-filtered) do
+                     (eclim--insert-problem-compilation
+                      problem filecol-size project-directory)
+                     (if (eq t (assoc-default 'warning problem)) ; :json-false, WTH
+                         (setq warnings (1+ warnings))
+                       (setq errors (1+ errors))))
             (let ((msg (format
                         "Compilation results: %d errors, %d warnings [%s].\n"
                         errors warnings (current-time-string))))
@@ -523,7 +525,7 @@ is convenient as it lets the user navigate between errors using
 
 
 (defun eclim--insert-problem-compilation (problem filecol-size project-directory)
-  (let ((filename (first (split-string (assoc-default 'filename problem) project-directory t)))
+  (let ((filename (cl-first (split-string (assoc-default 'filename problem) project-directory t)))
         (description (assoc-default 'message problem))
         (type (if (eq t (assoc-default 'warning problem)) "W" "E")))
     (let ((line (assoc-default 'line problem))
@@ -551,13 +553,13 @@ or prefix arg, moves to previous instead; see `eclim-problems-prev-same-file'."
         (pass-col (+ (current-column) (if up 0 1)))
         (first-passed nil) (last-not-passed nil))
     (when (= 0 (length problems-file)) (error "No problems in this file"))
-    (loop for p across problems-file until first-passed do
-          (let ((line (assoc-default 'line p))
-                (col (assoc-default 'column p)))
-            (if (or (> line pass-line)
-                      (and (= line pass-line) (> col pass-col)))
-                (setq first-passed p)
-              (setq last-not-passed p))))
+    (cl-loop for p across problems-file until first-passed do
+             (let ((line (assoc-default 'line p))
+                   (col (assoc-default 'column p)))
+               (if (or (> line pass-line)
+                       (and (= line pass-line) (> col pass-col)))
+                   (setq first-passed p)
+                 (setq last-not-passed p))))
     (eclim--problem-goto-pos
      (or
       (if up last-not-passed first-passed)

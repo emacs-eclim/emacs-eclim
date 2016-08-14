@@ -29,6 +29,7 @@
 ;;
 
 (require 'thingatpt)
+(require 'cl-lib)
 
 (defun eclim--completion-candidate-type (candidate)
   "Returns the type of a candidate."
@@ -61,7 +62,7 @@ removes all arguments before inserting.")
   (setq eclim--is-completing t)
   (unwind-protect
       (setq eclim--completion-candidates
-            (case major-mode
+            (cl-case major-mode
               (java-mode
                (assoc-default 'completions
                               (eclim/execute-command "java_complete" "-p" "-f" "-e" ("-l" "standard") "-o")))
@@ -83,15 +84,15 @@ removes all arguments before inserting.")
 
 (defun eclim--completion-candidates-filter (c)
   "Rejects completion candidate C (non-nil return) in certain situations."
-  (case major-mode
-    ((xml-mode nxml-mode) (or (search "XML Schema" c)
-                              (search "Namespace" c)))
+  (cl-case major-mode
+    ((xml-mode nxml-mode) (or (cl-search "XML Schema" c)
+                              (cl-search "Namespace" c)))
     (t nil)))
 
 (defun eclim--completion-candidate-menu-item (candidate)
   "Returns the part of the completion candidate to be displayed
 in a completion menu."
-  (assoc-default (case major-mode
+  (assoc-default (cl-case major-mode
                    (java-mode 'info)
                    (t 'completion)) candidate))
 
@@ -157,15 +158,15 @@ buffer."
      #'(lambda (m)
          (let ((c (string-to-char m)) (repl m))
            (unless (string= m "()")
-             (when (memq c '(?\( ?<)) (incf level))
-             (when (<= level 1) (setq repl (case c
+             (when (memq c '(?\( ?<)) (cl-incf level))
+             (when (<= level 1) (setq repl (cl-case c
                                              (?\( "(${")
                                              (?< "<${")
                                              (?, "}, ${")
                                              (?\) "})")
                                              (?> "}>")
                                              (t (error "RE/case mismatch")))))
-             (when (memq c '(?\) ?>)) (decf level)))
+             (when (memq c '(?\) ?>)) (cl-decf level)))
            repl))
      completion)))
 
@@ -175,7 +176,7 @@ buffer."
   "Work out the point where completion starts."
   (setq eclim--completion-start
         (save-excursion
-          (case major-mode
+          (cl-case major-mode
             ((java-mode javascript-mode js-mode ruby-mode groovy-mode php-mode c-mode c++-mode scala-mode)
              (progn
                ;; Allow completion after open bracket. Eclipse/eclim do.
@@ -209,8 +210,8 @@ buffer."
                   (package (if (and rest (string-match "\\w+\\(\\.\\w+\\)*" rest)) rest nil))
                   (template (eclim--completion-yasnippet-convert insertion)))
              (delete-region beg end)
-             (unless (loop for f in eclim-insertion-functions thereis
-                           (funcall f template))
+             (unless (cl-loop for f in eclim-insertion-functions thereis
+                              (funcall f template))
                (if (and eclim-use-yasnippet template
                         (featurep 'yasnippet) yas-minor-mode)
                  (yas/expand-snippet template)
@@ -242,7 +243,7 @@ buffer."
 
 (defun eclim--completion-action (beg end)
   (let ((eclim--is-completing t)) ;; an import should not refresh problems
-    (case major-mode
+    (cl-case major-mode
       ('java-mode (eclim--completion-action-java beg end))
       ('groovy-mode (eclim--completion-action-java beg end))
       ((c-mode c++-mode) (eclim--completion-action-java beg end))
@@ -253,18 +254,18 @@ buffer."
   "Performs rudimentary rendering of HTML elements in
 documentation strings."
   (apply #'concat
-         (loop for p = 0 then (match-end 0)
-               while (string-match "[[:blank:]]*\\(.*?\\)\\(</?.*?>\\)" str p) collect (match-string 1 str) into ret
-               for tag = (downcase (match-string 2 str))
-               when (or (string= tag "</p>") (string= tag "<p>")) collect "\n" into ret
-               when (string= tag "<br/>") collect " " into ret
-               when (string= tag "<li>") collect " * " into ret
-               finally return (append ret (list (substring str p))))))
+         (cl-loop for p = 0 then (match-end 0)
+                  while (string-match "[[:blank:]]*\\(.*?\\)\\(</?.*?>\\)" str p) collect (match-string 1 str) into ret
+                  for tag = (downcase (match-string 2 str))
+                  when (or (string= tag "</p>") (string= tag "<p>")) collect "\n" into ret
+                  when (string= tag "<br/>") collect " " into ret
+                  when (string= tag "<li>") collect " * " into ret
+                  finally return (append ret (list (substring str p))))))
 
 (defun eclim--completion-documentation (symbol)
   "Looks up the documentation string for the given SYMBOL in the
 completion candidates list."
-  (let ((doc (assoc-default 'info (find symbol eclim--completion-candidates :test #'string= :key #'eclim--completion-candidate-menu-item))))
+  (let ((doc (assoc-default 'info (cl-find symbol eclim--completion-candidates :test #'string= :key #'eclim--completion-candidate-menu-item))))
     (when doc
       (eclim--render-doc doc))))
 
