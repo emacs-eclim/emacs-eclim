@@ -33,6 +33,7 @@
 (require 'eclim-java)
 (require 's)
 (require 'dash)
+(require 'xml)
 
 (define-key eclim-mode-map (kbd "C-c C-e u r") 'eclim-java-run-run)
 

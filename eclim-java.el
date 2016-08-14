@@ -29,6 +29,7 @@
 
 (require 'json)
 (require 'dash)
+(require 'popup)
 (require 'cl-lib)
 (eval-when-compile (require 'cl)) ;; lexical-let
 

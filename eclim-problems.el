@@ -1,4 +1,5 @@
 (require 'popup)
+(require 'hl-line)
 (require 'cl-lib)
 (eval-when-compile (require 'cl)) ;; lexical-let
 

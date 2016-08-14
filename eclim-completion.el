@@ -30,6 +30,7 @@
 
 (require 'thingatpt)
 (require 'cl-lib)
+(require 's)
 
 (defun eclim--completion-candidate-type (candidate)
   "Returns the type of a candidate."
