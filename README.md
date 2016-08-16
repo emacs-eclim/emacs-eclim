@@ -33,7 +33,7 @@ and later.
 
 Emacs-eclim versions are tagged with the appropriate version
 number. You can see and download previous releases
-[here](https://github.com/senny/emacs-eclim/tags).
+[here](https://github.com/emacs-eclim/emacs-eclim/tags).
 
 ## Installation
 
@@ -43,7 +43,7 @@ number. You can see and download previous releases
    the archive to `package-archives` if you haven't already, and then
    install the "eclim" package with the `package-install` command.
    * Manual installation from GitHub.
-       1. (`git clone git://github.com/senny/emacs-eclim.git`)
+       1. (`git clone git://github.com/emacs-eclim/emacs-eclim.git`)
        1. Add `(add-to-list 'load-path "/path/to/emacs-eclim/")` to your startup script.
 1. Add the following code to your emacs startup script
 
