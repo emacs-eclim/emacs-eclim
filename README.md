@@ -1,7 +1,7 @@
 [![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://travis-ci.org/emacs-eclim/emacs-eclim.svg?branch=master)](https://travis-ci.org/emacs-eclim/emacs-eclim)
-[![MELPA](http://melpa.org/packages/emacs-eclim-badge.svg)](http://melpa.org/#/emacs-eclim)
-[![MELPA Stable](http://stable.melpa.org/packages/emacs-eclim-badge.svg)](http://stable.melpa.org/#/emacs-eclim)
+[![MELPA](http://melpa.org/packages/emacs-eclim-badge.svg)](http://melpa.org/#/eclim)
+[![MELPA Stable](http://stable.melpa.org/packages/emacs-eclim-badge.svg)](http://stable.melpa.org/#/eclim)
 
 ## Overview
 
@@ -41,7 +41,7 @@ number. You can see and download previous releases
 1. Install emacs-eclim. You have two options:
    * Installation from the [MELPA][melpa] package archive. Just add
    the archive to `package-archives` if you haven't already, and then
-   install emacs-eclim with the `package-install` command.
+   install the "eclim" package with the `package-install` command.
    * Manual installation from GitHub.
        1. (`git clone git://github.com/senny/emacs-eclim.git`)
        1. Add `(add-to-list 'load-path "/path/to/emacs-eclim/")` to your startup script.

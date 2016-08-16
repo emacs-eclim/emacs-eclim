@@ -18,13 +18,13 @@
 (condition-case err
     (let* ((pkg-info
             (with-temp-buffer
-              (insert-file-contents "emacs-eclim-pkg.el")
+              (insert-file-contents "eclim-pkg.el")
               (goto-char (point-min))
               (read (current-buffer))))
            (name (cadr pkg-info))
            (needed-packages (cadr (nth 4 pkg-info))))
-      (assert (equal name "emacs-eclim"))
-      (message "Loaded emacs-eclim-pkg.el")
+      (assert (equal name "eclim"))
+      (message "Loaded eclim-pkg.el")
       (message "Installing dependencies: %S" needed-packages)
       (if (every #'pkg-installed-p needed-packages)
           (message "All dependencies present.")
