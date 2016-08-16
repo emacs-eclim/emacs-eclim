@@ -567,19 +567,6 @@ the use of eclim to java and ant files."
              (eclim--expand-args (list "-p" "-f")))))
   t)
 
-(defun revert-buffer-keep-history (&optional IGNORE-AUTO NOCONFIRM PRESERVE-MODES)
-  (interactive)
-  (save-excursion
-    ;; tell Emacs the modtime is fine, so we can edit the buffer
-    (clear-visited-file-modtime)
-    ;; insert the current contents of the file on disk
-    (widen)
-    (delete-region (point-min) (point-max))
-    (insert-file-contents (buffer-file-name))
-    ;; mark the buffer as not modified
-    (not-modified)
-    (set-visited-file-modtime)))
-
 ;;;###autoload
 (define-globalized-minor-mode global-eclim-mode eclim-mode
   (lambda ()
