@@ -31,6 +31,7 @@
 (require 'dash)
 (require 'popup)
 (require 'cl-lib)
+(require 'format-spec)
 (eval-when-compile (require 'cl)) ;; lexical-let
 
 (define-key eclim-mode-map (kbd "C-c C-e s") 'eclim-java-method-signature-at-point)

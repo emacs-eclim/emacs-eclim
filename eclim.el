@@ -34,6 +34,7 @@
 (require 'cl-lib)
 (require 'etags)
 (require 's)
+(require 'arc-mode)
 
 ;;** Basics
 
