@@ -7,7 +7,7 @@
              '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 (package-refresh-contents)
-(defvar optional-dependencies '((elisp-lint "20150430.1558") (company "0.8.12")))
+(defvar optional-dependencies '((company "0.8.12")))
 (dolist (dep optional-dependencies)
   (package-install (car dep)))
 
