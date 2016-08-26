@@ -1,14 +1,15 @@
 (add-to-list 'load-path ".")
 (add-to-list 'load-path "./tests")
-(add-to-list 'load-path "./tests/elisp-lint")
+;;(add-to-list 'load-path "./tests/elisp-lint")
 
 (require 'package)
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 (package-refresh-contents)
-(defvar optional-dependencies '((company "0.8.12")))
-(package-install (caar optional-dependencies))
+(defvar optional-dependencies '((elisp-lint "20150430.1558") (company "0.8.12")))
+(dolist (dep optional-dependencies)
+  (package-install (car dep)))
 
 (require 'cl)
 
