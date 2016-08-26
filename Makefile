@@ -1,15 +1,25 @@
-emacs ?= emacs
+# makefie for emacs-eclim
 
-LOAD = -l ert -l tests/emacs-eclim-linter-init.el
+EL_FILES := $(sort $(wildcard *.el))
+ELC_FILES := $(EL_FILES:.el=.elc)
+
+EMACS := emacs
+EMACS_OPTS := -batch $(LOAD_PATH)
+LOAD_PATH := -L .
+TEST_LOAD_FILES = -l tests/emacs-eclim-linter-init.el
 
 all: test
 
 test:
-	$(emacs) -batch $(LOAD) -l tests/run-tests.el -f ert-run-tests-batch-and-exit
+	$(EMACS) $(EMACS_OPTS) -l ert $(TEST_LOAD_FILES) -f ert-run-tests-batch-and-exit
 
-compile:
-	$(emacs) -batch $(LOAD) \
-	--eval "(progn (add-to-list 'load-path default-directory) (mapc #'byte-compile-file '(\"eclim.el\")))"
+lint:
+	$(EMACS) $(EMACS_OPTS) $(TEST_LOAD_FILES) -f elisp-lint-files-batch *.el
+
+compile: $(ELC_FILES)
+
+%.elc: %.el
+	@$(EMACS) $(EMACS_OPTS) --eval "(progn (package-initialize) (package-refresh-contents) (add-to-list 'load-path default-directory))"  -f batch-byte-compile $^
 
 clean:
 	rm -f *.elc
