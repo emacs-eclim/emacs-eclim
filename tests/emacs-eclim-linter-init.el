@@ -1,6 +1,6 @@
 (add-to-list 'load-path ".")
 (add-to-list 'load-path "./tests")
-;;(add-to-list 'load-path "./tests/elisp-lint")
+(add-to-list 'load-path "./tests/elisp-lint")
 
 (require 'package)
 (add-to-list 'package-archives
