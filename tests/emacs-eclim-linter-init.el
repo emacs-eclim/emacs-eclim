@@ -8,8 +8,7 @@
 (package-initialize)
 (package-refresh-contents)
 (defvar optional-dependencies '((company "0.8.12")))
-(dolist (dep optional-dependencies)
-  (package-install (car dep)))
+(package-install (caar optional-dependencies))
 
 (require 'cl)
 
