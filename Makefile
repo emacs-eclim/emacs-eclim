@@ -1,8 +1,5 @@
 # makefie for emacs-eclim
 
-EL_FILES := $(sort $(wildcard *.el))
-ELC_FILES := $(EL_FILES:.el=.elc)
-
 EMACS := emacs
 EMACS_OPTS := -batch $(LOAD_PATH)
 LOAD_PATH := -L .
@@ -16,12 +13,10 @@ test:
 lint:
 	$(EMACS) $(EMACS_OPTS) $(TEST_LOAD_FILES) -f elisp-lint-files-batch *.el
 
-compile: $(ELC_FILES)
-
-%.elc: %.el
-	@$(EMACS) $(EMACS_OPTS) --eval "(progn (package-initialize) (package-refresh-contents) (add-to-list 'load-path default-directory))"  -f batch-byte-compile $^
+compile:
+	$(EMACS) $(EMACS_OPTS) --eval "(progn (package-initialize) (package-refresh-contents) (add-to-list 'load-path default-directory) (byte-recompile-directory \".\" 0 t))"
 
 clean:
-	rm -f *.elc
+	rm -f *.elc tests/*.elc
 
 .PHONY: all test compile clean
