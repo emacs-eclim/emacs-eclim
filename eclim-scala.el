@@ -28,6 +28,7 @@
 ;;* Eclim Scala
 
 (require 'eclim-java)
+(eval-when-compile (require 'eclim-macros))
 
 (defun eclim-scala-find-declaration ()
   "Find and display the declaration of the scala identifier at point."

@@ -27,12 +27,14 @@
 
 ;;* Eclim Java
 
+(eval-when-compile (require 'cl)) ;; lexical-let
 (require 'json)
 (require 'dash)
-(require 'popup)
 (require 'cl-lib)
 (require 'format-spec)
-(eval-when-compile (require 'cl)) ;; lexical-let
+(require 'eclim-common)
+(require 'eclim-problems)
+(eval-when-compile (require 'eclim-macros))
 
 (define-key eclim-mode-map (kbd "C-c C-e s") 'eclim-java-method-signature-at-point)
 (define-key eclim-mode-map (kbd "C-c C-e f d") 'eclim-java-find-declaration)
@@ -84,7 +86,6 @@ Java documentation under Android docs, so don't forget to set
   :group 'eclim-java
   :type 'directory)
 
-
 (defvar eclim--java-search-types '("all"
                                    "annotation"
                                    "class"
@@ -107,7 +108,6 @@ Java documentation under Android docs, so don't forget to set
                                       "implementors"
                                       "references"))
 
-(defvar eclim--is-completing nil)
 (defvar eclim-java-show-documentation-history nil)
 (defvar eclim--run-class-history nil)
 (defvar-local eclim--run-class-commands nil
@@ -425,26 +425,6 @@ be made CASE-INSENSITIVE."
   (eclim/with-results hits ("java_search" ("-p" pattern) ("-t" type) ("-x" context) ("-s" scope) (if case-insensitive '("-i" "")))
     (eclim--find-display-results pattern hits open-single-file)))
 
-(defun eclim--java-identifier-at-point (&optional full position)
-  "Returns a cons cell (BEG . IDENTIFIER) where BEG is the start
-buffer byte offset of the token/identifier at point, and
-IDENTIFIER is the string from BEG to (point). If argument FULL is
-non-nill, IDENTIFIER will contain the whole identifier, not just
-the start. If argument POSITION is non-nil, BEG will contain the
-position of the identifier instead of the byte offset (which only
-matters for buffers containing non-ASCII characters)."
-  (let ((boundary "\\([<>()\\[\\.\s\t\n!=,;]\\|]\\)"))
-    ;; TODO: make this work for dos buffers
-    (save-excursion
-      (if (and full (re-search-forward boundary nil t))
-          (backward-char))
-      (let ((end (point))
-            (start (progn
-                     (if (re-search-backward boundary nil t) (forward-char))
-                     (point))))
-        (cons (if position (point) (eclim--byte-offset))
-              (buffer-substring-no-properties start end))))))
-
 (defun eclim--java-package-components (package)
   "Returns the components of a Java package statement."
   (split-string package "\\."))
@@ -487,7 +467,7 @@ undo history."
         (cut-imports)
         (widen)
         (insert new-imports)
-        (not-modified)
+        (set-buffer-modified-p nil)
         (set-visited-file-modtime)))))
 
 (defun eclim-java-import (type)
@@ -495,7 +475,6 @@ undo history."
 exist already."
   (unless (save-excursion
             (goto-char (point-min))
-            (beginning-of-buffer)
             (re-search-forward (format "^import %s;" type) nil t))
     (let ((revert-buffer-function 'eclim-soft-revert-imports))
       (eclim/execute-command "java_import" "-p" "-f" "-o" "-e" ("-t" type))
@@ -728,25 +707,6 @@ much faster than running mvn test -Dtest=TestClass#method."
     (compile (if (eclim-java-junit-buffer?)
                  (eclim--java-junit-file project file offset encoding)
                (eclim--java-junit-project project encoding)))))
-
-(defun eclim-java-correct (line offset)
-  (eclim/with-results correction-info ("java_correct" "-p" "-f" ("-l" line) ("-o" offset))
-    (if (stringp correction-info)
-        (message correction-info)
-      (-if-let* ((corrections (cdr (assoc 'corrections correction-info)))
-                 (cmenu (mapcar 'eclim--java-make-popup-item corrections))
-                 (choice (popup-menu* cmenu)))
-          (eclim/with-results correction-info
-            ("java_correct"
-             ("-p" (eclim-project-name))
-             "-f"
-             ("-l" line)
-             ("-o" offset)
-             ("-a" choice))
-            ;; Problem updates can be distracting, but here the user was
-            ;; actively trying to fix one.
-            (eclim--problems-update-maybe))
-        (message "No automatic corrections found. Sorry")))))
 
 (defun eclim-java-browse-documentation-at-point (&optional arg)
   "Browse the documentation of the element at point.

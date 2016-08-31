@@ -25,7 +25,10 @@
 
 ;;* Eclim Project
 
+(eval-when-compile (require 'cl))
 (require 'cl-lib)
+(require 'eclim-common)
+(eval-when-compile (require 'eclim-macros))
 
 (defvar eclim-project-mode-hook nil)
 (defvar eclim-project-info-mode-hook nil)
@@ -148,9 +151,6 @@
                           (eclim--project-column-start 3)
                           (eclim--project-column-end 3)))))
 
-(defun eclim/project-list ()
-  (eclim/execute-command "project_list"))
-
 (defun eclim/project-import (folder)
   (eclim--project-clear-cache)
   (eclim--call-process "project_import" "-f" (expand-file-name folder)))
@@ -173,10 +173,6 @@
 (defun eclim/project-close (project)
   (eclim--check-project project)
   (eclim--call-process "project_close" "-p" project))
-
-(defun eclim/project-info (project)
-  (eclim--check-project project)
-  (eclim--call-process "project_info" "-p" project))
 
 (defun eclim/project-settings (project)
   (eclim--check-project project)

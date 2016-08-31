@@ -31,6 +31,9 @@
 (require 'thingatpt)
 (require 'cl-lib)
 (require 's)
+(require 'yasnippet)
+(require 'eclim-common)
+(require 'eclim-java)
 
 (defun eclim--completion-candidate-type (candidate)
   "Returns the type of a candidate."
@@ -132,7 +135,7 @@ in a completion menu."
             (let ((list (all-completions word completion-list)))
               (setq list (sort list 'string<))
               (with-output-to-temp-buffer "*Completions*"
-                (display-completion-list list word)))
+                (display-completion-list list)))
           ;; Complete
           (delete-region beg (point))
           (insert compl)
@@ -215,7 +218,7 @@ buffer."
                               (funcall f template))
                (if (and eclim-use-yasnippet template
                         (featurep 'yasnippet) yas-minor-mode)
-                 (yas/expand-snippet template)
+                 (yas-expand-snippet template)
                (insert insertion)))
              (when package
                (eclim-java-import
@@ -230,14 +233,14 @@ buffer."
       (when (string-match "\\(.*\\)=\"\\(.*\\)\"" completion)
         (delete-region beg end)
         (if (and eclim-use-yasnippet (featurep 'yasnippet)  yas-minor-mode)
-            (yas/expand-snippet (format "%s=\"${1:%s}\" $0" (match-string 1 completion) (match-string 2 completion)))
+            (yas-expand-snippet (format "%s=\"${1:%s}\" $0" (match-string 1 completion) (match-string 2 completion)))
           (insert completion))))))
 
 (defun eclim--completion-action-default ()
   (when (and (= 40 (char-before)) (not (looking-at ")")))
     ;; we've inserted an open paren, so let's close it
     (if (and eclim-use-yasnippet (featurep 'yasnippet) yas-minor-mode)
-        (yas/expand-snippet "$1)$0")
+        (yas-expand-snippet "$1)$0")
       (progn
         (insert ")")
         (backward-char)))))

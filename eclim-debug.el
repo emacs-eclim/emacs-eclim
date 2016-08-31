@@ -35,6 +35,7 @@
 (require 'eclim-maven)
 (require 'eclim-ant)
 (require 'eclim-java-run)
+(require 'eclim-common)
 (require 'gud)
 (require 'dash)
 (require 's)
@@ -71,7 +72,7 @@
 (defun eclim--debug-project-maven? ()
   (eclim--debug-file-exists-in-project-root? "pom.xml"))
 
-(defun eclim--debug-ant-run (target)
+(defun eclim--debug-ant-run ()
   (let ((default-directory (eclim--ant-buildfile-path)))
     "ANT_OPTS=\"$ANT_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005\" ant test"))
 
@@ -90,13 +91,6 @@
       (make-local-variable 'comint-output-filter-functions)
       (add-hook 'comint-output-filter-functions
                 (lambda (txt) (eclim--debug-attach-when-ready txt project port))))))
-
-(defun eclim-debug/jdb (command)
-  (let ((buffer (current-buffer)))
-    (toggle-maximize-buffer)
-    (switch-to-buffer-other-window buffer t)
-    (jdb command)
-    (switch-to-buffer-other-window buffer t)))
 
 (defun eclim-debug-junit ()
   (interactive)
@@ -121,7 +115,7 @@
   (interactive)
   (cond ((eclim-java-junit-buffer?) (eclim-debug-junit))
         ((eclim--debug-project-maven?) (eclim-debug-maven-test))
-        ((eclim--debug-projecta-ant?) (eclim-debug-ant-test))
+        ((eclim--debug-project-ant?) (eclim-debug-ant-test))
         (t (message "I can't debug this. I wasn't program smart enough. Please help me"))))
 
 (provide 'eclim-debug)

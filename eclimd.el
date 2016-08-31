@@ -25,6 +25,7 @@
 ;; MA 02110-1301, USA.
 
 (require 'eclim)
+(eval-when-compile (require 'eclim-macros))
 
 (defgroup eclimd nil
   "eclimd customizations"
