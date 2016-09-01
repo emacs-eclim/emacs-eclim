@@ -383,8 +383,9 @@ eclimd."
         (kill-buffer old-buffer)))))
 
 (defun eclim--visit-declaration (line)
-  ;;(ring-insert find-tag-marker-ring (point-marker))
-  (xref-push-marker-stack)
+  (if (>= emacs-major-version 25)
+      (xref-push-marker-stack)
+    (ring-insert find-tag-marker-ring (point-marker)))
   (eclim--find-file (assoc-default 'filename line))
   (goto-char (point-min))
   (forward-line (1- (assoc-default 'line line)))
