@@ -118,6 +118,11 @@ following to your .emacs:
 Emacs-eclim completions in company are case sensitive by default. To make completions
 case insensitive set `company-emacs-eclim-ignore-case` to `t`.
 
+If you installed Eclim from [MELPA](melpa) you will have to install
+`company-emacs-eclim` as well. Add the archive to package-archives if
+you haven't already, and then install the `company-emacs-eclim`
+package with the `package-install` command.
+
 ### Configuring eclimd module
 
 When `emacs-eclim` is configured correctly, you don't need to modify the
@@ -203,7 +208,7 @@ and hack away.
 [yasnippet]:https://github.com/capitaomorte/yasnippet
 [company-mode]:https://github.com/company-mode/company-mode
 [auto-complete-mode]:https://github.com/auto-complete/auto-complete
-[melpa]:http://melpa.milkbox.net/
+[melpa]:https://melpa.org/#/
 [repo]:https://github.com/senny/emacs-eclim
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
