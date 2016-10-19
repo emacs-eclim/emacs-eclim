@@ -163,12 +163,12 @@ variables you can tweak:
 To get started just launch the eclim executable that the placed in
 your Eclipse installation directory.
 
-* [Projects](http://wiki.github.com/senny/emacs-eclim/projects)
-* [Code Completion](http://wiki.github.com/senny/emacs-eclim/code-completion)
-* [Java](http://wiki.github.com/senny/emacs-eclim/java)
-* [Ant](http://wiki.github.com/senny/emacs-eclim/ant)
-* [Maven](http://wiki.github.com/senny/emacs-eclim/maven)
-* [Problems and Errors](http://wiki.github.com/senny/emacs-eclim/problems-and-errors)
+* [Projects](http://wiki.github.com/emacs-eclim/emacs-eclim/projects)
+* [Code Completion](http://wiki.github.com/emacs-eclim/emacs-eclim/code-completion)
+* [Java](http://wiki.github.com/emacs-eclim/emacs-eclim/java)
+* [Ant](http://wiki.github.com/emacs-eclim/emacs-eclim/ant)
+* [Maven](http://wiki.github.com/emacs-eclim/emacs-eclim/maven)
+* [Problems and Errors](http://wiki.github.com/emacs-eclim/emacs-eclim/problems-and-errors)
 
 ### Controlling eclimd
 
@@ -209,6 +209,6 @@ and hack away.
 [company-mode]:https://github.com/company-mode/company-mode
 [auto-complete-mode]:https://github.com/auto-complete/auto-complete
 [melpa]:https://melpa.org/#/
-[repo]:https://github.com/senny/emacs-eclim
+[repo]:https://github.com/emacs-eclim/emacs-eclim
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
