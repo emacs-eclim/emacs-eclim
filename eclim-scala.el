@@ -27,7 +27,7 @@
 
 ;;* Eclim Scala
 
-(require 'eclim-java)
+(require 'eclim-common)
 (eval-when-compile (require 'eclim-macros))
 
 (defun eclim-scala-find-declaration ()

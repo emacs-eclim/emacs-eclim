@@ -192,12 +192,14 @@ for example."
                (eclim--project-dir))
           (eclim-mode 1)))))
 
-(require 'eclim-project)
-(require 'eclim-java)
-(require 'eclim-scala)
 (require 'eclim-ant)
+(require 'eclim-debug)
+(require 'eclim-java)
+(require 'eclim-java-run)
 (require 'eclim-maven)
+(require 'eclim-project)
 (require 'eclim-problems)
+(require 'eclim-scala)
 
 (defun eclim-modeline-string ()
   (when eclim-mode
