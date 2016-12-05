@@ -1,6 +1,6 @@
 (add-to-list 'load-path ".")
-(add-to-list 'load-path "./tests")
-(add-to-list 'load-path "./tests/elisp-lint")
+(add-to-list 'load-path "./test")
+(add-to-list 'load-path "./test/elisp-lint")
 
 (require 'package)
 (add-to-list 'package-archives
@@ -45,7 +45,7 @@
                                                   "fill-column"
                                                   "byte-compile"
                                                   "indent"))))
-(let ((tests (directory-files "./tests" t "tests.el")))
+(let ((tests (directory-files "./test" t "test.el")))
   (while tests
     (load-file (car tests))
     (setq tests (cdr tests))))

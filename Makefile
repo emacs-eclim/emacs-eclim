@@ -6,7 +6,7 @@ ELC_FILES := $(EL_FILES:.el=.elc)
 EMACS := emacs
 LOAD_PATH := -L .
 EMACS_OPTS := -batch $(LOAD_PATH)
-TEST_LOAD_FILES = -l tests/emacs-eclim-linter-init.el
+TEST_LOAD_FILES = -l test/emacs-eclim-linter-init.el
 
 VPATH := .
 
@@ -24,6 +24,6 @@ compile: $(ELC_FILES)
 	@$(EMACS) $(EMACS_OPTS) --eval "(progn (package-initialize) (package-refresh-contents) (add-to-list 'load-path default-directory) (byte-recompile-file \"$^\" t 0))"
 
 clean:
-	rm -f *.elc tests/*.elc
+	rm -f *.elc test/*.elc
 
 .PHONY: all test compile clean
