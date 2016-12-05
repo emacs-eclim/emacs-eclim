@@ -147,21 +147,11 @@ variables you can tweak:
    change the default value of this variable, `emacs-eclim` commands will fail
    until `eclimd` is ready.
 
-## Dependencies
-* [dash.el](https://github.com/magnars/dash.el) for list manipulation functions
-* [s.el](https://github.com/magnars/s.el) for string manipulation functions
-* json.el (part of emacs as of version 23)
-* [popup.el](https://github.com/auto-complete/popup-el) for inplace popup menus
-
-## Optional dependencies
-* A recent version (0.6.0 or later) of [yasnippet]
-* A recent version (tested with 0.5) of [company-mode]
-* A recent version (tested with 1.4) version of [auto-complete-mode]
-* ido-mode (part of emacs as of version 22)
-
 ## Usage
-To get started just launch the eclim executable that the placed in
-your Eclipse installation directory.
+
+To use `eclim-mode`'s features `eclimd` must to be running (`M-x eclimd-start`)
+and the files you are editing have to be organized in a Eclipse project (`M-x
+eclim-project-create`).
 
 * [Projects](http://wiki.github.com/emacs-eclim/emacs-eclim/projects)
 * [Code Completion](http://wiki.github.com/emacs-eclim/emacs-eclim/code-completion)
@@ -189,6 +179,18 @@ Normally, simply killing the buffer `*eclimd*` will allow you to stop the eclimd
 daemon. However, there is a command to perform a graceful shutdown:
 `stop-eclimd`. You should use this command when you wish to stop the `eclimd`
 program.
+
+## Dependencies
+* [dash.el](https://github.com/magnars/dash.el) for list manipulation functions
+* [s.el](https://github.com/magnars/s.el) for string manipulation functions
+* json.el (part of emacs as of version 23)
+* [popup.el](https://github.com/auto-complete/popup-el) for inplace popup menus
+
+## Optional dependencies
+* A recent version (0.6.0 or later) of [yasnippet]
+* A recent version (tested with 0.5) of [company-mode]
+* A recent version (tested with 1.4) version of [auto-complete-mode]
+* ido-mode (part of emacs as of version 22)
 
 ## Press
 
