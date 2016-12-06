@@ -184,13 +184,19 @@ for example."
 
 ;;;###autoload
 (define-globalized-minor-mode global-eclim-mode eclim-mode
-  (lambda ()
-    ;; Errors here can REALLY MESS UP AN EMACS SESSION. Can't emphasize enough.
-    (ignore-errors
-      (if (and buffer-file-name
-               (eclim--accepted-p buffer-file-name)
-               (eclim--project-dir))
-          (eclim-mode 1)))))
+  eclim--enable-for-accepted-files-in-project)
+
+(defun eclim--enable-for-accepted-files-in-project ()
+  "Enable `eclim-mode' in accepted files that belong to a Eclipse project.
+A file is accepted if it's name is matched by any of
+`eclim-accepted-file-regexps' elements. Note that in order to determine if
+a file is managed by a project, eclimd must be running."
+  ;; Errors here can REALLY MESS UP AN EMACS SESSION. Can't emphasize enough.
+  (ignore-errors
+    (if (and buffer-file-name
+             (eclim--accepted-p buffer-file-name)
+             (eclim--project-dir))
+        (eclim-mode 1))))
 
 (require 'eclim-ant)
 (require 'eclim-debug)
