@@ -162,7 +162,11 @@ for example."
         (kill-local-variable 'eclim-project-name)
         (kill-local-variable 'eclim--project-current-file)
         (add-hook 'after-save-hook 'eclim--problems-update-maybe nil 't)
-        (add-hook 'after-save-hook 'eclim--after-save-hook nil 't))
+        (add-hook 'after-save-hook 'eclim--after-save-hook nil 't)
+        (when (and (not (eclim-project-name))
+                   (y-or-n-p "Eclim mode was enabled in a buffer \
+that is not organized in a Eclipse project. Create a new project? "))
+          (call-interactively 'eclim-project-create)))
     (remove-hook 'after-save-hook 'eclim--problems-update-maybe 't)
     (remove-hook 'after-save-hook 'eclim--after-save-hook 't)))
 
