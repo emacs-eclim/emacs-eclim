@@ -1,6 +1,6 @@
 [![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://travis-ci.org/emacs-eclim/emacs-eclim.svg?branch=master)](https://travis-ci.org/emacs-eclim/emacs-eclim)
-[![Coverage Status](https://coveralls.io/repos/emacs-eclim/emacs-eclim/badge.svg)](https://coveralls.io/r/emacs-eclim/emacs-eclim)
+[![Coverage Status](https://coveralls.io/repos/github/emacs-eclim/emacs-eclim/badge.svg?branch=master)](https://coveralls.io/github/emacs-eclim/emacs-eclim?branch=master)
 [![MELPA](http://melpa.org/packages/eclim-badge.svg)](http://melpa.org/#/eclim)
 [![MELPA Stable](http://stable.melpa.org/packages/eclim-badge.svg)](http://stable.melpa.org/#/eclim)
 
