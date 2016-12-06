@@ -214,6 +214,8 @@ where <encoding> is the corresponding java name for this encoding." e e)))
                   (error result))))
              ((string-match ".*Exception: \\(.*\\)" result)
               (error (match-string 1 result)))
+             ((string-match "connect: Connection refused" result)
+              (error "Eclim was unable to connect to eclimd. You can start eclimd using M-x start-eclimd"))
              (t (error result)))))))
 
 (defun eclim--completing-read (prompt choices)
