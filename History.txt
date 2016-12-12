@@ -16,6 +16,12 @@
    setting.
  * Fixed some compiler warnings. Not all compiler warnings were fixed
    since those changes could not be tested.
+ * Enable automatic starting of eclimd with eclimd-autostart: This starts eclimd
+   from within Emacs whenever eclim-mode is enabled or global-eclim-mode
+   requires eclimd to determine if eclim-mode should be enabled in a
+   buffer. This is opt-in for now, but may be the default in a future release.
+   eclimd-autostart-with-default-workspace controls whether eclimd asks for a
+   workspace when it gets autostarted (default nil).
 
 == 0.3
 

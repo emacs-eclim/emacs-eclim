@@ -189,6 +189,9 @@ time, but it also works globally."
   (eclim--check-project project)
   (eclim--call-process "project_info" "-p" project))
 
+(define-error 'eclim--connection-refused-error
+  "Eclim was unable to connect to eclimd. You can start eclimd using M-x start-eclimd")
+
 (defun eclim--parse-result (result)
   "Parses the result of an eclim operation, raising an error if
 the result is not valid JSON."
@@ -215,7 +218,7 @@ where <encoding> is the corresponding java name for this encoding." e e)))
              ((string-match ".*Exception: \\(.*\\)" result)
               (error (match-string 1 result)))
              ((string-match "connect: Connection refused" result)
-              (error "Eclim was unable to connect to eclimd. You can start eclimd using M-x start-eclimd"))
+              (signal 'eclim--connection-refused-error nil))
              (t (error result)))))))
 
 (defun eclim--completing-read (prompt choices)
@@ -226,6 +229,13 @@ where <encoding> is the corresponding java name for this encoding." e e)))
 `eclim/execute-command' instead, as it has argument expansion,
 error checking, and some other niceties.."
   (eclim--parse-result (apply 'eclim--call-process-no-parse args)))
+
+(defun eclim--connected-p ()
+  (let ((connected t))
+    (condition-case nil
+        (eclim--call-process "ping")
+      ('eclim--connection-refused-error (setq connected nil)))
+    connected))
 
 (defun eclim-project-name (&optional filename)
   "Returns this file's project name. If the optional argument

@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 ;; eclim.el --- an interface to the Eclipse IDE.
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
@@ -34,6 +35,7 @@
 (require 'cl-lib)
 (require 's)
 (require 'json)
+(require 'eclimd)
 (require 'eclim-common)
 (eval-when-compile (require 'eclim-macros))
 
@@ -163,10 +165,8 @@ for example."
         (kill-local-variable 'eclim--project-current-file)
         (add-hook 'after-save-hook 'eclim--problems-update-maybe nil 't)
         (add-hook 'after-save-hook 'eclim--after-save-hook nil 't)
-        (when (and (not (eclim-project-name))
-                   (y-or-n-p "Eclim mode was enabled in a buffer \
-that is not organized in a Eclipse project. Create a new project? "))
-          (call-interactively 'eclim-project-create)))
+        (eclimd--ensure-started t (eclim--lambda-with-live-current-buffer
+                                    (eclim--maybe-create-project))))
     (remove-hook 'after-save-hook 'eclim--problems-update-maybe 't)
     (remove-hook 'after-save-hook 'eclim--after-save-hook 't)))
 
@@ -186,21 +186,38 @@ that is not organized in a Eclipse project. Create a new project? "))
              (eclim--expand-args (list "-p" "-f")))))
   t)
 
+(defun eclim--maybe-create-project ()
+  (when (and (not (eclim-project-name))
+             (y-or-n-p "Eclim mode was enabled in a buffer \
+that is not organized in a Eclipse project. Create a new project? "))
+    (call-interactively 'eclim-project-create)))
+
 ;;;###autoload
 (define-globalized-minor-mode global-eclim-mode eclim-mode
   eclim--enable-for-accepted-files-in-project)
 
+(defvar eclim--enable-for-accepted-files-in-project-running nil
+  "Used to prevent recursive calls to `global-eclim-mode''s turn-on function.
+Recursive calls are possible because `eclimd--ensure-started' may
+create a comint buffer for which Emacs checks whether
+`eclim-mode' should be enabled.")
+
 (defun eclim--enable-for-accepted-files-in-project ()
   "Enable `eclim-mode' in accepted files that belong to a Eclipse project.
 A file is accepted if it's name is matched by any of
-`eclim-accepted-file-regexps' elements. Note that in order to determine if
-a file is managed by a project, eclimd must be running."
+`eclim-accepted-file-regexps' elements. Note that in order to
+determine if a file is managed by a project, eclimd is required
+to be running and will thus be autostarted."
   ;; Errors here can REALLY MESS UP AN EMACS SESSION. Can't emphasize enough.
   (ignore-errors
-    (if (and buffer-file-name
-             (eclim--accepted-p buffer-file-name)
-             (eclim--project-dir))
-        (eclim-mode 1))))
+    (unless eclim--enable-for-accepted-files-in-project-running
+      (let ((eclim--enable-for-accepted-files-in-project-running t))
+        (when (and buffer-file-name
+                   (eclim--accepted-filename-p buffer-file-name))
+          (eclimd--ensure-started t (eclim--lambda-with-live-current-buffer
+                                      (when (and (eclim--file-managed-p buffer-file-name)
+                                                 (eclim--project-dir))
+                                        (eclim-mode 1)))))))))
 
 (require 'eclim-ant)
 (require 'eclim-debug)

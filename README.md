@@ -50,15 +50,12 @@ number. You can see and download previous releases
 
 ```lisp
 (require 'eclim)
+(setq eclimd-autostart t)
 (global-eclim-mode)
 ```
 
-If you want to control eclimd from emacs, also add:
-
-```lisp
-(require 'eclimd)
-```
-
+Now every time you open a file that belongs to a Eclipse project eclim mode is
+enabled.
 
 ## Configuration
 
@@ -141,18 +138,32 @@ variables you can tweak:
    the workspace directory to use. The default value for this question is
    controlled by this variable.
 
+1. `eclimd-autostart`: Automatically start eclimd from within Emacs when
+   needed. You may want to set this to `nil` if you prefer starting eclimd
+   manually and don't want it to run as a child process of Emacs. eclimd gets
+   started either when `eclim-mode` is enabled or the first time
+   `global-eclim-mode` needs it to determine if `eclim-mode` should be enabled
+   in a buffer.
+
+1. `eclimd-autostart-with-default-workspace`: Whether to skip asking the user
+   about a workspace when eclimd gets autostarted. When `eclimd-autostart` is
+   set to `t`, this option controls whether eclimd is started silently with
+   `eclimd-default-workspace` as workspace or whether the user is asked for a
+   workspace as with regular calls to `start-eclimd`.
+
 1. `eclimd-wait-for-process`: Normally, when `start-eclimd` starts the eclimd
    process, it pauses emacs until `eclimd` is ready to accept commands. If you
    change the value of this variable to `nil`, `start-eclimd` will return as
    soon as `eclimd` is started. Eclimd startup takes several seconds, so if you
    change the default value of this variable, `emacs-eclim` commands will fail
-   until `eclimd` is ready.
+   until `eclimd` is ready. This does not affect autostarting of eclimd which
+   always happens asynchronously.
 
 ## Usage
 
-To use `eclim-mode`'s features `eclimd` must to be running (`M-x eclimd-start`)
-and the files you are editing have to be organized in a Eclipse project (`M-x
-eclim-project-create`).
+To use `eclim-mode`'s features `eclimd` must to be running (`M-x eclimd-start`
+or set `eclimd-autostart` to `t`) and the files you are editing have to be
+organized in a Eclipse project (`M-x eclim-project-create`).
 
 * [Projects](http://wiki.github.com/emacs-eclim/emacs-eclim/projects)
 * [Code Completion](http://wiki.github.com/emacs-eclim/emacs-eclim/code-completion)
@@ -182,7 +193,7 @@ daemon. However, there is a command to perform a graceful shutdown:
 program.
 
 ## Dependencies
-* Emacs 24.3 or later
+* Emacs 24.4 or later
 * [dash.el](https://github.com/magnars/dash.el) for list manipulation functions
 * [s.el](https://github.com/magnars/s.el) for string manipulation functions
 * [popup.el](https://github.com/auto-complete/popup-el) for inplace popup menus

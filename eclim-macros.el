@@ -106,5 +106,15 @@ expression which is called with the results of the operation."
            (setq eclim--problems-refreshing nil)
            ,@body)))))
 
+(defmacro eclim--lambda-with-live-current-buffer (&rest body)
+  (declare (indent defun))
+  "Create a closure that executes body with the callers current buffer if it's still live."
+  (let ((caller-current-buffer-symbol (make-symbol "caller-current-buffer")))
+    `(let ((,caller-current-buffer-symbol (current-buffer)))
+       (lambda ()
+         (when (buffer-live-p ,caller-current-buffer-symbol)
+           (with-current-buffer ,caller-current-buffer-symbol
+             ,@body))))))
+
 (provide 'eclim-macros)
 ;;;
