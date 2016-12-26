@@ -1,7 +1,9 @@
+# Emacs-eclim Contribution Guide
+
 The project is under active development and we are always looking for
-assistance. See the
-[Roadmap](http://wiki.github.com/senny/emacs-eclim/roadmap) wiki page
-for more information.
+assistance.
+
+## Quick Guide
 
 1. Fork emacs-eclim
 2. Create a topic branch - `git checkout -b my_branch`
@@ -10,3 +12,9 @@ for more information.
 5. Rebase and squash commits
 6. Send me a pull-request for your topic branch
 7. That's it!
+
+## Tips
+
+We use [Cask](https://github.com/cask/cask) to compile and test the
+project. Install all dependencies with `cask install` and use `cask exec
+make test` to run all tests with the apropriate development dependencies.
