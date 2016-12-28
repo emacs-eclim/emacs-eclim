@@ -5,7 +5,7 @@ ELC_FILES := $(EL_FILES:.el=.elc)
 
 EMACS := emacs
 LOAD_PATH := -L .
-EMACS_OPTS := -batch $(LOAD_PATH)
+EMACS_OPTS := -Q -batch $(LOAD_PATH)
 TEST_LOAD_FILES = -l test/emacs-eclim-linter-init.el
 
 VPATH := .
