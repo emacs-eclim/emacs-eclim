@@ -56,7 +56,7 @@ the full path to eclimd executable."
   :group 'eclimd)
 
 (defcustom eclimd-wait-for-process
-  t
+  nil
   "Make `start-eclimd' block until the eclimd process is ready.
 When this variable is nil, `start-eclimd' returns immediately after
 eclimd process is started. Since the eclimd process startup takes a few seconds,

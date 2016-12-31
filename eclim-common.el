@@ -199,6 +199,10 @@ time, but it also works globally."
 (define-error 'eclim--connection-refused-error
   "Eclim was unable to connect to eclimd. You can start eclimd using M-x start-eclimd")
 
+(define-error 'eclim--eclimd-starting-error
+  "Eclimd is currently being started. Please wait for it to be ready and retry."
+  'eclim--connection-refused-error)
+
 (defun eclim--parse-result (result)
   "Parses the result of an eclim operation, raising an error if
 the result is not valid JSON."
@@ -225,7 +229,9 @@ where <encoding> is the corresponding java name for this encoding." e e)))
              ((string-match ".*Exception: \\(.*\\)" result)
               (error (match-string 1 result)))
              ((string-match "connect: Connection refused" result)
-              (signal 'eclim--connection-refused-error nil))
+              (if eclimd-process
+                  (signal 'eclim--eclimd-starting-error nil)
+                (signal 'eclim--connection-refused-error nil)))
              (t (error result)))))))
 
 (defun eclim--completing-read (prompt choices)
@@ -238,17 +244,15 @@ error checking, and some other niceties.."
   (eclim--parse-result (apply 'eclim--call-process-no-parse args)))
 
 (defun eclim--connected-p ()
-  (let ((connected t))
-    (condition-case nil
-        (eclim--call-process "ping")
-      ('eclim--connection-refused-error (setq connected nil)))
-    connected))
+  (condition-case nil
+      (progn (eclim--call-process "ping") t)
+    ('eclim--connection-refused-error nil)))
 
 (defun eclim-project-name (&optional filename)
   "Returns this file's project name. If the optional argument
 FILENAME is given, return that file's  project name instead."
   (cl-labels ((get-project-name (file)
-                             (eclim/execute-command "project_by_resource" ("-f" file))))
+                                (eclim/execute-command "project_by_resource" ("-f" file))))
     (if filename
         (get-project-name filename)
       (or eclim--project-name
