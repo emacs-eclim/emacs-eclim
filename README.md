@@ -204,18 +204,6 @@ daemon. However, there is a command to perform a graceful shutdown:
 `stop-eclimd`. You should use this command when you wish to stop the `eclimd`
 program.
 
-## Dependencies
-* Emacs 24.5 or later
-* [dash.el](https://github.com/magnars/dash.el) for list manipulation functions
-* [s.el](https://github.com/magnars/s.el) for string manipulation functions
-* [popup.el](https://github.com/auto-complete/popup-el) for inplace popup menus
-
-## Optional dependencies
-* A recent version (0.6.0 or later) of [yasnippet]
-* A recent version (tested with 0.5) of [company-mode]
-* A recent version (tested with 1.4) version of [auto-complete-mode]
-* ido-mode (part of emacs as of version 22)
-
 ## Press
 
 Read more about emacs-eclim:
@@ -231,7 +219,6 @@ Read more about emacs-eclim:
 Have a quick look at our [Contribution Guidelines](CONTRIBUTING.md)
 and hack away.
 
-[yasnippet]:https://github.com/capitaomorte/yasnippet
 [company-mode]:https://github.com/company-mode/company-mode
 [auto-complete-mode]:https://github.com/auto-complete/auto-complete
 [melpa]:https://melpa.org/#/
