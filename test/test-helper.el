@@ -21,11 +21,7 @@
 
 ;;; Code:
 (when (require 'undercover nil t)
-  (undercover "*.el"
-              (:exclude "*-test.el")
-              (:send-report nil)
-              (:report-file "/tmp/undercover-report.json")))
-
+  (undercover "*.el" (:exclude "*-test.el")))
 
 (defvar eclim-test-path
   (f-dirname (f-this-file)))
