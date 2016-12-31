@@ -136,40 +136,8 @@ package with the `package-install` command.
 ### Configuring eclimd module
 
 When `emacs-eclim` is configured correctly, you don't need to modify the
-configuration for the `eclimd` package. Still, there are some configurable
-variables you can tweak:
-
-1. `eclimd-executable`: This variable is used for locating the `eclimd`
-   executable file. You can set it to `nil` ("Same directory as eclim-executable
-   variable" choice in customization screen) to indicate that the executable is in
-   the same directory as the `eclim` program. Alternatively, you can give it a
-   string value ("Custom value" choice in customization screen) to specify the
-   location of the executable.
-
-1. `eclimd-default-workspace`: When `start-eclimd` is executed, it will ask for
-   the workspace directory to use. The default value for this question is
-   controlled by this variable.
-
-1. `eclimd-autostart`: Automatically start eclimd from within Emacs when
-   needed. You may want to set this to `nil` if you prefer starting eclimd
-   manually and don't want it to run as a child process of Emacs. eclimd gets
-   started either when `eclim-mode` is enabled or the first time
-   `global-eclim-mode` needs it to determine if `eclim-mode` should be enabled
-   in a buffer.
-
-1. `eclimd-autostart-with-default-workspace`: Whether to skip asking the user
-   about a workspace when eclimd gets autostarted. When `eclimd-autostart` is
-   set to `t`, this option controls whether eclimd is started silently with
-   `eclimd-default-workspace` as workspace or whether the user is asked for a
-   workspace as with regular calls to `start-eclimd`.
-
-1. `eclimd-wait-for-process`: Normally, when `start-eclimd` starts the eclimd
-   process, it pauses emacs until `eclimd` is ready to accept commands. If you
-   change the value of this variable to `nil`, `start-eclimd` will return as
-   soon as `eclimd` is started. Eclimd startup takes several seconds, so if you
-   change the default value of this variable, `emacs-eclim` commands will fail
-   until `eclimd` is ready. This does not affect autostarting of eclimd which
-   always happens asynchronously.
+configuration for the `eclimd` package. Still, in the customization group
+`eclimd` there are a few variables you can tweak.
 
 ## Usage
 
@@ -184,25 +152,17 @@ organized in a Eclipse project (`M-x eclim-project-create`).
 * [Maven](http://wiki.github.com/emacs-eclim/emacs-eclim/maven)
 * [Problems and Errors](http://wiki.github.com/emacs-eclim/emacs-eclim/problems-and-errors)
 
-### Controlling eclimd
+### Starting eclimd
 
-When you import the `eclimd` package, you will have access to two commands:
-`start-eclimd`, and `stop-eclimd`.
+Since most of eclims commands require eclimd, you should ensure eclimd is
+running when you need it. Here are your options:
 
-`start-eclimd` will ask for a workspace directory, and it will attempt to start
-`eclimd` program with the entered workspace directory. The configurable variable
-`eclimd-default-workspace` controls the default value of this directory. After
-`start-eclimd` runs the daemon, it will monitor its log output, and wait for the
-message that indicates that it is ready to accept commands. This is done to
-prevent failures with `emacs-eclim` commands while `eclimd` is starting up.
-While `start-eclimd` is waiting for the daemon to be ready, emacs will not
-accept any user input. To prevent this pause, you can modify the configurable
-variable `eclimd-wait-for-process`.
-
-Normally, simply killing the buffer `*eclimd*` will allow you to stop the eclimd
-daemon. However, there is a command to perform a graceful shutdown:
-`stop-eclimd`. You should use this command when you wish to stop the `eclimd`
-program.
+* Variable `eclimd-autostart`: Enables automatic starting of eclimd whenever
+  `eclim-mode` is enabled or when `global-eclim-mode` needs it.
+* Use the commands `start-eclimd` and `stop-eclimd`.
+* Start `eclimd` manually using Eclipse or a shell. If you always want to start
+  eclimd like this you should add `(setq eclimd-autostart nil)` to your startup
+  script to prevent accidental starting of eclimd from within Emacs.
 
 ## Press
 

@@ -51,13 +51,13 @@ the full path to eclimd executable."
 
 (defcustom eclimd-default-workspace
   "~/workspace"
-  "The workspace to use with eclimd"
+  "The default value to use when `start-eclimd' asks for a workspace."
   :type 'directory
   :group 'eclimd)
 
 (defcustom eclimd-wait-for-process
   t
-  "Set to t if you want `start-eclimd' to wait until the eclimd process is ready.
+  "Make `start-eclimd' block until the eclimd process is ready.
 When this variable is nil, `start-eclimd' returns immediately after
 eclimd process is started. Since the eclimd process startup takes a few seconds,
 running eclim commands immediately after the function returns may cause failures.
@@ -189,6 +189,16 @@ fails to start."
        (when callback (funcall callback))))))
 
 (defun start-eclimd (workspace-dir &optional callback)
+  "Start the eclimd process and optionally wait for it to be ready.
+This will ask for a workspace directory, and it will attempt to
+start eclimd program with the entered workspace directory. The
+configurable variable `eclimd-default-workspace' controls the
+default value of this directory. After having started the deamon,
+it will block until eclimd is ready to receive commands since
+otherwise those would fail. You can modify
+`eclimd-wait-for-process' to prevent this command from
+blocking. To stop the started process and you should use
+`stop-eclimd'."
   (interactive (list (eclimd--read-workspace-dir)))
   (let ((eclimd-prog (eclimd--executable-path)))
     (if (not eclimd-prog)
@@ -232,6 +242,10 @@ eclimd process."
       (error "Autostarting of eclimd is disabled, please start eclimd manually."))))
 
 (defun stop-eclimd ()
+  "Gracefully terminate the started eclimd process.
+This command asks the running eclimd process to terminate, kills
+the *eclimd*-buffer and removes any hooks added by
+`start-eclimd'."
   (interactive)
   (when eclimd-process
     (when (eclim--connected-p)
