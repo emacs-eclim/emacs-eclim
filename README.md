@@ -48,14 +48,20 @@ releases [here](https://github.com/emacs-eclim/emacs-eclim/tags).
 
 ## Installation
 
-1. [Download and install](http://eclim.org/install.html) Eclim.
-1. Install the Emacs Eclim package. You have two options:
-   * Installation from the [MELPA][melpa] package archive. Just add
-   the archive to `package-archives` if you haven't already, and then
-   install the "eclim" package with the `package-install` command.
+emacs-eclim requires Emacs version 24.5 or later.
+
+1. [Download and install](http://eclim.org/install.html) eclim.
+1. Install emacs-eclim. You have two options:
+   * Installation from the [MELPA][melpa] package archive. Just
+     [add the archive to `package-archives`](https://melpa.org/#/getting-started)
+     if you haven't already, and then install the "eclim" package with the
+     `package-install` command.
    * Manual installation from GitHub.
        1. (`git clone git://github.com/emacs-eclim/emacs-eclim.git`)
-       1. Add `(add-to-list 'load-path "/path/to/emacs-eclim/")` to your startup script.
+       1. Add `(add-to-list 'load-path "/path/to/emacs-eclim/")` to your startup
+          script.
+       1. Make sure all dependencies are available, see
+          [`eclim-pkg.el`](eclim-pkg.el).
 1. Add the following code to your emacs startup script
 
 ```emacs-lisp
