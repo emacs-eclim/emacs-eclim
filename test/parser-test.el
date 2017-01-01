@@ -1,4 +1,4 @@
-;;; parser-tests.el --- Tests for sequences.el
+;;; parser-tests.el --- Tests for sequences.el  -*- lexical-binding: t; -*-
 
 ;; This file is part of GNU Emacs.
 

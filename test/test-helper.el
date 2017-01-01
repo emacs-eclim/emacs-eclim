@@ -1,4 +1,4 @@
-;;; test-helper.el --- Tests for sequences.el
+;;; test-helper.el --- Tests for sequences.el  -*- lexical-binding: t; -*-
 
 ;; This file is part of GNU Emacs.
 

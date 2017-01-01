@@ -1,5 +1,5 @@
-;;; command-tests.el --- Tests for sequences.el
-
+;;; command-tests.el --- Tests for sequences.el   -*- lexical-binding: t -*-
+;;
 ;; This file is part of GNU Emacs.
 
 ;; GNU Emacs is free software: you can redistribute it and/or modify
@@ -20,8 +20,6 @@
 ;; Tests for eclim.el
 
 ;;; Code:
-
-
 
 (setq test-eclim-executable "/usr/local/eclipse/eclim")
 

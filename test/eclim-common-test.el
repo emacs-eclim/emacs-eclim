@@ -1,4 +1,4 @@
-;;; command-tests.el --- Tests for sequences.el
+;;; eclim-common-tests.el --- Tests for eclim-common.el  -*- lexical-binding: t; -*-
 
 ;; This file is part of GNU Emacs.
 
@@ -17,9 +17,11 @@
 
 ;;; Commentary:
 
-;; Tests for eclim.el
+;; Tests for eclim-common.el
 
 ;;; Code:
+
+(require 'eclim-common "eclim-common.el")
 
 (require 'el-mock)
 ; el-mock requires this

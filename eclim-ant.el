@@ -1,4 +1,4 @@
-;; eclim-ant.el --- an interface to the Eclipse IDE.
+;; eclim-ant.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves senn * gmx ch>
 ;;
@@ -23,7 +23,9 @@
 ;; Conventions used in this file: Name internal variables and functions
 ;; "eclim--<descriptive-name>", and name eclim command invocations
 ;; "eclim/command-name", like eclim/project-list.
-
+;;
+;;; Commentary:
+;;
 ;;* Eclim Ant
 
 (require 'eclim-common)

@@ -1,5 +1,4 @@
-;; -*- lexical-binding: t -*-
-;; eclim.el --- an interface to the Eclipse IDE.
+;; eclim.el --- an interface to the Eclipse IDE  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;
@@ -28,8 +27,9 @@
 ;; Conventions used in this file: Name internal variables and functions
 ;; "eclim--<descriptive-name>", and name eclim command invocations
 ;; "eclim/command-name", like eclim/project-list.
-
-;;* Eclim
+;;
+;;; Commentary:
+;; Eclim
 
 (eval-when-compile (require 'cl))
 (require 'cl-lib)
@@ -70,7 +70,7 @@ buffer instead."
 
 (defun eclim--call-process-async (callback &rest args)
   "Like `eclim--call-process', but the call is executed
-asynchronously. CALLBACK is a function that accepts a list of
+asynchronously.  CALLBACK is a function that accepts a list of
 strings and will be called on completion."
   (lexical-let ((handler callback)
                 (cmd (eclim--make-command args)))
@@ -142,13 +142,6 @@ for example."
   (eclim/execute-command "jobs" ("-f" family)))
 
 ;;** The minor mode and its keymap
-
-;;;###autoload
-(defvar eclim-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-TAB") 'eclim-complete)
-    map)
-  "The keymap used in `eclim-mode'.")
 
 (defvar eclim-mode-hook nil)
 
@@ -233,3 +226,4 @@ to be running and will thus be autostarted."
     (concat " Eclim" (eclim-problems-modeline-string))))
 
 (provide 'eclim)
+;;; eclim ends here

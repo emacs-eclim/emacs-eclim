@@ -19,6 +19,9 @@
 ;;
 ;;; Contributors
 ;;
+;;
+;;; Commentary:
+;;
 ;;; Conventions
 ;;
 ;; Conventions used in this file: Name internal variables and functions

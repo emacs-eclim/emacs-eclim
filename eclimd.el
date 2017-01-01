@@ -1,6 +1,5 @@
-;; -*- lexical-binding: t -*-
-;;; eclimd.el --- Start and stop eclimd from within emacs
-
+;;; eclimd.el --- Start and stop eclimd from within emacs  -*- lexical-binding: t -*-
+;;
 ;; Copyright (C) 2012 Vedat Hallac
 
 ;; Authors: Vedat Hallac
@@ -24,6 +23,12 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 ;; MA 02110-1301, USA.
+;;
+;;; Commentary:
+;;
+;; Common code used by other files in this package.
+;;
+;;; Code:
 
 (require 'eclim-common)
 (require 'cl-lib)
@@ -240,3 +245,4 @@ eclimd process."
   (remove-hook 'kill-emacs-hook #'stop-eclimd))
 
 (provide 'eclimd)
+;;; eclimd ends here

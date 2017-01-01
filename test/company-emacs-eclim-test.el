@@ -1,4 +1,4 @@
-;;; company-emacs-eclim-tests.el --- Tests for sequences.el
+;;; company-emacs-eclim-tests.el --- Tests for sequences.el  -*- lexical-binding: t; -*-
 
 ;; This file is part of GNU Emacs.
 

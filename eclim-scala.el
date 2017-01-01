@@ -1,4 +1,4 @@
-;; eclim-scala.el --- an interface to the Eclipse IDE.
+;; eclim-scala.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves senn * gmx ch>
 ;;
@@ -18,6 +18,9 @@
 ;;; Contributors
 ;;
 ;; - Shuai Lin <linshuai2012@gmail.com>
+;;
+;;
+;;; Commentary:
 ;;
 ;;; Conventions
 ;;

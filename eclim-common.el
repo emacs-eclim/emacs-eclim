@@ -1,4 +1,4 @@
-;; eclim-common.el --- an interface to the Eclipse IDE.
+;; eclim-common.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;
@@ -36,7 +36,15 @@
 (require 'arc-mode)
 (require 'popup)
 (require 'dash)
-(eval-when-compile (require 'eclim-macros))
+;;(eval-when-compile (require 'eclim-macros))
+(require 'eclim-macros)
+
+;;;###autoload
+(defvar eclim-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-TAB") 'eclim-complete)
+    map)
+  "The keymap used in `eclim-mode'.")
 
 (defvar eclim--file-coding-system-mapping
   '(("undecided-dos" . "iso-8859-1")

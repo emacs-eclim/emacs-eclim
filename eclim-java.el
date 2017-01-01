@@ -1,4 +1,4 @@
-;; eclim-java.el --- an interface to the Eclipse IDE.
+;; eclim-java.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves senn * gmx ch>
 ;;
@@ -18,6 +18,9 @@
 ;;; Contributors
 ;;
 ;; - Tassilo Horn <tassilo@member.fsf.org>
+;;
+;;
+;;; Commentary:
 ;;
 ;;; Conventions
 ;;

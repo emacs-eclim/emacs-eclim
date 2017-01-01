@@ -193,7 +193,7 @@ daemon. However, there is a command to perform a graceful shutdown:
 program.
 
 ## Dependencies
-* Emacs 24.4 or later
+* Emacs 24.5 or later
 * [dash.el](https://github.com/magnars/dash.el) for list manipulation functions
 * [s.el](https://github.com/magnars/s.el) for string manipulation functions
 * [popup.el](https://github.com/auto-complete/popup-el) for inplace popup menus

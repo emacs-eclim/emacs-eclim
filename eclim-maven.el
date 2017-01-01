@@ -1,4 +1,4 @@
-;; eclim-maven.el --- an interface to the Eclipse IDE.
+;; eclim-maven.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves senn * gmx ch>
 ;;
@@ -16,6 +16,9 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;;; Contributors
+;;
+;;
+;;; Commentary:
 ;;
 ;;; Conventions
 ;;
