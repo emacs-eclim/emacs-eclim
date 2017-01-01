@@ -24,8 +24,6 @@
   (undercover "*.el" (:exclude "*-test.el")))
 
 (require 'f)
-(require 'eclim)
-(require 'elisp-lint)
 
 (defvar eclim-test-path
   (f-dirname (f-this-file)))
@@ -47,25 +45,22 @@
 
     (message "Running tests on Emacs %s, built at %s"
              emacs-version (format-time-string "%F" emacs-build-time))
+    (require 'eclim)
+    (require 'elisp-lint)
     (funcall action)))
 
 (defun eclim-lint-files ()
   "Main entry point for linter."
   (eclim-emacs-init
    (lambda ()
-     ;; since we are invoking elisp-lint-files-batch from this function,
-     ;; we need to pop off 2 command line arguments
-     (pop command-line-args-left)
-     (pop command-line-args-left)
-
+     (setq elisp-lint-ignored-validators '("package-format"
+                                           "fill-column"
+                                           "byte-compile"
+                                           "indent"))
      (add-hook 'emacs-lisp-mode-hook
                (lambda ()
                  (setq indent-tabs-mode nil)
-                 (setq fill-column 80)
-                 (setq elisp-lint-ignored-validators '("package-format"
-                                                       "fill-column"
-                                                       "byte-compile"
-                                                       "indent"))))
+                 (setq fill-column 80)))
      (let ((debug-on-error t))
        (elisp-lint-files-batch)))))
 

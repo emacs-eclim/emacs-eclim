@@ -1,4 +1,4 @@
-;;; run-tests.el --- Tests for sequences.el  -*- lexical-binding: t; -*-
+;;; run-tests.el --- Tests for sequences.el
 
 ;; This file is part of GNU Emacs.
 
@@ -20,6 +20,8 @@
 ;; Tests for eclim.el
 
 ;;; Code:
+
+(require 'eclim)
 
 (ert-deftest command-for-java-configuration ()
   (let* ((conf '((name . "Test run")

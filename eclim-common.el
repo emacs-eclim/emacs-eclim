@@ -1,4 +1,4 @@
-;; eclim-common.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
+;; eclim-common.el --- an interface to the Eclipse IDE.
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;

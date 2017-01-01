@@ -1,4 +1,4 @@
-;; eclim-java-run.el --- an interface to the Eclipse IDE. -*- lexical-binding: t; -*-
+;; eclim-java-run.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2015 Łukasz Klich
 ;;

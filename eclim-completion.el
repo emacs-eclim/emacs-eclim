@@ -1,4 +1,4 @@
-;; company-emacs-eclim.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
+;; company-emacs-eclim.el --- an interface to the Eclipse IDE.
 ;;
 ;; Copyright (C) 2012   Fredrik Appelberg
 ;;
