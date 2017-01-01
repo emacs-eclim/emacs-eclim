@@ -46,9 +46,7 @@
     map)
   "The keymap used in `eclim-mode'.")
 
-;;;###autoload
-(defun eclim/workspace-dir ()
-  (eclim--call-process "workspace_dir"))
+(defvar eclimd-process)
 
 (defvar eclim--file-coding-system-mapping
   '(("undecided-dos" . "iso-8859-1")
@@ -406,9 +404,9 @@ eclimd."
         (kill-buffer old-buffer)))))
 
 (defun eclim--visit-declaration (line)
-  (if (>= emacs-major-version 25)
-      (xref-push-marker-stack)
-    (ring-insert find-tag-marker-ring (point-marker)))
+  (if (boundp 'find-tag-marker-ring)
+      (ring-insert find-tag-marker-ring (point-marker))
+    (xref-push-marker-stack))
   (eclim--find-file (assoc-default 'filename line))
   (goto-char (point-min))
   (forward-line (1- (assoc-default 'line line)))

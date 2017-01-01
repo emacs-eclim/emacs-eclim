@@ -139,6 +139,10 @@ for example."
       paths)))
 
 
+;;;###autoload
+(defun eclim/workspace-dir ()
+  (eclim--call-process "workspace_dir"))
+
 (defun eclim/jobs (&optional family)
   (eclim/execute-command "jobs" ("-f" family)))
 
