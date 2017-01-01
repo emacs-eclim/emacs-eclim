@@ -22,7 +22,7 @@ It is also possible to start and stop the eclim daemon from Emacs using the
 `eclimd` package.
 
 You can ask questions or discuss new features on the Gitter chanel
-(see above badte), and at
+(see badge above), and at
 our
 [Google Group](https://groups.google.com/forum/#!forum/emacs-eclim)
 
