@@ -10,7 +10,7 @@ assistance.
 3. Make your changes and update the History.txt file
 4. Push to your branch - `git push origin my_branch`
 5. Rebase and squash commits
-6. Send me a pull-request for your topic branch
+6. Issue a pull-request for your topic branch
 7. That's it!
 
 ## Tips

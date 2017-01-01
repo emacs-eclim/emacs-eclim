@@ -9,37 +9,47 @@
 [![Join the chat at https://gitter.im/emacs-eclim/emacs-eclim](https://badges.gitter.im/emacs-eclim/emacs-eclim.svg)](https://gitter.im/emacs-eclim/emacs-eclim?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [Eclim](http://eclim.org) is an Eclipse plugin which exposes Eclipse
-features through a server interface.  When this server is started, the
-command line utility eclim can be used to issue requests to that
+features through a server interface. When this server is started, the
+command line utility `eclim` can be used to issue requests to that
 server.
 
-Emacs-eclim uses the eclim server to integrate eclipse with
-emacs. This project wants to bring some of the invaluable features
-from eclipse to emacs. Please note, emacs-eclim **is limited to mostly java support at this time.**
+The eclim package uses the Eclim Server to integrate Eclipse with
+Emacs. This project wants to bring some of the invaluable features
+from Eclipse to Emacs. Please note, the eclim package **is limited to
+mostly Java support at this time.**
 
-It is also possible to start and stop the eclim daemon from emacs using the
+It is also possible to start and stop the eclim daemon from Emacs using the
 `eclimd` package.
 
-You can ask questions or discuss new features at our [Google Group](https://groups.google.com/forum/#!forum/emacs-eclim)
+You can ask questions or discuss new features on the Gitter chanel
+(see above badte), and at
+our
+[Google Group](https://groups.google.com/forum/#!forum/emacs-eclim)
+
+## Package renamed
+
+This package was originally called *emacs-eclim*, and was renamed to
+*eclim* on Agust 15, 2016 because `use-package` could not load it from
+the [MELPA][melpa] package archive.
 
 ## A note about Eclim versions
 
-Prior to version 1.7.3, eclim used a proprietary protocol for
-communication with the eclim server. If you are running one of these
-older versions, you need version 0.1 of emacs-eclim.
+Prior to version 1.7.3, Eclim used a proprietary protocol for
+communication with the Eclim Server. If you are running one of these
+older versions, you need version 0.1 of this package.
 
 Eclim versions 1.7.3 and later however, serves responses using a
-standard JSON format. These are supported by emacs-eclim versions 0.2
-and later.
+standard JSON format. These are supported by versions 0.2
+and later of this package.
 
-Emacs-eclim versions are tagged with the appropriate version
-number. You can see and download previous releases
-[here](https://github.com/emacs-eclim/emacs-eclim/tags).
+The eclim package versions are tagged with the appropriate version
+number. You can see and download previous
+releases [here](https://github.com/emacs-eclim/emacs-eclim/tags).
 
 ## Installation
 
-1. [Download and install](http://eclim.org/install.html) eclim.
-1. Install emacs-eclim. You have two options:
+1. [Download and install](http://eclim.org/install.html) Eclim.
+1. Install the Emacs Eclim package. You have two options:
    * Installation from the [MELPA][melpa] package archive. Just add
    the archive to `package-archives` if you haven't already, and then
    install the "eclim" package with the `package-install` command.
@@ -48,7 +58,7 @@ number. You can see and download previous releases
        1. Add `(add-to-list 'load-path "/path/to/emacs-eclim/")` to your startup script.
 1. Add the following code to your emacs startup script
 
-```lisp
+```emacs-lisp
 (require 'eclim)
 (setq eclimd-autostart t)
 (global-eclim-mode)
@@ -61,11 +71,12 @@ enabled.
 
 ### Eclipse installation
 
-Emacs-eclim tries its best to locate your Eclipse installation.  If
-you have Eclipse installed in a non-standard location
-(i.e. ~/nonStandard/eclipse or /opt/eclipse) you may specify the paths manually by adding this to your startup script:
+Emacs-eclim tries its best to locate your Eclipse installation. If you
+have Eclipse installed in a non-standard location (i.e.
+`~/nonStandard/eclipse` or `/opt/eclipse`) you may specify the paths
+manually by adding this to your startup script:
 
-```lisp
+```emacs-lisp
 (custom-set-variables
   '(eclim-eclipse-dirs '("~/nonStandard/eclipse"))
   '(eclim-executable "~/nonStandard/eclipse/eclim"))
@@ -79,7 +90,7 @@ corresponding error message in the echo area. You can either invoke
 `(display-local-help)` manually or activate automatic display of local
 help by adding the following to .emacs:
 
-```lisp
+```emacs-lisp
 (setq help-at-pt-display-when-idle t)
 (setq help-at-pt-timer-delay 0.1)
 (help-at-pt-set-timer)
@@ -90,7 +101,7 @@ help by adding the following to .emacs:
 If you wish to use [auto-complete-mode] with emacs-eclim, add the
 following to your .emacs:
 
-```lisp
+```emacs-lisp
 ;; regular auto-complete initialization
 (require 'auto-complete-config)
 (ac-config-default)
@@ -106,15 +117,16 @@ Emacs-eclim can integrate with [company-mode] to provide pop-up
 dialogs for auto-completion. To activate this, you need to add the
 following to your .emacs:
 
-```lisp
+```emacs-lisp
 (require 'company)
 (require 'company-emacs-eclim)
 (company-emacs-eclim-setup)
 (global-company-mode t)
 ```
 
-Emacs-eclim completions in company are case sensitive by default. To make completions
-case insensitive set `company-emacs-eclim-ignore-case` to `t`.
+Emacs-eclim completions in company are case sensitive by default. To
+make completions case insensitive set
+`company-emacs-eclim-ignore-case` to `t`.
 
 If you installed Eclim from [MELPA](melpa) you will have to install
 `company-emacs-eclim` as well. Add the archive to package-archives if
@@ -209,7 +221,7 @@ program.
 Read more about emacs-eclim:
 
 * [Enterprise Java Development in Emacs](http://www.skybert.net/emacs/java/), \[Torstein Krause Johansen\]
-* [The Ballad of Emacs-Eclim](http://mulli.nu/2012/02/02/the-ballad-of-emacs-eclim.html), \[Fredrik Appelberg\]
+* [The Ballad of Emacs-Eclim](http://fredrik.appelberg.me/2012/02/02/the-ballad-of-emacs-eclim/), \[Fredrik Appelberg\]
 * [Emacs and Java](http://blog.senny.ch/blog/2012/10/13/emacs-and-java-journey-of-a-hard-friendship/), \[Yves Senn\]
 * [Java Autocompletion for Emacs](http://root42.blogspot.ch/2012/08/java-autocompletion-for-emacs.html), \[root42\]
 * [Eclim: Eclipse Meets Vim And Emacs](http://faruk.akgul.org/blog/eclim-eclipse-meets-vim-emacs/), \[Faruk Akgul\]
