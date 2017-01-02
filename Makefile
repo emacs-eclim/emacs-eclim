@@ -33,13 +33,11 @@ init:
 test:
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-run-tests
 
-lint:
-	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files *.el
+lint: $(EL_FILES)
+	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
 
-compile: $(ELC_FILES)
-
-%.elc: %.el
-	@$(RUN_EMACS) --eval "(progn (package-initialize) (package-refresh-contents) (add-to-list 'load-path default-directory) (byte-recompile-file \"$^\" t 0))"
+compile: $(EL_FILES)
+	$(RUN_EMACS) -l maint/eclim-compile.el -f eclim/batch-byte-compile $(EL_FILES)
 
 clean:
 	rm -f *.elc test/*.elc
