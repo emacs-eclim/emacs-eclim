@@ -42,4 +42,24 @@ compile: $(EL_FILES)
 clean:
 	rm -f *.elc test/*.elc
 
-.PHONY: all init test link compile clean
+help:
+	@echo 'Run `make init` first to install and update all local dependencies.'
+	@echo ''
+	@echo 'Available targets:'
+	@echo '  init:     Initialise the project.  RUN FIRST!'
+	@echo '  lint:     Check all Emacs Lisp sources'
+	@echo '  compile:  Byte-compile Emacs Lisp sources'
+	@echo '  test:     Run all ERT unit tests'
+	@echo '  clean:    Clean compiled files'
+	@echo ''
+	@echo 'Available make variables:'
+	@echo '  EMCS_OPTS:  Additional options to pass to `emacs`'
+	@echo '  EMACS:      The path or name of the Emacs to use for tests and compilation'
+	@echo ''
+	@echo 'Available programs:'
+	@echo '  $(CASK): $(if $(HAVE_CASK),yes,no)'
+	@echo ''
+	@echo 'You need $(CASK) to develop this package.'
+	@echo 'See http://cask.readthedocs.io/ for more information.'
+
+.PHONY: all init test lint compile clean help
