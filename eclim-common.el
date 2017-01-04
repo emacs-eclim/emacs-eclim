@@ -1,4 +1,4 @@
-;; eclim-common.el --- an interface to the Eclipse IDE.
+;;; eclim-common.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;
@@ -263,14 +263,17 @@ eclim server. Each element should be either a string or a
 list. If it is a string, its default value is looked up in
 `eclim--default-args' and used to construct a list. The argument
 lists are then appended together."
-  (mapcar (lambda (a) (if (numberp a) (number-to-string a) a))
-          (cl-loop for a in args
-                   append (if (listp a)
-                              (if (stringp (car a))
-                                  (list (car a) (eval (cadr a)))
-                                (or (eval a) (list nil nil)))
-                            (list a (eval (cdr (or (assoc a eclim--default-args)
-                                                   (error "sorry, no default value for: %s" a)))))))))
+  (mapcar (lambda (arg) (if (numberp arg) (number-to-string arg) arg))
+          (cl-loop for arg in args
+                   append (if (stringp arg)
+                              (list arg (eval (cdr (or (assoc arg eclim--default-args)
+                                                       (error "No default value for %s found" arg)))))
+                            (assert (listp arg))
+                            (when arg
+                              (assert (stringp (car arg)))
+                              (assert (or (stringp (cadr arg))
+                                          (numberp (cadr arg)))))
+                            arg))))
 
 (defun eclim--src-update (&optional save-others)
   "If `eclim-auto-save' is non-nil, save the current java

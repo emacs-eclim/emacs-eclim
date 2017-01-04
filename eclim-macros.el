@@ -1,4 +1,4 @@
-;;; eclim-macros.el --- an interface to the Eclipse IDE.
+;;; eclim-macros.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;
@@ -33,6 +33,14 @@
   (cl-loop for f in flags
            return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
 
+(defun eclim--evaluating-args-form (args)
+  `(list ,@(mapcar (lambda (arg)
+                     (if (and (listp arg)
+                              (stringp (car arg)))
+                         (list 'list (car arg) (cadr arg))
+                       arg))
+                   args)))
+
 (defmacro eclim/execute-command (cmd &rest args)
   "Calls `eclim--expand-args' on ARGS, then calls eclim with the
 results. Automatically saves the current buffer (and optionally
@@ -45,7 +53,7 @@ an error if the connection is refused. Automatically calls
       (let ((res (apply 'eclim--call-process command-line)))
         (funcall on-complete-fn)
         res))
-    ,cmd ',args))
+    ,cmd ,(eclim--evaluating-args-form args)))
 
 (defmacro eclim/with-results (result params &rest body)
   "Convenience macro. PARAMS is a list where the first element is
@@ -89,7 +97,7 @@ expression which is called with the results of the operation."
                  (when ,callback
                    (funcall ,callback res)))
                command-line)))
-    ,cmd ',args))
+    ,cmd ,(eclim--evaluating-args-form args)))
 
 (defmacro eclim--with-problems-list (problems &rest body)
   (declare (indent defun))
