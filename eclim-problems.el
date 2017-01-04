@@ -144,8 +144,7 @@
       ;; we need to figure out which problem corresponds to this pos
       (save-restriction
         (widen)
-        (let ((line (line-number-at-pos))
-              (col (current-column)))
+        (let ((line (line-number-at-pos)))
           (or (cl-find-if (lambda (p) (and (string= (assoc-default 'filename p) (file-truename buffer-file-name))
                                         (= (assoc-default 'line p) line)))
                        eclim--problems-list)
@@ -282,7 +281,7 @@ is convenient as it lets the user navigate between errors using
             (concat ": " (propertize "refreshing"
                                      'face 'compilation-mode-line-run))))
     ;; Remember that the part below is asynchronous. This can be tricky.
-    (eclim--with-problems-list problems
+    (eclim--with-problems-list _problems
       (let (saved-user-pos)
         (with-current-buffer compil-buffer
           (buffer-disable-undo)
@@ -323,7 +322,7 @@ is convenient as it lets the user navigate between errors using
           (when (< saved-user-pos (point-max))
             (goto-char saved-user-pos)))))))
 
-(defun eclim--insert-problem-compilation (problem filecol-size project-directory)
+(defun eclim--insert-problem-compilation (problem _filecol-size project-directory)
   (let ((filename (cl-first (split-string (assoc-default 'filename problem) project-directory t)))
         (description (assoc-default 'message problem))
         (type (if (eq t (assoc-default 'warning problem)) "W" "E")))

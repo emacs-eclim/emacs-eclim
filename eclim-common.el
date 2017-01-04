@@ -320,7 +320,7 @@ sources."
 argument PROJECTNAME is given, return that project's root directory."
   (assoc-default 'path (eclim/project-info (or projectname (eclim-project-name)))))
 
-(defun eclim--byte-offset (&optional text)
+(defun eclim--byte-offset (&optional _text)
   ;; TODO: restricted the ugly newline counting to dos buffers => remove it all the way later
   (let ((current-offset (1-(position-bytes (point)))))
     (when (not current-offset) (setq current-offset 0))
@@ -677,7 +677,7 @@ until the next refresh."
     (widen)
     (goto-char (point-min))
     (forward-line (1- (assoc-default 'line p)))
-    (dotimes (i (1- (assoc-default 'column p)))
+    (dotimes (_i (1- (assoc-default 'column p)))
       (forward-char))))
 
 (defun eclim--choose-type-filter (type-filter)

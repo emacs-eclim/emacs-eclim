@@ -152,7 +152,7 @@ after the function returns this data is no longer available."
   (let* ((output "")
          (terminated-p)
          (finished-p)
-         (closure (lambda (proc string state)
+         (closure (lambda (proc string _state)
                     (setf output (concat output string))
                     (setf terminated-p (not (eq 'run (process-status proc))))
                     (setf finished-p (or terminated-p

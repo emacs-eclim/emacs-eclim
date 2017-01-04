@@ -86,7 +86,7 @@ strings and will be called on completion."
           (message "Using async buffer %s" buf))
         (push cmd eclim--currently-running-async-calls)
         (let ((proc (start-process-shell-command "eclim" buf (eclim--make-command args))))
-          (let ((sentinel (lambda (process signal)
+          (let ((sentinel (lambda (process _signal)
                             (unwind-protect
                                 (save-excursion
                                   (setq eclim--currently-running-async-calls (cl-remove-if (lambda (x) (string= cmd x)) eclim--currently-running-async-calls))

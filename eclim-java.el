@@ -337,7 +337,7 @@ until a class declaration has been found."
           (insert-text-button declaration
                               'follow-link t
                               'help-echo declaration
-                              'action #'(lambda (&rest ignore)
+                              'action #'(lambda (&rest _)
                                           (eclim--visit-declaration position)))
         (insert declaration)))
     (newline)
@@ -372,7 +372,7 @@ until a class declaration has been found."
           (insert-text-button declaration
                               'follow-link t
                               'help-echo qualified-name
-                              'action (lambda (&rest ignore)
+                              'action (lambda (&rest _)
                                         (eclim--find-file file-path)))
         (insert declaration))))
   (newline)
@@ -576,8 +576,7 @@ sub block)."
                                            "" method))
                 (is-required (or is-interface (eclim--signature-has-keyword
                                                method "abstract"))))
-            (let ((choice (format "%s [%s]" friendly-name friendly-super))
-                  (data (list full-super name-for-eclim)))
+            (let ((choice (format "%s [%s]" friendly-name friendly-super)))
               ;; This is probably overkill but what if our package erasing
               ;; resulted in duplicates? Use full name then. As in, really full.
               (when (gethash choice choice-data)
@@ -751,8 +750,7 @@ browser."
   (interactive)
   (let ((symbol (symbol-at-point)))
     (if symbol
-        (let ((bounds (bounds-of-thing-at-point 'symbol))
-              (window-config (current-window-configuration)))
+        (let ((bounds (bounds-of-thing-at-point 'symbol)))
           (eclim/with-results doc ("java_element_doc"
                                    ("-p" (eclim-project-name))
                                    "-f"
@@ -844,7 +842,7 @@ browser."
                  url)))))
 
 
-(defun eclim--java-show-documentation-go-back (link)
+(defun eclim--java-show-documentation-go-back (_link)
   (erase-buffer)
   (insert (pop eclim-java-show-documentation-history))
   (goto-char (point-min)))
