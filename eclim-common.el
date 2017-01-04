@@ -687,7 +687,7 @@ until the next refresh."
 (defun eclim--choose-file-filter (file-filter file)
   (if (not file-filter)
       '(lambda (_) t)
-    '(lambda (x) (string= (assoc-default 'filename x) file))))
+    `(lambda (x) (string= (assoc-default 'filename x) ,file))))
 
 (defun eclim--string-strip (content)
   (replace-regexp-in-string "\s*$" "" content))
