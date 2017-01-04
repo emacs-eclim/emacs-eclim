@@ -1,4 +1,4 @@
-;; eclim-problems.el --- an interface to the Eclipse IDE.
+;;; eclim-problems.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;

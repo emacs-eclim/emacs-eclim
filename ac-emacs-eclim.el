@@ -1,4 +1,4 @@
-;;; ac-emacs-eclim.el --- auto-complete source for eclim
+;;; ac-emacs-eclim.el --- auto-complete source for eclim  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009   Fredrik Appelberg
 ;;

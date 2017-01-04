@@ -1,4 +1,4 @@
-;; eclim-debug.el --- an interface to the Eclipse IDE.
+;;; eclim-debug.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2015 Łukasz Klich
 ;;

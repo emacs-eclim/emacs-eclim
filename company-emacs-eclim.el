@@ -1,4 +1,4 @@
-;;; company-emacs-eclim.el --- company-mode backend for eclim
+;;; company-emacs-eclim.el --- company-mode backend for eclim  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009-2012   Fredrik Appelberg
 ;; Copyright (C) 2013-2014   Dmitry Gutov

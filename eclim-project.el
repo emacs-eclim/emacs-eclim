@@ -1,4 +1,4 @@
-; eclim-project.el --- an interface to the Eclipse IDE.
+;;; eclim-project.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves senn * gmx ch>
 ;;
