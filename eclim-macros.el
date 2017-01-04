@@ -34,6 +34,12 @@
            return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
 
 (defun eclim--evaluating-args-form (args)
+  "Takes a list and returns a form that evaluates it's elements.
+If a list element is of the form (string expression), only
+expression will be evaluated and (string result) will be the
+element contained in the list returned by the form. Other list
+elements will be evaluated directly and their result will be in
+the final list."
   `(list ,@(mapcar (lambda (arg)
                      (if (and (listp arg)
                               (stringp (car arg)))
@@ -81,7 +87,8 @@ RESULT is non-nil, BODY is executed."
       ,@params)))
 
 (defmacro eclim/execute-command-async (callback cmd &rest args)
-  "Calls `eclim--expand-args' on ARGS, then calls eclim with the
+  "Run eclim command CMD with arguments ARGS, supplying default values for args when needed.
+Calls `eclim--expand-args' on ARGS, then calls eclim with the
 results. Automatically saves the current buffer (and optionally
 other java buffers as well), performs an eclim source update
 operation, and refreshes the current buffer if necessary. Raises

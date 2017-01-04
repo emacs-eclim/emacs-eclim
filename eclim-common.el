@@ -258,7 +258,8 @@ FILENAME is given, return that file's  project name instead."
           (and buffer-file-name (gethash buffer-file-name eclim-projects-for-archive-file))))))
 
 (defun eclim--expand-args (args)
-  "Takes a list of command-line arguments with which to call the
+  "Supply missing default values for eclim arguments.
+Takes a list of command-line arguments with which to call the
 eclim server. Each element should be either a string or a
 list. If it is a string, its default value is looked up in
 `eclim--default-args' and used to construct a list. The argument
