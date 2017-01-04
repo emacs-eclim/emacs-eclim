@@ -526,9 +526,11 @@ refresh of the problems buffer."
     (if (not (minibuffer-window-active-p (minibuffer-window)))
         (if (string= "e" eclim--problems-filter)
             (message "Eclim reports %d errors." (length problems))
-          (message "Eclim reports %d errors, %d warnings."
-                   (length (cl-remove-if (lambda (p) (null '(assoc-default 'warning p))) problems))
-                   (length (cl-remove-if-not (lambda (p) (null '(assoc-default 'warning p))) problems)))))))
+          (let ((warning-count (length (cl-remove-if-not (lambda (p) (assoc 'warning p))
+                                                         problems))))
+            (message "Eclim reports %d errors, %d warnings."
+                     (- (length problems) warning-count)
+                     warning-count))))))
 
 (defun eclim-java-correct (line offset)
   (eclim/with-results correction-info ("java_correct" "-p" "-f" ("-l" line) ("-o" offset))
