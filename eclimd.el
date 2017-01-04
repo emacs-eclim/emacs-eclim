@@ -237,7 +237,7 @@ eclimd process."
             ;; `eclimd-process' is set but we can not connect to eclimd, thus
             ;; eclimd is currently being started.
             (eclimd--await-connection async callback)
-          (let (eclimd-wait-for-process (not async))
+          (let ((eclimd-wait-for-process (not async)))
             (start-eclimd (eclimd--autostart-workspace) callback)))
       (error "Autostarting of eclimd is disabled, please start eclimd manually."))))
 
