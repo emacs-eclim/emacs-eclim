@@ -146,8 +146,8 @@
         (widen)
         (let ((line (line-number-at-pos)))
           (or (cl-find-if (lambda (p) (and (string= (assoc-default 'filename p) (file-truename buffer-file-name))
-                                        (= (assoc-default 'line p) line)))
-                       eclim--problems-list)
+                                           (= (assoc-default 'line p) line)))
+                          eclim--problems-list)
               (error "No problem on this line")))))))
 
 (defun eclim-problems-open-current (&optional same-window)
@@ -300,7 +300,7 @@ is convenient as it lets the user navigate between errors using
                         errors warnings (current-time-string))))
               (insert "\n" msg)
               (goto-char (point-min))
-            (insert msg "\n"))
+              (insert msg "\n"))
             (compilation-mode)
             ;; The above killed local variables, so recover our lexical-lets
             (setq default-directory project-directory)
