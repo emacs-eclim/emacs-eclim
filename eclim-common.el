@@ -97,7 +97,8 @@
 (defvar eclim--project-natures-cache nil)
 
 (defcustom eclim-eclipse-dirs '("/Applications/eclipse" "/usr/lib/eclipse"
-                                "/usr/local/lib/eclipse" "/usr/share/eclipse")
+                                "/usr/local/lib/eclipse" "/usr/share/eclipse"
+                                "/Applications/Eclipse.app/Contents/Eclipse/")
   "Path to the eclipse directory"
   :type '(sexp)
   :group 'eclim)
