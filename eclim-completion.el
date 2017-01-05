@@ -177,7 +177,7 @@ buffer."
            repl))
      completion)))
 
-(defvar eclim--completion-start)
+(defvar eclim--completion-start nil)
 
 (defun eclim-completion-start ()
   "Work out the point where completion starts."
