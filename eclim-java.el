@@ -30,7 +30,6 @@
 
 ;;* Eclim Java
 
-(eval-when-compile (require 'cl)) ;; lexical-let
 (require 'json)
 (require 'dash)
 (require 'cl-lib)
@@ -332,7 +331,7 @@ until a class declaration has been found."
 (defun eclim--java-insert-call-hierarchy-node (project node level)
   (let ((declaration (cdr (assoc 'name node))))
     (insert (format (concat "%-"(number-to-string (* level 2)) "s=> ") ""))
-    (lexical-let ((position (cdr (assoc 'position node))))
+    (let ((position (cdr (assoc 'position node))))
       (if position
           (insert-text-button declaration
                               'follow-link t
@@ -367,7 +366,7 @@ until a class declaration has been found."
   (let ((declaration (cdr (assoc 'name node)))
         (qualified-name (cdr (assoc 'qualified node))))
     (insert (format (concat "%-"(number-to-string (* level 2)) "s=> ") ""))
-    (lexical-let ((file-path (eclim--java-insert-file-path-for-hierarchy-node node)))
+    (let ((file-path (eclim--java-insert-file-path-for-hierarchy-node node)))
       (if file-path
           (insert-text-button declaration
                               'follow-link t

@@ -292,9 +292,9 @@ sources."
       (error (concat "invalid project: " project))))) ;
 
 (defun eclim--execute-command-internal (executor cmd args)
-  (lexical-let* ((expargs (eclim--expand-args args))
-                 (sync (eclim--command-should-sync-p cmd args))
-                 (check (eclim--args-contains args '("-p"))))
+  (let* ((expargs (eclim--expand-args args))
+         (sync (eclim--command-should-sync-p cmd args))
+         (check (eclim--args-contains args '("-p"))))
     (when sync (eclim--src-update))
     (when check
       (ignore-errors

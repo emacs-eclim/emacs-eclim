@@ -97,7 +97,7 @@ an error if the connection is refused. Automatically calls
 expression which is called with the results of the operation."
   `(eclim--execute-command-internal
     (lambda (command-line on-complete-fn)
-      (lexical-let ((on-complete-fn on-complete-fn))
+      (let ((on-complete-fn on-complete-fn))
         (apply 'eclim--call-process-async
                (lambda (res)
                  (funcall on-complete-fn)

@@ -77,10 +77,10 @@ buffer instead."
   "Like `eclim--call-process', but the call is executed
 asynchronously.  CALLBACK is a function that accepts a list of
 strings and will be called on completion."
-  (lexical-let ((handler callback)
-                (cmd (eclim--make-command args)))
+  (let ((handler callback)
+        (cmd (eclim--make-command args)))
     (when (not (cl-find cmd eclim--currently-running-async-calls :test #'string=))
-      (lexical-let ((buf (get-buffer-create (generate-new-buffer-name "*eclim-async*"))))
+      (let ((buf (get-buffer-create (generate-new-buffer-name "*eclim-async*"))))
         (when eclim-print-debug-messages
           (message "Executing: %s" cmd)
           (message "Using async buffer %s" buf))

@@ -31,7 +31,6 @@
 (require 'hl-line)
 (require 'cl-lib)
 (require 'eclim-common)
-(eval-when-compile (require 'cl)) ;; lexical-let
 (eval-when-compile (require 'eclim-macros))
 
 (defgroup eclim-problems nil
@@ -270,10 +269,10 @@ without switching to it."
 is convenient as it lets the user navigate between errors using
 `next-error' (\\[next-error])."
   (interactive)
-  (lexical-let ((filecol-size (eclim--problems-filecol-size))
-                (project-directory (concat (eclim--project-dir) "/"))
-                (compil-buffer (get-buffer-create eclim--problems-compilation-buffer-name))
-                (project-name (eclim-project-name))) ; To store it in buffer.
+  (let ((filecol-size (eclim--problems-filecol-size))
+        (project-directory (concat (eclim--project-dir) "/"))
+        (compil-buffer (get-buffer-create eclim--problems-compilation-buffer-name))
+        (project-name (eclim-project-name))) ; To store it in buffer.
 
     (with-current-buffer compil-buffer
       (setq default-directory project-directory)
@@ -302,7 +301,7 @@ is convenient as it lets the user navigate between errors using
               (goto-char (point-min))
               (insert msg "\n"))
             (compilation-mode)
-            ;; The above killed local variables, so recover our lexical-lets
+            ;; The above killed local variables
             (setq default-directory project-directory)
             (setq eclim--project-name project-name)
             ;; Remap the very dangerous "g" command :)  A make -k in some of
