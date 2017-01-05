@@ -11,6 +11,7 @@
 (depends-on "yasnippet")
 (development
  (depends-on "company")
+ (depends-on "auto-complete")
  (depends-on "elisp-lint")
  (depends-on "ert")
  (depends-on "ert-runner")
