@@ -105,7 +105,7 @@ in a completion menu."
 
 (defun eclim--completion-candidates ()
   (with-no-warnings
-    (remove-if #'eclim--completion-candidates-filter
+    (cl-remove-if #'eclim--completion-candidates-filter
                (mapcar #'eclim--completion-candidate-menu-item
                        (eclim--complete)))))
 
