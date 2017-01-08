@@ -22,9 +22,6 @@
 ;;; Code:
 
 (require 'eclim-common "eclim-common.el")
-
-(require 'el-mock)
-; el-mock requires this
 (require 'cl)
 
 (ert-deftest java-accepted-filename-p-test ()
@@ -57,5 +54,4 @@
 (ert-deftest invalid-accepted-filename-p-test ()
   (should-not (equal (eclim--accepted-filename-p "test.xyz") t)))
 
-(provide 'eclim-common-test)
 ;;; eclim-common-test ends here
