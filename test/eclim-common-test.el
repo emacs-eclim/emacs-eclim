@@ -57,21 +57,5 @@
 (ert-deftest invalid-accepted-filename-p-test ()
   (should-not (equal (eclim--accepted-filename-p "test.xyz") t)))
 
-(ert-deftest file-managed-p-test ()
-  (should (equal (eclim--file-managed-p) nil)))
-
-(ert-deftest file-managed-p-test ()
-  (should (equal (eclim--file-managed-p) nil)))
-
-(ert-deftest file-managed-p-test ()
-  (with-mock
-   (stub eclim-project-name => "eclim_proj")
-   (should (equal (eclim--file-managed-p "file.java") "eclim_proj"))))
-
-(ert-deftest accepted-p-test ()
-  (with-mock
-   (stub eclim-project-name => "eclim_proj")
-   (should (equal (eclim--accepted-p "file.java") "eclim_proj"))))
-
 (provide 'eclim-common-test)
 ;;; eclim-common-test ends here

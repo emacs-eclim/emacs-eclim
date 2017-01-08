@@ -54,33 +54,4 @@
     (should (equal (eclim--make-command '("cmd" "-a" nil "-b" "arg"))
                    (concat test-eclim-executable " -command cmd -a -b arg")))))
 
-;; (ert-deftest test-parse-result-should-parse-json ()
-;;   (should (equal (eclim--parse-result "{\"a\":1,\"b\":\"2\"}") '((a . 1) (b . "2"))))
-;;   (should (equal (eclim--parse-result "{\"a\":1,\"b\":null}") '((a . 1) (b)))))
-
-(ert-deftest test-parse-result-should-parse-bad-json ()
-  (should (equal (eclim--parse-result " ") nil))
-  (should (equal (eclim--parse-result "\n") nil))
-  (should (equal (eclim--parse-result "\t") nil)))
-
-(ert-deftest test-parse-result-should-error-for-bad-encoding ()
-  (should-error (eclim--parse-result "java.io.UnsupportedEncodingException: bad-encoding") :type 'error))
-
-(ert-deftest test-parse-result-should-error-for-bad-command ()
-  (should-error (eclim--parse-result "No command 'bad_command'") :type 'error))
-
-(ert-deftest test-parse-result-should-error-for-bad-support ()
-  (let ((support-types
-         '(xml_complete groovy_complete ruby_complete c_complete php_complete scala_complete)))
-    (loop
-     for support-type in support-types
-     do (should-error (eclim--parse-result (format "No command '%s'" support-type) :type 'error)))))
-
-(ert-deftest test-parse-result-should-error-for-exception ()
-  (should-error (eclim--parse-result "java.lang.NullPointerException") :type 'error))
-
-(ert-deftest test-parse-result-should-error-for-bad-json ()
-  (should-error (eclim--parse-result "xyz") :type 'error))
-
-(provide 'command-test)
 ;;; command-tests.el ends here

@@ -16,7 +16,6 @@
  (depends-on "buttercup")
  (depends-on "ert")
  (depends-on "ert-runner")
- (depends-on "el-mock")
  (depends-on "noflet")
  (depends-on "cask-package-toolset")
  (depends-on "undercover"))
