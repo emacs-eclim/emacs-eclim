@@ -99,10 +99,16 @@
                                       :to-throw 'error))))
 
                     (it "should throw an error for an exception"
-                        (expect (lambda () (eclim--parse-result "java.lang.NullPointerException:"))
+                        (expect (lambda () (eclim--parse-result "java.lang.Exception: Parse error at line 32"))
                                 :to-throw 'error))
 
-                    (it "should throw an error for connection refused"
+                    (it "should throw an error for connection refused when eclim server is starting"
+                        (setq eclimd-process nil)
+                        (expect (lambda () (eclim--parse-result "connect: Connection refused"))
+                                :to-throw 'error))
+
+                    (it "should throw an error for connection refused after eclim server has started"
+                        (setq eclimd-process t)
                         (expect (lambda () (eclim--parse-result "connect: Connection refused"))
                                 :to-throw 'error))
 
