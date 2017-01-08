@@ -87,7 +87,7 @@
                                 :to-throw 'error))
 
                     (it "should throw an error for a bad command"
-                        (expect (lambda () (eclim--parse-result "No command 'bad_command'"))
+                        (expect (lambda () (eclim--parse-result "No command 'bad_command' found"))
                                 :to-throw 'error))
 
                     (it "should throw an error for a bad support"
@@ -95,11 +95,15 @@
                                '(xml_complete groovy_complete ruby_complete c_complete php_complete scala_complete)))
                           (loop
                            for support-type in support-types
-                           do (expect (lambda () (eclim--parse-result (format "No command '%s'" support-type)))
+                           do (expect (lambda () (eclim--parse-result (format "No command '%s' found" support-type)))
                                       :to-throw 'error))))
 
                     (it "should throw an error for an exception"
-                        (expect (lambda () (eclim--parse-result "java.lang.NullPointerException"))
+                        (expect (lambda () (eclim--parse-result "java.lang.NullPointerException:"))
+                                :to-throw 'error))
+
+                    (it "should throw an error for connection refused"
+                        (expect (lambda () (eclim--parse-result "connect: Connection refused"))
                                 :to-throw 'error))
 
                     (it "should throw an error for a bad JSON reply"
