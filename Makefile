@@ -34,7 +34,7 @@ test:
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-run-tests
 
 specs:
-	$(CASK) exec buttercup -L .
+	$(CASK) exec buttercup -L . -L ./test/specs
 
 lint: $(EL_FILES)
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files $(EL_FILES)

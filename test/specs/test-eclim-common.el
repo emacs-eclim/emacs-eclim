@@ -21,6 +21,7 @@
 
 ;;; Code:
 
+(require 'undercover-init.el)
 (require 'eclim-common "eclim-common.el")
 
 (describe "eclim-common"
