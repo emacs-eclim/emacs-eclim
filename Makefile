@@ -33,6 +33,9 @@ init:
 test:
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-run-tests
 
+specs:
+	$(CASK) exec buttercup -L .
+
 lint: $(EL_FILES)
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
 
@@ -46,11 +49,12 @@ help:
 	@echo 'Run `make init` first to install and update all local dependencies.'
 	@echo ''
 	@echo 'Available targets:'
-	@echo '  init:     Initialise the project.  RUN FIRST!'
-	@echo '  lint:     Check all Emacs Lisp sources'
-	@echo '  compile:  Byte-compile Emacs Lisp sources'
-	@echo '  test:     Run all ERT unit tests'
-	@echo '  clean:    Clean compiled files'
+	@echo '  init:       Initialise the project.  RUN FIRST!'
+	@echo '  lint:       Check all Emacs Lisp sources'
+	@echo '  compile:    Byte-compile Emacs Lisp sources'
+	@echo '  test:       Run all ERT unit tests'
+	@echo '  specs:      Run all buttercup tests'
+	@echo '  clean:      Clean compiled files'
 	@echo ''
 	@echo 'Available make variables:'
 	@echo '  EMCS_OPTS:  Additional options to pass to `emacs`'
@@ -62,4 +66,4 @@ help:
 	@echo 'You need $(CASK) to develop this package.'
 	@echo 'See http://cask.readthedocs.io/ for more information.'
 
-.PHONY: all init test lint compile clean help
+.PHONY: all init test specs lint compile clean help

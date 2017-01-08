@@ -13,6 +13,7 @@
  (depends-on "company")
  (depends-on "auto-complete")
  (depends-on "elisp-lint")
+ (depends-on "buttercup")
  (depends-on "ert")
  (depends-on "ert-runner")
  (depends-on "el-mock")

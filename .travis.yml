@@ -31,6 +31,7 @@ script:
   - make compile
   - make lint
   - make test
+  - make specs
 
 branches:
   only:

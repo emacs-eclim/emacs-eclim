@@ -83,12 +83,6 @@
     (when (not (member nature (append natures nil)))
       (error (concat "invalid project nature: " nature)))))
 
-(defun eclim--check-project (project)
-  (let ((projects (or eclim--projects-cache
-                      (setq eclim--projects-cache (mapcar (lambda (p) (assoc-default 'name p)) (eclim/project-list))))))
-    (when (not (assoc-string project projects))
-      (error (concat "invalid project: " project))))) ;
-
 (defun eclim--project-read (&optional single)
   (interactive)
   (if (eq major-mode 'eclim-project-mode)
