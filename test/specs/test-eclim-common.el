@@ -24,6 +24,14 @@
 (require 'undercover-init.el)
 (require 'eclim-common "eclim-common.el")
 
+(defun test-eclim-common--fake-reply (reply)
+  (spy-on 'eclim--parse-result :and-return-value reply)
+  (spy-on 'eclim--call-process-no-parse :and-return-value '(1 2)))
+
+(defun test-eclim-common--fake-error-reply ()
+  (spy-on 'eclim--parse-result :and-throw-error 'error)
+  (spy-on 'eclim--call-process-no-parse :and-return-value '(1 2)))
+
 (describe "eclim-common"
 
           (describe "eclim--file-managed-p"
@@ -115,6 +123,30 @@
                     (it "should throw an error for a bad JSON reply"
                         (expect (lambda () (eclim--parse-result "xyz"))
                                 :to-throw 'error))
+                    )
+
+          (describe "eclim--call-process"
+                    (it "should invoke eclim-interactive-completion-function"
+                        (spy-on 'completing-read :and-return-value nil)
+                        (eclim--completing-read "prompt" '("a" "b" "c"))
+                        (expect 'completing-read :to-have-been-called-with "prompt" '("a" "b" "c")))
+                    )
+
+          (describe "eclim--call-process"
+                    (it "should invoke eclim--parse-result and eclim--call-process-no-parse"
+                        (let ((reply '("1" "2")))
+                          (test-eclim-common--fake-reply reply)
+                          (expect (eclim--call-process '("a" "b")) :to-have-same-items-as reply)))
+                    )
+
+          (describe "eclim--connected-p"
+                    (it "returns t when Eclim server process is present"
+                        (test-eclim-common--fake-reply 1)
+                        (expect (eclim--connected-p) :to-be t))
+
+                    (it "throws an error when Eclim server is not present"
+                        (test-eclim-common--fake-error-reply)
+                        (expect (lambda () (eclim--connected-p)) :to-throw 'error))
                     )
           )
 
