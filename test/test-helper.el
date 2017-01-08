@@ -21,7 +21,7 @@
 
 ;;; Code:
 (when (require 'undercover nil t)
-  (undercover "*.el" (:exclude "*-test.el")))
+  (undercover "*.el" (:send-report nil)))
 
 (require 'f)
 

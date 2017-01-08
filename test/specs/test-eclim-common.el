@@ -95,9 +95,8 @@
                                '(xml_complete groovy_complete ruby_complete c_complete php_complete scala_complete)))
                           (loop
                            for support-type in support-types
-                           do (expect (lambda () (eclim--parse-result "No command 'bad_command'"))
-                                      :to-throw 'error))
-                          ))
+                           do (expect (lambda () (eclim--parse-result (format "No command '%s'" support-type)))
+                                      :to-throw 'error))))
 
                     (it "should throw an error for an exception"
                         (expect (lambda () (eclim--parse-result "java.lang.NullPointerException"))
