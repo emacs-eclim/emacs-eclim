@@ -188,6 +188,7 @@ fails to start."
        (setq eclimd-port (match-string 1 output))
        (when callback (funcall callback))))))
 
+;;;###autoload
 (defun start-eclimd (workspace-dir &optional callback)
   "Start the eclimd process and optionally wait for it to be ready.
 This will ask for a workspace directory, and it will attempt to
@@ -228,18 +229,20 @@ blocking. To stop the started process and you should use
 
 (defun eclimd--ensure-started (&optional async callback)
   "Ensure eclimd is running, autostarting it when possible.
-An error is raised when `eclimd-autostart' is nil but there is no
-eclimd process."
+An error is raised when both `eclimd-autostart' and ASYNC are nil
+while there is no eclimd process. If ASYNC is t and eclimd can
+not be started / is already running, CALLBACK is not executed."
   (if (eclim--connected-p)
       (when callback (funcall callback))
-    (if eclimd-autostart
-        (if eclimd-process
-            ;; `eclimd-process' is set but we can not connect to eclimd, thus
-            ;; eclimd is currently being started.
-            (eclimd--await-connection async callback)
+    (if eclimd-process
+        ;; `eclimd-process' is set but we can not connect to eclimd, thus
+        ;; eclimd is currently being started.
+        (eclimd--await-connection async callback)
+      (if eclimd-autostart
           (let ((eclimd-wait-for-process (not async)))
-            (start-eclimd (eclimd--autostart-workspace) callback)))
-      (error "Autostarting of eclimd is disabled, please start eclimd manually."))))
+            (start-eclimd (eclimd--autostart-workspace) callback))
+        (let ((msg "Autostarting of eclimd is disabled, please start eclimd manually."))
+          (if async (message msg) (error msg)))))))
 
 (defun stop-eclimd ()
   "Gracefully terminate the started eclimd process.
