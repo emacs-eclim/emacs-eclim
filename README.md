@@ -4,7 +4,7 @@
 [![MELPA](http://melpa.org/packages/eclim-badge.svg)](http://melpa.org/#/eclim)
 [![MELPA Stable](http://stable.melpa.org/packages/eclim-badge.svg)](http://stable.melpa.org/#/eclim)
 
-## Overview
+# Overview
 
 [![Join the chat at https://gitter.im/emacs-eclim/emacs-eclim](https://badges.gitter.im/emacs-eclim/emacs-eclim.svg)](https://gitter.im/emacs-eclim/emacs-eclim?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -21,7 +21,7 @@ mostly Java support at this time.**
 It is also possible to start and stop the eclim daemon from Emacs using the
 `eclimd` package.
 
-You can ask questions or discuss new features on the Gitter chanel
+You can ask questions or discuss new features on the Gitter channel
 (see badge above), and at
 our
 [Google Group](https://groups.google.com/forum/#!forum/emacs-eclim)
@@ -29,10 +29,10 @@ our
 ## Package renamed
 
 This package was originally called *emacs-eclim*, and was renamed to
-*eclim* on Agust 15, 2016 because `use-package` could not load it from
+*eclim* on August 15, 2016 because `use-package` could not load it from
 the [MELPA][melpa] package archive.
 
-## A note about Eclim versions
+# A note about Eclim versions
 
 Prior to version 1.7.3, Eclim used a proprietary protocol for
 communication with the Eclim Server. If you are running one of these
@@ -46,7 +46,7 @@ The eclim package versions are tagged with the appropriate version
 number. You can see and download previous
 releases [here](https://github.com/emacs-eclim/emacs-eclim/tags).
 
-## Installation
+# Installation
 
 emacs-eclim requires Emacs version 24.5 or later.
 
@@ -73,9 +73,9 @@ emacs-eclim requires Emacs version 24.5 or later.
 Now every time you open a file that belongs to a Eclipse project eclim mode is
 enabled.
 
-## Configuration
+# Configuration
 
-### Eclipse installation
+## Eclipse installation
 
 Emacs-eclim tries its best to locate your Eclipse installation. If you
 have Eclipse installed in a non-standard location (i.e.
@@ -88,7 +88,7 @@ manually by adding this to your startup script:
   '(eclim-executable "~/nonStandard/eclipse/eclim"))
 ```
 
-### Displaying compilation error messages in the echo area
+## Displaying compilation error messages in the echo area
 
 When the cursor is positioned on an error marker in a code buffer,
 emacs-eclim uses the local help feature in emacs to display the
@@ -102,7 +102,7 @@ help by adding the following to .emacs:
 (help-at-pt-set-timer)
 ```
 
-### Configuring auto-complete-mode
+## Configuring auto-complete-mode
 
 If you wish to use [auto-complete-mode] with emacs-eclim, add the
 following to your .emacs:
@@ -117,7 +117,7 @@ following to your .emacs:
 (ac-emacs-eclim-config)
 ```
 
-### Configuring company-mode
+## Configuring company-mode
 
 Emacs-eclim can integrate with [company-mode] to provide pop-up
 dialogs for auto-completion. To activate this, you need to add the
@@ -139,13 +139,13 @@ If you installed Eclim from [MELPA](melpa) you will have to install
 you haven't already, and then install the `company-emacs-eclim`
 package with the `package-install` command.
 
-### Configuring eclimd module
+## Configuring eclimd module
 
 When `emacs-eclim` is configured correctly, you don't need to modify the
 configuration for the `eclimd` package. Still, in the customization group
 `eclimd` there are a few variables you can tweak.
 
-## Usage
+# Usage
 
 To use `eclim-mode`'s features `eclimd` must to be running (`M-x eclimd-start`
 or set `eclimd-autostart` to `t`) and the files you are editing have to be
@@ -158,9 +158,9 @@ organized in a Eclipse project (`M-x eclim-project-create`).
 * [Maven](http://wiki.github.com/emacs-eclim/emacs-eclim/maven)
 * [Problems and Errors](http://wiki.github.com/emacs-eclim/emacs-eclim/problems-and-errors)
 
-### Starting eclimd
+## Starting eclimd
 
-Since most of eclims commands require eclimd, you should ensure eclimd is
+Since most of eclim's commands require eclimd, you should ensure eclimd is
 running when you need it. Here are your options:
 
 * Variable `eclimd-autostart`: Enables automatic starting of eclimd whenever
@@ -170,7 +170,15 @@ running when you need it. Here are your options:
   eclimd like this you should add `(setq eclimd-autostart nil)` to your startup
   script to prevent accidental starting of eclimd from within Emacs.
 
-## Press
+# Compiling this package
+
+This package uses [Cask](https://github.com/cask/cask) to compile and
+test the project. Please install it prior to compiling the files.
+Package dependencies are installed using the `make init` command in a
+shell. Once dependencies have been installed, use `make compile` to
+run compile the files.
+
+# Press
 
 Read more about emacs-eclim:
 
@@ -180,7 +188,7 @@ Read more about emacs-eclim:
 * [Java Autocompletion for Emacs](http://root42.blogspot.ch/2012/08/java-autocompletion-for-emacs.html), \[root42\]
 * [Eclim: Eclipse Meets Vim And Emacs](http://faruk.akgul.org/blog/eclim-eclipse-meets-vim-emacs/), \[Faruk Akgul\]
 
-## Contributing
+# Contributing
 
 Have a quick look at our [Contribution Guidelines](CONTRIBUTING.md)
 and hack away.
