@@ -15,7 +15,7 @@ ifdef CASK
 RUN_EMACS = $(CASK) exec $(EMACS_BATCH)
 HAVE_CASK := $(shell sh -c "command -v $(CASK)")
 ifndef HAVE_CASK
-$(error "$(CASK) is not available.  Please run make help")
+$(warning "$(CASK) is not available.  Please run make help")
 endif
 endif
 
