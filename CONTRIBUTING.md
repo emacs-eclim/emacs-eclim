@@ -40,9 +40,20 @@ and [coveralls.io](https://coveralls.zendesk.com/hc/en-us) to ensure
 that new submissions do not break the package and adequate testing is
 present.
 
-Travis-CI ensures that new submissions pass the Lint tests and
-compile without any errors. The *build* badge on this repository's
-home page gives the current status of the build.
+## Travis CI
+
+Travis-CI ensures that new submissions pass the Lint tests and compile
+without any errors. The *build* badge on this repository's home page
+gives the current status of the build. Travis-CI is used to build this
+package on the following versions of Emacs:
+
+* 24.5
+* 25.1
+* emacs-git-snapshot-travis: which comes from [EVM](https://github.com/rejeep/evm)
+
+For more information see `.travis.yml`.
+
+## Coveralls.io
 
 Coveralls.io ensures that the tests are performing adequate code
 coverage. The *coverage* badge on this repository's home page gives
