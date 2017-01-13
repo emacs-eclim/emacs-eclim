@@ -176,7 +176,7 @@ This package uses [Cask](https://github.com/cask/cask) to compile and
 test the project. Please install it prior to compiling the files.
 Package dependencies are installed using the `make init` command in a
 shell. Once dependencies have been installed, use `make compile` to
-run compile the files.
+compile the files.
 
 # Press
 
