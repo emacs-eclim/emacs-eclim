@@ -75,5 +75,12 @@
      (let ((debug-on-error t))
        (ert-run-tests-batch-and-exit)))))
 
+(defun eclim-package-lint ()
+  "Checks that the metadata in Emacs Lisp files which to ensure they are intended to be packages."
+  (eclim-emacs-init
+   (lambda ()
+     (eval-after-load 'flycheck
+       '(flycheck-package-setup)))))
+
 
 ;;; test-helper.el ends here

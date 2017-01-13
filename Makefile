@@ -36,6 +36,9 @@ specs:
 lint: $(EL_FILES)
 	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
 
+package-lint: $(EL_FILES)
+	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-package-lint $(EL_FILES)
+
 compile: $(EL_FILES)
 	$(RUN_EMACS) -l maint/eclim-compile.el -f eclim/batch-byte-compile $(EL_FILES)
 
@@ -46,12 +49,13 @@ help:
 	@echo 'Run `make init` first to install and update all local dependencies.'
 	@echo ''
 	@echo 'Available targets:'
-	@echo '  init:       Initialise the project.  RUN FIRST!'
-	@echo '  lint:       Check all Emacs Lisp sources'
-	@echo '  compile:    Byte-compile Emacs Lisp sources'
-	@echo '  test:       Run all ERT unit tests'
-	@echo '  specs:      Run all buttercup tests'
-	@echo '  clean:      Clean compiled files'
+	@echo '  init:          Initialise the project.  RUN FIRST!'
+	@echo '  lint:          Check all Emacs Lisp sources'
+	@echo '  compile:       Byte-compile Emacs Lisp sources'
+	@echo '  test:          Run all ERT unit tests'
+	@echo '  specs:         Run all buttercup tests'
+	@echo '  clean:         Clean compiled files'
+	@echo '  package-lint:  Checks for common errors in the package metadata.'
 	@echo ''
 	@echo 'Available make variables:'
 	@echo '  EMCS_OPTS:  Additional options to pass to `emacs`'
