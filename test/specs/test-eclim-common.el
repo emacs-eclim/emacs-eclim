@@ -148,6 +148,38 @@
                         (test-eclim-common--fake-error-reply)
                         (expect (lambda () (eclim--connected-p)) :to-throw 'error))
                     )
+          (describe "eclim-project-name"
+                    (it "returns the project name for a file in the project"
+                        (let ((proj-name "my_proj"))
+                          (test-eclim-common--fake-reply proj-name)
+                          (expect (eclim-project-name "file.java") :to-be proj-name)))
+
+                    (describe "returns the project name for buffer it was called from"
+
+                              (it "before eclim--project-name has been assigned"
+                                  (let ((proj-name "my_proj"))
+                                    (setq eclim--project-name proj-name)
+                                    (setq buffer-file-name nil)
+                                    (test-eclim-common--fake-reply proj-name)
+                                    (expect (eclim-project-name) :to-be proj-name)))
+
+                              (it "after eclim--project-name has been assigned"
+                                  (let ((proj-name "my_proj"))
+                                    (setq eclim--project-name nil)
+                                    (setq buffer-file-name "file.java")
+                                    (test-eclim-common--fake-reply proj-name)
+                                    (expect (eclim-project-name) :to-be proj-name)))
+
+                              (it "when the buffer is in an archive file"
+                                  (let ((proj-name "my_proj")
+                                        (file-name "file.java"))
+                                    (setq eclim--project-name nil)
+                                    (setq buffer-file-name file-name)
+                                    (setf (gethash file-name eclim-projects-for-archive-file) proj-name)
+                                    (test-eclim-common--fake-reply nil)
+                                    (expect (eclim-project-name) :to-be proj-name)))
+                              )
+                    )
           )
 
 ;;; eclim-common-spec ends here
