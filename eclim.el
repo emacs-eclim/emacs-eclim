@@ -104,8 +104,6 @@ strings and will be called on completion."
     ("-o" . (eclim--byte-offset))
     ("-s" . "project")))
 
-(defvar eclim-projects-for-archive-file (make-hash-table :test 'equal))
-
 ;; Commands
 
 (defun eclim-file-locate (pattern &optional case-insensitive)
