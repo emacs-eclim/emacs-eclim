@@ -190,7 +190,7 @@ Read more about emacs-eclim:
 
 # Contributing
 
-Have a quick look at our [Contribution Guidelines](CONTRIBUTING.md)
+Have a quick look at our [Contribution Guidelines](doc/CONTRIBUTING.md)
 and hack away.
 
 [company-mode]:https://github.com/company-mode/company-mode
