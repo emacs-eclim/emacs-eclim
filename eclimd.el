@@ -156,12 +156,12 @@ after the function returns this data is no longer available."
                     (setf output (concat output string))
                     (setf terminated-p (not (eq 'run (process-status proc))))
                     (setf finished-p (or terminated-p
-                                         ;; Emacs automatically saves and
-                                         ;; restores the match data when running
-                                         ;; process filter functions and
-                                         ;; sentinels (from where this closure
-                                         ;; is called).
-                                         (string-match regexp output)))
+                                         ;; Althought Emacs already saves the
+                                         ;; match data when calling process
+                                         ;; filters/sentinels, one such call may
+                                         ;; execute multiple closures.
+                                         (save-match-data
+                                           (string-match regexp output))))
                     (when (and finished-p callback)
                       (funcall callback (unless terminated-p output)))
                     ;; Remove the closure from the hook when it has finished.
