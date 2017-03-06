@@ -150,7 +150,7 @@
                                 classpath
                                 project-dir))))
 
-(defun eclim-run-configuartion (configuration-name)
+(defun eclim-run-configuration (configuration-name)
       "Runs the configuration given in CONFIGURATION-NAME in the compilation buffer."
       (interactive (list (eclim-java-run--ask-which-configuration)))
       (let* ((configurations (eclim-java-run--load-configurations (eclim-project-name)))
