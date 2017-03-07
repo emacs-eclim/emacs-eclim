@@ -154,7 +154,7 @@ argument."
                     (setf output (concat output string))
                     (setf terminated-p (not (eq 'run (process-status proc))))
                     (setf finished-p (or terminated-p
-                                         ;; Althought Emacs already saves the
+                                         ;; Although Emacs already saves the
                                          ;; match data when calling process
                                          ;; filters/sentinels, one such call may
                                          ;; execute multiple closures.
