@@ -21,7 +21,9 @@
 
 ;;; Code:
 (when (require 'undercover nil t)
-  (undercover "*.el" (:exclude "*test*.el") (:report-file "emacs-coveralls.json")))
+  (undercover "*.el"
+              (:exclude "*test*.el")
+              (:report-file "coveralls.json")))
 
 (require 'f)
 

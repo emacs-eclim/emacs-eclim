@@ -1,6 +1,6 @@
 *.elc
 TAGS
 .cask
-emacs-coveralls.json
-emacs-coveralls.json~
+coveralls.json
+coveralls.json~
 
