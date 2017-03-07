@@ -107,6 +107,17 @@ the following forms:
                            (:state-change . "exited abnormally with code 1\n")))
                         (let ((marker nil))
                           (eclimd--await-connection nil (lambda () (setq marker t)))
-                          (expect marker :not :to-be-truthy)))))
+                          (expect marker :not :to-be-truthy)))
+                    (it "executes callback after a match when ASYNC is t"
+                        (test-eclimd--fake-process-events
+                         '("First string "
+                           "Eclim Server Started on: 127.0.0.1:9091"))
+                        (let ((marker nil))
+                          (eclimd--await-connection t (lambda () (setq marker t)))
+                          (expect marker :not :to-be-truthy)
+                          (accept-process-output)  ; Pops the first string off the list.
+                          (expect marker :not :to-be-truthy)
+                          (accept-process-output) ; Pops the second, matching string.
+                          (expect marker :to-be-truthy)))))
 
 ;;; test-eclimd.el ends here
