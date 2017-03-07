@@ -30,7 +30,8 @@ install:
 script:
   - make compile
   - make lint
-  - make specs test
+  - make specs
+  - make test
 
 branches:
   only:
