@@ -143,12 +143,10 @@ functions returning non-nil are kept.")
 (defun eclimd--match-process-output (regexp &optional async callback)
   "Wait for the given process to output a string that matches the specified regexp.
 When ASYNC is omitted or nil block and return the string used for
-`match-string' if a match is found, and nil if the process is
+`string-match' if a match is found, and nil if the process is
 killed. Execute CALLBACK when the process outputs the desired
 string or terminates and pass the corresponding return value as
-argument. CALLBACK can access the match data produced by calls to
-`match-string' with REGEXP and the process output as argument,
-after the function returns this data is no longer available."
+argument."
   (let* ((output "")
          (terminated-p)
          (finished-p)
