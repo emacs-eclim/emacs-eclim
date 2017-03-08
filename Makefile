@@ -8,7 +8,7 @@ CASK := cask
 LOAD_PATH := -L .
 EMACS_OPTS :=
 EMACS_BATCH := $(EMACS) -Q -batch -L . $(EMACS_OPTS)
-TEST_LOAD_FILES = -l test/test-helper.el
+LINT_LOAD_FILES = -l maint/eclim-lint.el
 
 # Program availability
 ifdef CASK
@@ -28,16 +28,16 @@ init:
 	$(CASK) update
 
 test:
-	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-run-tests
+	$(CASK) exec ert-runner
 
 specs:
 	$(CASK) exec buttercup -L . -L ./test/specs
 
 lint: $(EL_FILES)
-	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
+	$(RUN_EMACS) $(LINT_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
 
 package-lint: $(EL_FILES)
-	$(RUN_EMACS) $(TEST_LOAD_FILES) -f eclim-package-lint $(EL_FILES)
+	$(RUN_EMACS) $(LINT_LOAD_FILES) -f eclim-package-lint $(EL_FILES)
 
 compile: $(EL_FILES)
 	$(RUN_EMACS) -l maint/eclim-compile.el -f eclim/batch-byte-compile $(EL_FILES)

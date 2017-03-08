@@ -30,6 +30,7 @@ install:
 script:
   - make compile
   - make lint
+  - make clean
   - make specs
   - make test
 
