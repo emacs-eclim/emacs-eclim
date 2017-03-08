@@ -30,8 +30,10 @@ install:
 script:
   - make compile
   - make lint
-  - make clean
+  - make clean # Required for working test coverage report.
   - make specs
+  # Workaround for 24.5, see https://github.com/cask/cask/issues/241
+  - find .cask -name "*.elc" | xargs rm
   - make test
 
 branches:
