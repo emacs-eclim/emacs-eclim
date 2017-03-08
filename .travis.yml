@@ -1,5 +1,5 @@
-language: java
-cache: apt
+language: emacs-lisp
+sudo: false
 env:
   global:
     - CI=true
