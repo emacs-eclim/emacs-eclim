@@ -612,7 +612,7 @@ if `eclim-problems-suppress-highlights' allows it."
       (unless (if (functionp eclim-problems-suppress-highlights)
                   (funcall eclim-problems-suppress-highlights)
                 eclim-problems-suppress-highlights)
-        (cl-loop for problem across (cl-remove-if-not (lambda (p) (string= (assoc-default 'filename p) (buffer-file-name))) eclim--problems-list)
+        (cl-loop for problem across (cl-remove-if-not (lambda (p) (string= (assoc-default 'filename p) (file-truename (buffer-file-name)))) eclim--problems-list)
                  do (eclim--problems-insert-highlight problem))))))
 
 (defun eclim--insert-problem (problem filecol-size)
