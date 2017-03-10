@@ -527,7 +527,7 @@ refresh of the problems buffer."
     (if (not (minibuffer-window-active-p (minibuffer-window)))
         (if (string= "e" eclim--problems-filter)
             (message "Eclim reports %d errors." (length problems))
-          (let ((warning-count (length (cl-remove-if-not (lambda (p) (assoc 'warning p))
+          (let ((warning-count (length (cl-remove-if-not (lambda (problem) (eq t (assoc-default 'warning problem)))
                                                          problems))))
             (message "Eclim reports %d errors, %d warnings."
                      (- (length problems) warning-count)
