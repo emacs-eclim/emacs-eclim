@@ -35,7 +35,9 @@ a problem will expedite its solution.*
 
 *The version of Eclim installed from this site: http://eclim.org/install.html*
 
-*Eg. 2.6.0*### Emacs version
+*Eg. 2.6.0*
+
+### Emacs version
 
 *E.g. 24.5* (use <kbd>M-x emacs-version</kbd> to check it if unsure)
 
