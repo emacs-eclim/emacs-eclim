@@ -27,17 +27,15 @@ a problem will expedite its solution.*
 
 *E.g. JDK 1.7*
 
-### Eclim version
-
-*The version of Eclim installed from this site: http://eclim.org/install.html*
-
-*Eg. 2.6.0*
-
 ### Eclipse version
 
 *Eg. Eclipse 4.6.0 (Neon)*
 
-### Emacs version
+### Eclim version
+
+*The version of Eclim installed from this site: http://eclim.org/install.html*
+
+*Eg. 2.6.0*### Emacs version
 
 *E.g. 24.5* (use <kbd>M-x emacs-version</kbd> to check it if unsure)
 
