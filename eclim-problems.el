@@ -132,7 +132,7 @@
   (eclim-problems-highlight))
 
 (defun eclim--problems-get-current-problem ()
-  (let ((buf (get-buffer "*eclim: problems*")))
+  (let ((buf (eclim--get-problems-buffer)))
     (if (eq buf (current-buffer))
         ;; we are in the problems buffer
         (let ((problems (eclim--problems-filtered))
@@ -181,23 +181,23 @@ invoked in either the problems buffer or a source code buffer."
   (not (eclim--warning-filterp x)))
 
 (defun eclim--get-problems-buffer ()
-  "Return the eclim problems buffer, if it exists. Otherwise,
-create and initialize a new buffer."
-  (or (get-buffer "*eclim: problems*")
-      (let ((buf (get-buffer-create "*eclim: problems*")))
-        (save-excursion
-          ;; (setq eclim--problems-project (eclim-project-name))
-          (setq eclim--problems-file buffer-file-name)
-          (set-buffer buf)
-          (eclim--problems-mode)
-          ;;(eclim-problems-buffer-refresh)
-          (goto-char (point-min))))))
+  "Gets the existing problems buffer.
+Returns nil if no problems buffer exists."
+  (get-buffer eclim--problems-buffer-name))
+
+(defun eclim--get-problems-buffer-create ()
+  "Return the eclim problems buffer.
+If the buffer does not exist, it is created."
+  (or (eclim--get-problems-buffer)
+      (progn
+        (eclim--problems-mode-init t)
+        (eclim--get-problems-buffer))))
 
 (defun eclim--problems-mode-init (&optional quiet)
   "Create and initialize the eclim problems buffer. If the
 argument QUIET is non-nil, open the buffer in the background
 without switching to it."
-  (let ((buf (get-buffer-create "*eclim: problems*")))
+  (let ((buf (get-buffer-create eclim--problems-buffer-name)))
     (save-excursion
       (setq eclim--problems-project (eclim-project-name))
       (setq eclim--problems-file buffer-file-name)
@@ -224,9 +224,9 @@ without switching to it."
     (select-window w)))
 
 (add-hook 'find-file-hook
-          (lambda () (when (and (eclim--accepted-p (buffer-file-name))
-                                (not (get-buffer eclim--problems-buffer-name)))
-                       (eclim--problems-mode-init t))))
+          (lambda () (when (eclim--accepted-p (buffer-file-name))
+                       ;; Ensure the problems buffer exists.
+                       (eclim--get-problems-buffer-create))))
 
 (defun eclim-problems-refocus ()
   (interactive)

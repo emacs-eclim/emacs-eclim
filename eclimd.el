@@ -223,6 +223,7 @@ blocking. To stop the started process and you should use
          (not eclimd-wait-for-process)
          (lambda ()
            (message "eclimd serving at port %s" eclimd-port)
+           (eclim--problems-update-maybe)
            (when callback (funcall callback))))))))
 
 (defun eclimd--ensure-started (&optional async callback)
