@@ -50,8 +50,6 @@
   "Interface to the Eclipse IDE."
   :group 'tools)
 
-(defvar-local eclim--project-name nil)
-
 (defun eclim-toggle-print-debug-messages ()
   (interactive)
   (message "Debug messages %s."
@@ -87,15 +85,6 @@ strings and will be called on completion."
                                   (funcall handler (eclim--parse-result (buffer-substring 1 (point-max)))))
                               (kill-buffer buf)))))
             (set-process-sentinel proc sentinel)))))))
-
-(defvar eclim--default-args
-  "Maps eclim command-line arguments to expressions that evaluate to the args default value."
-  '(("-n" . (eclim-project-name))
-    ("-p" . (or (eclim-project-name) (error "Could not find eclipse project for %s" (buffer-name (current-buffer)))))
-    ("-e" . (eclim--current-encoding))
-    ("-f" . (eclim--project-current-file))
-    ("-o" . (eclim--byte-offset))
-    ("-s" . "project")))
 
 ;; Commands
 
