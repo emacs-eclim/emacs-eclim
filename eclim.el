@@ -50,13 +50,6 @@
   "Interface to the Eclipse IDE."
   :group 'tools)
 
-(defcustom eclim-limit-search-results t
-  "Determines if code search results should be limited to files
-in the current workspace."
-  :group 'eclim
-  :type '(choice (const :tag "Off" nil)
-                 (const :tag "On" t)))
-
 (defvar-local eclim--project-name nil)
 
 (defun eclim-toggle-print-debug-messages ()
