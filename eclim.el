@@ -57,17 +57,22 @@
                "on" "off")))
 
 (defun eclim-quit-window (&optional kill-buffer)
-  "Bury the buffer and delete its window.  With a prefix argument, kill the
-buffer instead."
+  "Bury the buffer and delete its window.
+With prefix argument KILL-BUFFER non-nil, kill the buffer
+instead of burying it."
   (interactive "P")
   (quit-window kill-buffer (selected-window)))
 
 (defvar eclim--currently-running-async-calls nil)
 
 (defun eclim--call-process-async (callback &rest args)
-  "Like `eclim--call-process', but the call is executed
-asynchronously.  CALLBACK is a function that accepts a list of
-strings and will be called on completion."
+  "Call eclim asynchronously with the supplied arguments.
+CALLBACK is a function that accepts a list of strings and
+will be called on completion.  ARGS are the strings to be
+passed as command line arguments to eclim.
+
+This function is just like `eclim--call-process' except that
+it is asynchronous."
   (let ((handler callback)
         (cmd (eclim--make-command args)))
     (when (not (cl-find cmd eclim--currently-running-async-calls :test #'string=))
@@ -101,13 +106,13 @@ strings and will be called on completion."
                                  t)))
 
 (defun eclim-find-file-path-strict (filename &optional project directory)
-  "Locates a file (basename) in Eclipse. If PROJECT is a string,
-searches only that project; if nil, the project of the current
-file. If t, searches all Eclipse projects. If DIRECTORY is
-specified, returns only files that are under that
-directory. Returns a list of matching absolute paths; possibly
-empty. This can be used to help resolve exception stack traces,
-for example."
+  "Locate a file with the basename FILENAME in Eclipse.
+If PROJECT is a string, searches only that project; if nil,
+the project of the current file; if t, searches all Eclipse
+projects.  If DIRECTORY is specified, returns only files
+that are under that directory.  Returns a list of matching
+absolute paths; possibly empty.  This can be used to help
+resolve exception stack traces, for example."
   (let* ((results (apply #'eclim--call-process "locate_file"
                         "-p" (regexp-quote filename)
                          (if (eq project t)
@@ -176,17 +181,17 @@ that is not organized in a Eclipse project. Create a new project? "))
   eclim--enable-for-accepted-files-in-project)
 
 (defvar eclim--enable-for-accepted-files-in-project-running nil
-  "Used to prevent recursive calls to `global-eclim-mode''s turn-on function.
-Recursive calls are possible because `eclimd--ensure-started' may
-create a comint buffer for which Emacs checks whether
-`eclim-mode' should be enabled.")
+  "Used to prevent recursive calls to function `global-eclim-mode'.
+Such recursive calls are possible because
+`eclimd--ensure-started' may create a comint buffer for
+which Emacs checks whether `eclim-mode' should be enabled.")
 
 (defun eclim--enable-for-accepted-files-in-project ()
-  "Enable `eclim-mode' in accepted files that belong to a Eclipse project.
+  "Enable `eclim-mode' in accepted files that belong to a project.
 A file is accepted if it's name is matched by any of
-`eclim-accepted-file-regexps' elements. Note that in order to
-determine if a file is managed by a project, eclimd is required
-to be running and will thus be autostarted."
+`eclim-accepted-file-regexps' elements.  Note that in order
+to determine if a file is managed by a project, eclimd is
+required to be running and will thus be autostarted."
   ;; Errors here can REALLY MESS UP AN EMACS SESSION. Can't emphasize enough.
   (ignore-errors
     (unless eclim--enable-for-accepted-files-in-project-running

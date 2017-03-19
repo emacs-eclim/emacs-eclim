@@ -72,7 +72,10 @@
     ("-e" . (eclim--current-encoding))
     ("-f" . (eclim--project-current-file))
     ("-o" . (eclim--byte-offset))
-    ("-s" . "project")))
+    ("-s" . "project"))
+  "Maps eclim command line arguments to default values.
+The values are actually expressions which evaluate to the
+default value of the corresponding argument.")
 
 (defvar eclim--projects-cache nil)
 
@@ -88,7 +91,12 @@
 
 (defvar eclim--problems-list nil)
 
-(defvar eclim--problems-filter nil) ;; nil -> all problems, w -> warnings, e -> errors
+(defvar eclim--problems-filter nil
+  "Defines a problem filter by problem type.
+A value of nil means all problems will be shown.  A value of
+\"e\" means show only errors.  A value of \"w\" means show only
+warnings."
+  )
 
 (defvar eclim--problems-filefilter nil) ;; should filter by file name
 
@@ -99,85 +107,96 @@
 (defcustom eclim-eclipse-dirs '("/Applications/eclipse" "/usr/lib/eclipse"
                                 "/usr/local/lib/eclipse" "/usr/share/eclipse"
                                 "/Applications/Eclipse.app/Contents/Eclipse/")
-  "Path to the eclipse directory"
+  "A list of possible paths to the eclipse directory."
   :type '(sexp)
   :group 'eclim)
 
 (defcustom eclim-auto-save t
-  "Determines whether to save the buffer when retrieving completions.
-eclim can only complete correctly when the buffer has been
+  "Non-nil means the buffer is saved before retrieving completions.
+Eclim can only complete correctly when the buffer has been
 saved."
   :group 'eclim
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom eclim-print-debug-messages nil
-  "Determines whether debug messages should be printed."
+  "Non-nil means debug messages will be printed."
   :group 'eclim
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom eclim-interactive-completion-function (if ido-mode 'ido-completing-read 'completing-read)
-  "Defines a function which is used by eclim to complete a list of
-choices interactively."
+  "The function eclim should use to complete interactive choices."
   :group 'eclim
   :type 'function)
 
 (defcustom eclim-use-yasnippet t
-  "Determines whether the eclim snippets get turned on or off"
+  "Non-nil enables eclim snippets."
   :group 'eclim
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom eclim-accepted-file-regexps
   '("\\.java$" "\\.js$" "\\.xml$" "\\.rb$" "\\.groovy$" "\\.php$" "\\.c$" "\\.cc$" "\\.h$" "\\.scala$")
-  "List of regular expressions that are matched against filenames
-to decide if eclim should be automatically started on a
-particular file. By default all files part of a project managed
-by eclim can be accepted (see `eclim--accepted-filename-p' for more
-information). It is nevertheless possible to restrict eclim to
-some files by changing this variable. For example, a value
-of (\"\\\\.java\\\\'\" \"build\\\\.xml\\\\'\") can be used to restrict
-the use of eclim to java and ant files."
+  "List of filename patterns which cause eclim to be enabled.
+Each element is a regular expression which is matched
+against filenames to decide if eclim should be automatically
+started on a particular file.  By default all files part of
+a project managed by eclim can be accepted (see
+`eclim--accepted-filename-p' for more information).  It is
+nevertheless possible to restrict eclim to some files by
+changing this variable.  For example, a value of
+\(\"\\\\.java\\\\'\" \"build\\\\.xml\\\\'\") can be used to
+restrict the use of eclim to java and ant files."
   :group 'eclim
   :type '(repeat regexp))
 
 (defcustom eclim-problems-refresh-delay 0.5
-  "The delay (in seconds) to wait before we refresh the problem list buffer after a file is saved."
+  "The time to wait before refreshing the problem list after saving.
+The value is measured in seconds."
   :group 'eclim-problems
   :type 'number)
 
 (defcustom eclim-problems-resize-file-column t
-  "Resizes file column in emacs-eclim problems mode"
+  "Non-nil means resize the file column in the problems buffer."
   :group 'eclim-problems
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom eclim-problems-show-pos nil
-  "Shows problem line/column in emacs-eclim problems mode"
+  "Non-nil means show each problem's position in the problems buffer."
   :group 'eclim-problems
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom eclim-problems-hl-errors t
-  "Highlights errors in the problem list buffer"
+  "Non-nil means highlight errors in the problem list buffer."
   :group 'eclim-problems
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
 (defcustom eclim-problems-suppress-highlights nil
-  "When set, error and warning highlights are disabled in source files,
-although counts are printed and they remain navigable. This is
-designed to be made buffer-local (by user, not eclim) most of the
-time, but it also works globally."
+  "Controls whether problems are highlighted in source files.
+When nil, problems are highlighted in source files.  When
+non-nil and not a function, problems are not highlighted.
+
+If the value is a function, the function will be called with
+no arguments to determine whether to suppress highlighting
+for the current buffer.  Highlighting will be suppressed if
+the function returns non-nil.
+
+Even if highlighting is suppressed, error and warning counts
+are still printed and they remain navigable.  This is
+designed to be made buffer-local (by the user, not eclim)
+most of the time, but it also works globally."
   :group 'eclim-problems
   :type '(choice (const :tag "Allow" nil)
-                  (const :tag "Suppress" t)
-                  (sexp :tag "Suppress when"
-                        :value (lambda() 'for-example buffer-read-only))))
+                 (const :tag "Suppress" t)
+                 (sexp :tag "Suppress when"
+                       :value (lambda() 'for-example buffer-read-only))))
 
 (defcustom eclim-problems-show-file-extension nil
-  "Shows file extensions in emacs-eclim problems mode"
+  "Non-nil means that file extensions are shown in the problems buffer."
   :group 'eclim-problems
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
@@ -203,8 +222,8 @@ time, but it also works globally."
   'eclim--connection-refused-error)
 
 (defun eclim--parse-result (result)
-  "Parses the result of an eclim operation, raising an error if
-the result is not valid JSON."
+  "Parse the result of an eclim operation.
+Raises An error if RESULT is not valid JSON."
   (if (string-match (rx string-start (zero-or-more (any " " "\n" "\t")) string-end) result)
       nil
     (condition-case nil
@@ -237,9 +256,9 @@ where <encoding> is the corresponding java name for this encoding." e e)))
   (funcall eclim-interactive-completion-function prompt choices))
 
 (defun eclim--call-process (&rest args)
-  "Calls eclim with the supplied arguments. Consider using
-`eclim/execute-command' instead, as it has argument expansion,
-error checking, and some other niceties.."
+  "Call eclim with ARGS.
+Consider using `eclim/execute-command' instead, as it has
+argument expansion, error checking, and some other niceties."
   (eclim--parse-result (apply 'eclim--call-process-no-parse args)))
 
 (defun eclim--connected-p ()
@@ -248,8 +267,10 @@ error checking, and some other niceties.."
     ('eclim--connection-refused-error nil)))
 
 (defun eclim-project-name (&optional filename)
-  "Returns this file's project name. If the optional argument
-FILENAME is given, return that file's  project name instead."
+  "Return a file's project name.
+If the optional argument FILENAME is given, return that
+file's project name.  Otherwise return the current file's
+project name."
   (cl-labels ((get-project-name (file)
                                 (eclim/execute-command "project_by_resource" ("-f" file))))
     (if filename
@@ -260,11 +281,11 @@ FILENAME is given, return that file's  project name instead."
 
 (defun eclim--expand-args (args)
   "Supply missing default values for eclim arguments.
-Takes a list of command-line arguments with which to call the
-eclim server. Each element should be either a string or a
-list. If it is a string, its default value is looked up in
-`eclim--default-args' and used to construct a list. The argument
-lists are then appended together."
+ARGS is a list of command line arguments with which to call
+the eclim server.  Each element should be either a string or
+a list.  If it is a string, its default value is looked up
+in `eclim--default-args' and used to construct a list.  The
+argument lists are then appended together."
   (mapcar (lambda (arg) (if (numberp arg) (number-to-string arg) arg))
           (cl-loop for arg in args
                    append (if (stringp arg)
@@ -278,10 +299,11 @@ lists are then appended together."
                             arg))))
 
 (defun eclim--src-update (&optional save-others)
-  "If `eclim-auto-save' is non-nil, save the current java
-buffer. In addition, if `save-others' is non-nil, also save any
-other unsaved buffer. Finally, tell eclim to update its java
-sources."
+  "Automatically save the current buffer before calling eclim.
+Automatic saving is only performed if `eclim-auto-save' is
+non-nil.  Additionally, if automatic saving is enabled and
+SAVE-OTHERS is non-nil, any other unsaved Java buffers are
+saved as well."
   (when eclim-auto-save
     (when (buffer-modified-p) (save-buffer)) ;; auto-save current buffer, prompt on saving others
     (when save-others (save-some-buffers nil (lambda () (string-match "\\.java$" (buffer-file-name)))))))
@@ -317,8 +339,9 @@ sources."
   (eclim/execute-command "project_list"))
 
 (defun eclim--project-dir (&optional projectname)
-  "Return this project's root directory. If the optional
-argument PROJECTNAME is given, return that project's root directory."
+  "Return this project's root directory.
+If the optional argument PROJECTNAME is given, return that
+project's root directory."
   (assoc-default 'path (eclim/project-info (or projectname (eclim-project-name)))))
 
 (defun eclim--byte-offset (&optional _text)
@@ -356,9 +379,9 @@ argument PROJECTNAME is given, return that project's root directory."
   :type 'file)
 
 (defun eclim--make-command (args)
-  "Creates a command string that can be executed from the
-shell. The first element in ARGS is the name of the eclim
-operation, and the rest are flags/values to be passed on to
+  "Create a command string that can be executed from the shell.
+The first element in ARGS is the name of the eclim
+operation.  The rest are flags/values to be passed on to
 eclimd."
   (when (not eclim-executable)
     (error "Eclim installation not found. Please set eclim-executable."))
@@ -370,7 +393,9 @@ eclimd."
                            while arg append (if val (list arg (shell-quote-argument val)) (list arg))))))
 
 (defun eclim--call-process-no-parse (&rest args)
-  "Calls eclim with the supplied arguments but does not attempt to parse the result. "
+  "Call eclim using ARGS as command line arguments.
+This function does not attempt to parse the result.  Instead
+the output from eclim is returned as a string."
   (let ((cmd (eclim--make-command args)))
     (when eclim-print-debug-messages (message "Executing: %s" cmd))
     (shell-command-to-string cmd)))
@@ -466,37 +491,42 @@ eclimd."
         (grep-mode)))))
 
 (defun eclim--accepted-filename-p (filename)
-  "Return t if and only one of the regular expressions in
-`eclim-accepted-file-regexps' matches FILENAME."
+  "Return non-nil if eclim should be enabled for a file.
+The result is non-nil if and only if one of the regular
+expressions in `eclim-accepted-file-regexps' matches
+FILENAME."
   (if (cl-member-if
        (lambda (regexp) (string-match regexp filename))
        eclim-accepted-file-regexps)
       t))
 
 (defun eclim--file-managed-p (&optional filename)
-  "Return t if and only if this file is part of a project managed
-by eclim. If the optional argument FILENAME is given, the return
-value is computed for that file's instead."
+  "Return non-nil if and only if the file is managed by eclim.
+If the optional argument FILENAME is given, the result is
+computed for that file.  Otherwise, the result is computed
+for the file visited by the current buffer."
   (ignore-errors
     (let ((file (or filename buffer-file-name)))
       (and file
            (eclim-project-name file)))))
 
 (defun eclim--accepted-p (filename)
-  "Return t if and only if eclim should be automatically started on filename."
+  "Return non-nil if eclim should automatically start for FILENAME."
   (and
    filename
    (eclim--accepted-filename-p filename)
    (eclim--file-managed-p filename)))
 
 (defun eclim--java-identifier-at-point (&optional full position)
-  "Returns a cons cell (BEG . IDENTIFIER) where BEG is the start
-buffer byte offset of the token/identifier at point, and
-IDENTIFIER is the string from BEG to (point). If argument FULL is
-non-nill, IDENTIFIER will contain the whole identifier, not just
-the start. If argument POSITION is non-nil, BEG will contain the
-position of the identifier instead of the byte offset (which only
-matters for buffers containing non-ASCII characters)."
+  "Determine the identifier and position of the token at `point'.
+Returns a cons cell (BEG . IDENTIFIER) where BEG is the
+buffer byte offset of the start of the token/identifier at
+point, and IDENTIFIER is the string from BEG to (point).  If
+argument FULL is non-nil, IDENTIFIER will contain the whole
+identifier, not just the start.  If argument POSITION is
+non-nil, BEG will contain the position of the identifier
+instead of the byte offset (which only matters for buffers
+containing non-ASCII characters)."
   (let ((boundary "\\([<>()\\[\\.\s\t\n!=,;]\\|]\\)"))
     ;; TODO: make this work for dos buffers
     (save-excursion
@@ -510,8 +540,9 @@ matters for buffers containing non-ASCII characters)."
               (buffer-substring-no-properties start end))))))
 
 (defun eclim--problems-update-maybe ()
-  "If autoupdate is enabled, this function triggers a delayed
-refresh of the problems buffer."
+  "Trigger a delayed refresh of the problems buffer.
+The refresh is only triggered if auto-updated is enabled.
+The delay is specified by `eclim-problems-refresh-delay'."
   (when (and (not eclim--is-completing)
              (eclim--project-dir)
              eclim-autoupdate-problems)
@@ -590,19 +621,18 @@ refresh of the problems buffer."
     40))
 
 (defun eclim--problems-filtered ()
-  "Filter reported problems by eclim.
+  "Return a filtered list of problems reported by eclim.
 
-It filters out problems using the ECLIM--PROBLEMS-FILEFILTER
-criteria. If IGNORE-TYPE-FILTER is nil (default), then problems
-are also filtered according to ECLIM--PROBLEMS-FILTER, i.e.,
-error type. Otherwise, error type is ignored. This is useful when
-other mechanisms, like compilation's mode
-COMPILATION-SKIP-THRESHOLD, implement this feature."
+Filtering is controlled by two variables:
+`eclim--problems-filter' and `eclim--problems-filefilter'.
+See the documentation for those variables for an explanation
+of their effects."
   (eclim--filter-problems eclim--problems-filter eclim--problems-filefilter eclim--problems-file eclim--problems-list))
 
 (defun eclim-problems-highlight ()
-  "Inserts the currently active problem highlights in the current buffer,
-if `eclim-problems-suppress-highlights' allows it."
+  "Highlight the currently active problems in the current buffer.
+Highlighting only occurs if it is allowed by
+`eclim-problems-suppress-highlights'"
   (interactive)
   (when (eclim--accepted-p (buffer-file-name))
     (save-restriction
@@ -644,8 +674,8 @@ if `eclim-problems-suppress-highlights' allows it."
     (insert "\n")))
 
 (defun eclim-problems-clear-highlights ()
-  "Clears all eclim problem highlights in the current buffer. This is temporary
-until the next refresh."
+  "Clear problem highlighting in the current buffer.
+This is temporary until the next refresh."
   (interactive)
   (remove-overlays nil nil 'category 'eclim-problem))
 

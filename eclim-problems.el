@@ -34,17 +34,17 @@
 (eval-when-compile (require 'eclim-macros))
 
 (defgroup eclim-problems nil
-  "Problems: settings for displaying the problems buffer and highlighting errors in code."
+  "Settings for displaying problems in code and the problems buffer."
   :group 'eclim)
 
 (defface eclim-problems-highlight-error-face
   '((t (:underline "red")))
-  "Face used for highlighting errors in code"
+  "Face used for highlighting errors in code."
   :group 'eclim-problems)
 
 (defface eclim-problems-highlight-warning-face
   '((t (:underline "orange")))
-  "Face used for highlighting errors in code"
+  "Face used for highlighting warnings in code."
   :group 'eclim-problems)
 
 (defvar eclim-problems-mode-hook nil)
@@ -159,8 +159,9 @@
     (eclim--problem-goto-pos p)))
 
 (defun eclim-problems-correct ()
-  "Pops up a suggestion for the current correction. This can be
-invoked in either the problems buffer or a source code buffer."
+  "Show a suggestion for the current correction.
+This can be invoked in either the problems buffer or a
+source code buffer."
   (interactive)
   (let ((p (eclim--problems-get-current-problem)))
     (unless (string-match "\\.\\(groovy\\|java\\)$" (cdr (assoc 'filename p)))
@@ -181,22 +182,20 @@ invoked in either the problems buffer or a source code buffer."
   (not (eclim--warning-filterp x)))
 
 (defun eclim--get-problems-buffer ()
-  "Gets the existing problems buffer.
-Returns nil if no problems buffer exists."
+  "Return the existing problems buffer, or nil of none exists."
   (get-buffer eclim--problems-buffer-name))
 
 (defun eclim--get-problems-buffer-create ()
-  "Return the eclim problems buffer.
-If the buffer does not exist, it is created."
+  "Return the eclim problems buffer, creating one if none exists."
   (or (eclim--get-problems-buffer)
       (progn
         (eclim--problems-mode-init t)
         (eclim--get-problems-buffer))))
 
 (defun eclim--problems-mode-init (&optional quiet)
-  "Create and initialize the eclim problems buffer. If the
-argument QUIET is non-nil, open the buffer in the background
-without switching to it."
+  "Create and initialize the eclim problems buffer.
+If the optional argument QUIET is non-nil, open the buffer
+in the background without switching to it."
   (let ((buf (get-buffer-create eclim--problems-buffer-name)))
     (save-excursion
       (setq eclim--problems-project (eclim-project-name))
@@ -209,14 +208,18 @@ without switching to it."
         (switch-to-buffer buf))))
 
 (defun eclim-problems ()
-  "Show current compilation problems in a separate window."
+  "Switch to and refresh the problems buffer.
+If the problems buffer does not exist yet, it is created."
   (interactive)
   (if (eclim-project-name)
       (eclim--problems-mode-init)
     (error "Could not figure out the current project. Is this an eclim managed buffer?")))
 
 (defun eclim-problems-open ()
-  "Opens a new (emacs) window inside the current frame showing the current project compilation problems"
+  "Switch to the problems buffer in a new Emacs window.
+The new window will be in the current frame.  The problems
+buffer will be updated to show that latest compilation
+problems."
   (interactive)
   (let ((w (selected-window)))
     (select-window (split-window nil (round (* (window-height w) 0.75)) nil))
@@ -265,9 +268,9 @@ without switching to it."
   (eclim-problems-previous t))
 
 (defun eclim-problems-compilation-buffer ()
-  "Creates a compilation buffer from eclim error messages. This
-is convenient as it lets the user navigate between errors using
-`next-error' (\\[next-error])."
+  "Create a compilation buffer from eclim problems.
+This is convenient as it lets the user navigate between
+errors using `next-error' (\\[next-error])."
   (interactive)
   (let ((filecol-size (eclim--problems-filecol-size))
         (project-directory (concat (eclim--project-dir) "/"))
@@ -338,8 +341,10 @@ is convenient as it lets the user navigate between errors using
    (eclim--filter-problems "w" t (buffer-file-name (current-buffer)) eclim--problems-list)))
 
 (defun eclim-problems-next-same-file (&optional up)
-  "Moves to the next problem in the current file, with wraparound. If UP
-or prefix arg, moves to previous instead; see `eclim-problems-prev-same-file'."
+  "Move to the next problem in the current file, with wraparound.
+If UP is provided and non-nil, move to the previous problem
+instead.  In an interactive call, UP is the prefix argument.
+See `eclim-problems-prev-same-file'."
   (interactive "P")
   ;; This seems pretty inefficient, but it's fast enough. Would be even
   ;; more inefficient if we didn't assume problems were sorted.
@@ -366,14 +371,13 @@ or prefix arg, moves to previous instead; see `eclim-problems-prev-same-file'."
              (elt problems-file 0))))))
 
 (defun eclim-problems-prev-same-file ()
-  "Moves to the previous problem in the same file, with wraparound."
+  "Move to the previous problem in the current file, with wraparound."
   (interactive)
   (eclim-problems-next-same-file t))
 
 
 (defun eclim-problems-modeline-string ()
-  "Returns modeline string with additional info about
-problems for current file"
+  "Return a modeline string summarizing problems in the current file."
   (concat (format ": %s/%s"
                   (eclim--count-current-errors)
                   (eclim--count-current-warnings))

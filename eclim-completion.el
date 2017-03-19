@@ -41,11 +41,14 @@
 (defvar eclim--completion-candidates nil)
 
 (defvar eclim-insertion-functions nil
-  "Use one of these functons when inserting a completion in
-preference to yasnippet or raw insertion. Each will be called
-with a yas template and should return nil iff it cannot do the
-insertion (e.g. wrong mode). For example, `eclim-completion-insert-empty'
-removes all arguments before inserting.")
+  "List of functions to use when inserting a completion.
+One of these functions will be used in preference to
+yasnippet or raw insertion.  Each will be called with a yas
+template and should return nil if it cannot do the insertion
+(e.g., if the buffer is in the wrong mode).
+
+One example function is `eclim-completion-insert-empty'
+which removes all arguments before inserting.")
 
 (defun eclim--complete ()
   (setq eclim--is-completing t)
@@ -72,15 +75,17 @@ removes all arguments before inserting.")
     (setq eclim--is-completing nil)))
 
 (defun eclim--completion-candidates-filter (c)
-  "Rejects completion candidate C (non-nil return) in certain situations."
+  "Reject completion candidate C in certain situations.
+Rejection is signalled by returning non-nil."
   (cl-case major-mode
     ((xml-mode nxml-mode) (or (cl-search "XML Schema" c)
                               (cl-search "Namespace" c)))
     (t nil)))
 
 (defun eclim--completion-candidate-menu-item (candidate)
-  "Returns the part of the completion candidate to be displayed
-in a completion menu."
+  "Return the completion menu item in CANDIDATE.
+CANDIDATE should be a completion candidate as returned by
+`eclim--complete'."
   (assoc-default (cl-case major-mode
                    (java-mode 'info)
                    (t 'completion)) candidate))
@@ -92,7 +97,9 @@ in a completion menu."
                        (eclim--complete)))))
 
 (defun eclim--basic-complete-internal (completion-list)
-  "Displays a buffer of basic completions."
+  "Display a buffer of basic completions.
+COMPLETION-LIST is a list of completion candidates to
+display."
   (let* ((window (get-buffer-window "*Completions*" 0))
          (c (eclim--java-identifier-at-point nil t))
          (beg (car c))
@@ -130,16 +137,15 @@ in a completion menu."
        (t (message "That's the only possible completion."))))))
 
 (defun eclim-complete ()
-  "Attempts a context sensitive completion for the current
-element, then displays the possible completions in a separate
-buffer."
+  "Attempt a context sensitive completion for the current element.
+The possible completions are displayed in a separate buffer."
   (interactive)
   (when eclim-auto-save (save-buffer))
   (eclim--basic-complete-internal
    (eclim--completion-candidates)))
 
 (defun eclim--completion-yasnippet-convert (completion)
-  "Convert a completion string to a yasnippet template"
+  "Convert COMPLETION to a yasnippet template."
   (let ((level 0))
     (replace-regexp-in-string
      ;; ORs: 1) avoid empty case; 2) eat spaces sometimes; 3) not when closing.
@@ -162,7 +168,8 @@ buffer."
 (defvar eclim--completion-start nil)
 
 (defun eclim-completion-start ()
-  "Work out the point where completion starts."
+  "Return the starting point for completion.
+The result is also stored in `eclim--completion-start'."
   (setq eclim--completion-start
         (save-excursion
           (cl-case major-mode
@@ -240,8 +247,8 @@ buffer."
       (t (eclim--completion-action-default)))))
 
 (defun eclim--render-doc (str)
-  "Performs rudimentary rendering of HTML elements in
-documentation strings."
+  "Convert STR from an HTML string to a documentation string.
+The rendering is rather rudimentary."
   (apply #'concat
          (cl-loop for p = 0 then (match-end 0)
                   while (string-match "[[:blank:]]*\\(.*?\\)\\(</?.*?>\\)" str p) collect (match-string 1 str) into ret
@@ -252,15 +259,17 @@ documentation strings."
                   finally return (append ret (list (substring str p))))))
 
 (defun eclim--completion-documentation (symbol)
-  "Looks up the documentation string for the given SYMBOL in the
-completion candidates list."
+  "Look up the documentation string for the given SYMBOL.
+SYMBOL is looked up in `eclim--completion-condidates'."
   (let ((doc (assoc-default 'info (cl-find symbol eclim--completion-candidates :test #'string= :key #'eclim--completion-candidate-menu-item))))
     (when doc
       (eclim--render-doc doc))))
 
 (defun eclim-completion-insert-empty (template)
-  "Insert a completion erasing arguments, leaving point inside argument list
-or outside if empty. Meant for `eclim-insertion-functions'."
+  "Insert a completion TEMPLATE without arguments.
+The point is placed inside the argument list, or outside the
+if the argument list is empty.  Meant for use with
+`eclim-insertion-functions'."
   (save-match-data
     (if (not (string-match "${.*}" template))
         (insert template)

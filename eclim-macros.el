@@ -29,17 +29,18 @@
 ;;; Code:
 
 (defun eclim--args-contains (args flags)
-  "Validates that ARGS (not expanded) has the specified FLAGS."
+  "Validate that ARGS (not expanded) has the specified FLAGS."
   (cl-loop for f in flags
            return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
 
 (defun eclim--evaluating-args-form (args)
-  "Takes a list and returns a form that evaluates it's elements.
-If a list element is of the form (string expression), only
-expression will be evaluated and (string result) will be the
-element contained in the list returned by the form. Other list
-elements will be evaluated directly and their result will be in
-the final list."
+  "Return a form which evaluates the elements of the list ARGS.
+If a list element is of the form (STRING EXPRESSION), only
+EXPRESSION will be evaluated by the form to some RESULT,
+and \(STRING RESULT) will be the element contained in the
+list returned by the form.  Other list elements will be
+evaluated directly and their result will be in the final
+list."
   `(list ,@(mapcar (lambda (arg)
                      (if (and (listp arg)
                               (stringp (car arg)))
@@ -48,12 +49,12 @@ the final list."
                    args)))
 
 (defmacro eclim/execute-command (cmd &rest args)
-  "Calls `eclim--expand-args' on ARGS, then calls eclim with the
-results. Automatically saves the current buffer (and optionally
-other java buffers as well), performs an eclim source update
-operation, and refreshes the current buffer if necessary. Raises
-an error if the connection is refused. Automatically calls
-`eclim--check-project' if neccessary."
+  "Execute CMD after expanding ARGS with `eclim--expand-args'.
+Automatically saves the current buffer (and optionally other
+java buffers as well), performs an eclim source update
+operation, and refreshes the current buffer if necessary.
+Raises an error if the connection is refused.  Automatically
+calls `eclim--check-project' if necessary."
   `(eclim--execute-command-internal
     (lambda (command-line on-complete-fn)
       (let ((res (apply 'eclim--call-process command-line)))
@@ -62,10 +63,12 @@ an error if the connection is refused. Automatically calls
     ,cmd ,(eclim--evaluating-args-form args)))
 
 (defmacro eclim/with-results (result params &rest body)
-  "Convenience macro. PARAMS is a list where the first element is
-CMD to execute and the rest an ARGS list. Calls eclim with CMD
-and the expanded ARGS list and binds RESULT to the results. If
-RESULT is non-nil, BODY is executed."
+  "Call eclim, binding RESULT to the parsed output.
+PARAMS is a list (CMD . ARGS) where CMD is the eclim command
+to execute and ARGS is the unexpanded argument list.
+
+If RESULT is non-nil after the command is finished, BODY is
+executed."
   (declare (indent defun))
   (let ((sync (eclim--args-contains (cdr params) (list "-f" "-o"))))
     `(let* ((,result (eclim/execute-command ,@params))
@@ -74,10 +77,15 @@ RESULT is non-nil, BODY is executed."
          ,@body))))
 
 (defmacro eclim/with-results-async (result params &rest body)
-  "A convenience macro.  PARAMS is a list where the first element
-is CMD to execute and the rest an ARGS list.  Calls Eclim with CMD
-and the expanded ARGS list and binds RESULT to the results.  If
-RESULT is non-nil, BODY is executed."
+  "Call eclim asynchronously, binding RESULT to the parsed output.
+PARAMS is a list (CMD . ARGS) where CMD is the eclim command
+to execute and ARGS is the unexpanded argument list.
+
+If RESULT is non-nil after the command is finished, BODY is
+executed.
+
+This function is the asynchronous version of
+`eclim/with-results'."
   (declare (indent defun))
   (let ((sync (eclim--args-contains (cdr params) (list "-f" "-o"))))
     `(eclim/execute-command-async
@@ -87,14 +95,21 @@ RESULT is non-nil, BODY is executed."
       ,@params)))
 
 (defmacro eclim/execute-command-async (callback cmd &rest args)
-  "Run eclim command CMD with arguments ARGS, supplying default values for args when needed.
-Calls `eclim--expand-args' on ARGS, then calls eclim with the
-results. Automatically saves the current buffer (and optionally
-other java buffers as well), performs an eclim source update
-operation, and refreshes the current buffer if necessary. Raises
-an error if the connection is refused. Automatically calls
-`eclim--check-project' if neccessary. CALLBACK is a lambda
-expression which is called with the results of the operation."
+  "Execute CMD asynchronously after expanding ARGS.
+Calls `eclim--expand-args' on ARGS to supply default values
+for arguments as needed, then calls eclim with the resulting
+argument list.  Automatically saves the current buffer (and
+optionally other java buffers as well)m, performs an eclim
+source update operation, and refreshes the current buffer if
+necessary.  Raises an exception if the connection is
+refused.  Automatically calls `eclim-check-project' if
+necessary.
+
+CALLBACK is a function which is called with the parsed
+results of the operation.
+
+This function is the asynchronous version of
+`eclim/execute-command'."
   `(eclim--execute-command-internal
     (lambda (command-line on-complete-fn)
       (let ((on-complete-fn on-complete-fn))
@@ -107,8 +122,13 @@ expression which is called with the results of the operation."
     ,cmd ,(eclim--evaluating-args-form args)))
 
 (defmacro eclim--with-problems-list (problems &rest body)
+  "Asynchronously refresh the problems list and operate on it.
+If no project is set as the current problems project in
+`eclim--problems-project', no update is performed.
+
+The problems list will be stored in `eclim--problems-list'
+and also bound to PROBLEMS while evaluating BODY."
   (declare (indent defun))
-  "Utility macro to refresh the problem list and do operations on it asynchronously."
   (let ((res (cl-gensym)))
     `(when eclim--problems-project
        (setq eclim--problems-refreshing t)
@@ -122,8 +142,11 @@ expression which is called with the results of the operation."
            ,@body)))))
 
 (defmacro eclim--lambda-with-live-current-buffer (&rest body)
+  "Create a closure which will execute BODY in the current buffer.
+The current buffer is at the creation of the closure, not
+when the closure is called.  BODY is only executed if the
+current buffer is still live when the closure is called."
   (declare (indent defun))
-  "Create a closure that executes body with the callers current buffer if it's still live."
   (let ((caller-current-buffer-symbol (make-symbol "caller-current-buffer")))
     `(let ((,caller-current-buffer-symbol (current-buffer)))
        (lambda ()

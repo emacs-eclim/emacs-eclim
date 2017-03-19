@@ -42,9 +42,10 @@
 (defcustom eclimd-executable
   nil
   "The eclimd executable to use.
-Set to nil to auto-discover from `eclim-executable' value (the default value).
-Set to \"eclimd\" if eclim and eclimd are in `exec-path'. Otherwise, set to
-the full path to eclimd executable."
+Set to nil to auto-discover from `eclim-executable' value
+\(the default).  Set to \"eclimd\" if eclim and eclimd are
+in `exec-path'.  Otherwise, set to the full path of the
+eclimd executable."
   :type '(choice (const :tag "Same directory as eclim-executable variable" nil)
                  (string :tag "Custom value" "eclimd"))
   :group 'eclimd)
@@ -57,20 +58,22 @@ the full path to eclimd executable."
 
 (defcustom eclimd-wait-for-process
   nil
-  "Make `start-eclimd' block until the eclimd process is ready.
-When this variable is nil, `start-eclimd' returns immediately after
-eclimd process is started. Since the eclimd process startup takes a few seconds,
-running eclim commands immediately after the function returns may cause failures.
-You can freeze emacs until eclimd is ready to accept commands with this variable."
+  "Non-nil means `start-eclimd' blocks until eclimd is ready.
+When this variable is nil, `start-eclimd' returns
+immediately after the eclimd process is started.  Since the
+eclimd process startup takes a few seconds, running eclim
+commands immediately after the function returns may cause
+failures.  You can freeze Emacs until eclimd is ready to
+accept commands with this variable."
   :tag "Wait until eclimd is ready"
   :type 'boolean
   :group 'eclimd)
 
 (defvar eclimd-process-buffer nil
-  "Buffer used for communication with eclimd process")
+  "Buffer used for communication with the eclimd process.")
 
 (defvar eclimd-process nil
-  "The active eclimd process")
+  "The active eclimd process.")
 
 (defvar eclimd-port nil)
 
@@ -91,11 +94,11 @@ You can freeze emacs until eclimd is ready to accept commands with this variable
 
 (defcustom eclimd-autostart-with-default-workspace
   nil
-  "Whether to skip asking the user about a workspace when eclimd gets autostarted.
-When `eclimd-autostart' is set to t, this option controls whether
-eclimd is started silently with `eclimd-default-workspace' as
-workspace or whether the user is asked for a workspace as with
-regular calls to `start-eclimd'."
+  "Non-nil means do not ask for a workspace when autostarting eclimd.
+When `eclimd-autostart' is non-nil, this option controls
+whether eclimd is started silently with the workspace set to
+`eclimd-default-workspace', or whether the user is asked for
+a workspace as with regular calls to `start-eclimd'."
   :tag "Autostart eclimd with default workspace"
   :type 'boolean
   :group 'eclimd)
@@ -107,12 +110,13 @@ regular calls to `start-eclimd'."
 
 (defcustom eclimd-autostart
   nil
-  "Automatically start eclimd from within Emacs when needed.
-You may want to set this to nil if you prefer starting eclimd
-manually and don't want it to run as a child process of
-Emacs. eclimd gets started either when `eclim-mode' is enabled or
-the first time `global-eclim-mode' needs it to determine if
-`eclim-mode' should be enabled in a buffer. See also
+  "Non-nil means automatically start eclimd within Emacs when needed.
+You may want to set this to nil if you prefer starting
+eclimd manually and don't want it to run as a child
+process of Emacs.  When set, eclimd gets started either when
+`eclim-mode' is enabled or the first time
+`global-eclim-mode' needs it to determine if `eclim-mode'
+should be enabled in a buffer.  See also
 `eclimd-autostart-with-default-workspace'."
   :tag "Autostart eclimd"
   :type 'boolean
@@ -120,10 +124,11 @@ the first time `global-eclim-mode' needs it to determine if
 
 (defvar eclimd--process-event-functions nil
   "List of functions to run when eclimd outputs text or changes state.
-Functions receive the process, the output string and the process
-state as argument. Any of the last two may be nil (but never
-both). When a function returns nil it is removed from the list,
-functions returning non-nil are kept.")
+Functions receive the process, the output string and the
+process state as argument.  Either of the last two may be
+nil, but never both.  When a function returns nil it is
+removed from the list, but functions returning non-nil are
+kept.")
 
 (defun eclimd--process-sentinel (proc state)
   (setq eclimd--process-event-functions
@@ -141,12 +146,12 @@ functions returning non-nil are kept.")
     (funcall eclimd--comint-process-filter proc string)))
 
 (defun eclimd--match-process-output (regexp &optional async callback)
-  "Wait for the given process to output a string that matches the specified regexp.
-When ASYNC is omitted or nil block and return the string used for
-`string-match' if a match is found, and nil if the process is
-killed. Execute CALLBACK when the process outputs the desired
-string or terminates and pass the corresponding return value as
-argument."
+  "Wait for eclimd to output a string matching REGEXP.
+When ASYNC is omitted or nil, block and return the string
+used for `string-match' if a match is found, or nil if the
+process is killed.  Execute CALLBACK when the process
+outputs the desired string or terminates and pass the
+corresponding return value as argument."
   (let* ((output "")
          (terminated-p)
          (finished-p)
@@ -176,9 +181,11 @@ argument."
         (remove-hook 'eclimd--process-event-functions closure)))))
 
 (defun eclimd--await-connection (&optional async callback)
-  "Execute callback when eclimd server becomes active.
-CALLBACK receives no arguments. It is not called when eclimd
-fails to start."
+  "Wait for the eclimd server to become active.
+If ASYNC is omitted or nil, block until the eclimd server
+becomes active.  Call CALLBACK with no arguments when the
+connection is established, but not when eclimd fails to
+start."
   (eclimd--match-process-output
    eclimd--started-regexp async
    (lambda (output)
@@ -188,16 +195,21 @@ fails to start."
 
 ;;;###autoload
 (defun start-eclimd (workspace-dir &optional callback)
-  "Start the eclimd process and optionally wait for it to be ready.
-This will ask for a workspace directory, and it will attempt to
-start eclimd program with the entered workspace directory. The
-configurable variable `eclimd-default-workspace' controls the
-default value of this directory. After having started the deamon,
-it will block until eclimd is ready to receive commands since
-otherwise those would fail. You can modify
-`eclimd-wait-for-process' to prevent this command from
-blocking. To stop the started process and you should use
-`stop-eclimd'."
+  "Start the eclimd server and optionally wait for it to be ready.
+
+WORKSPACE-DIR is the desired workspace directory for which
+eclimd will be started.  `eclimd-default-workspace' is used
+as the default value of this directory.
+
+If CALLBACK is non-nil, it is called with no arguments once
+the server is ready.
+
+After having started the server process, this function may
+block until eclimd is ready to receive commands, depending
+on the value of `eclimd-wait-for-process'.  Commands will
+fail if they are executed before the server is ready.
+
+To stop the server, you should use `stop-eclimd'."
   (interactive (list (eclimd--read-workspace-dir)))
   (let ((eclimd-prog (eclimd--executable-path)))
     (if (not eclimd-prog)
@@ -228,8 +240,18 @@ blocking. To stop the started process and you should use
 
 (defun eclimd--ensure-started (&optional async callback)
   "Ensure eclimd is running, autostarting it when possible.
+
+If ASYNC is non-nil, the eclimd process will be connected to
+asynchronously.  After being connected, CALLBACK will be
+invoked with no arguments.
+
+An error is raised if both `eclimd-autostart' and ASYNC are
+nil while there is no eclimd process.  If ASYNC is non-nil
+and eclimd cannot be started or is already running, CALLBACK is
+not executed.
+
 An error is raised when both `eclimd-autostart' and ASYNC are nil
-while there is no eclimd process. If ASYNC is t and eclimd can
+while there is no eclimd process.  If ASYNC is t and eclimd can
 not be started / is already running, CALLBACK is not executed."
   (if (eclim--connected-p)
       (when callback (funcall callback))
@@ -244,9 +266,8 @@ not be started / is already running, CALLBACK is not executed."
           (if async (message msg) (error msg)))))))
 
 (defun stop-eclimd ()
-  "Gracefully terminate the started eclimd process.
-This command asks the running eclimd process to terminate, kills
-the *eclimd*-buffer and removes any hooks added by
+  "Gracefully terminate the eclimd process.
+Also kill the *eclimd*-buffer and remove any hooks added by
 `start-eclimd'."
   (interactive)
   (when eclimd-process
