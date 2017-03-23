@@ -38,24 +38,6 @@
 (require 'eclim-common)
 (require 'eclim-java)
 
-(defun eclim--completion-candidate-type (candidate)
-  "Returns the type of a candidate."
-  (assoc-default 'type candidate))
-
-(defun eclim--completion-candidate-class (candidate)
-  "Returns the class name of a candidate."
-  (assoc-default 'info candidate))
-
-(defun eclim--completion-candidate-doc (candidate)
-  "Returns the documentation for a candidate."
-  (assoc-default 'menu candidate))
-
-(defun eclim--completion-candidate-package (candidate)
-  "Returns the package name of a candidate."
-  (let ((doc (eclim--completion-candidate-doc candidate)))
-    (when (string-match "\\(.*\\)\s-\s\\(.*\\)" doc)
-      (match-string 2 doc))))
-
 (defvar eclim--completion-candidates nil)
 
 (defvar eclim-insertion-functions nil
