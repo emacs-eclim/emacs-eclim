@@ -38,19 +38,21 @@
 (require 'eclim-common)
 (require 'eclim-java)
 
-(defvar eclim--completion-candidates nil)
+(defvar eclim--completion-candidates nil
+  "The current completion results.")
 
 (defvar eclim-insertion-functions nil
   "List of functions to use when inserting a completion.
 One of these functions will be used in preference to
 yasnippet or raw insertion.  Each will be called with a yas
 template and should return nil if it cannot do the insertion
-(e.g., if the buffer is in the wrong mode).
+\(e.g., if the buffer is in the wrong mode).
 
 One example function is `eclim-completion-insert-empty'
 which removes all arguments before inserting.")
 
 (defun eclim--complete ()
+  "Generate completion candidates at the current point."
   (setq eclim--is-completing t)
   (unwind-protect
       (setq eclim--completion-candidates
@@ -91,6 +93,7 @@ CANDIDATE should be a completion candidate as returned by
                    (t 'completion)) candidate))
 
 (defun eclim--completion-candidates ()
+  "Return the filtered list of completion candidates."
   (with-no-warnings
     (cl-remove-if #'eclim--completion-candidates-filter
                (mapcar #'eclim--completion-candidate-menu-item
@@ -165,7 +168,8 @@ The possible completions are displayed in a separate buffer."
            repl))
      completion)))
 
-(defvar eclim--completion-start nil)
+(defvar eclim--completion-start nil
+  "The starting position of the current completion.")
 
 (defun eclim-completion-start ()
   "Return the starting point for completion.
@@ -195,6 +199,9 @@ The result is also stored in `eclim--completion-start'."
              (point))))))
 
 (defun eclim--completion-action-java (beg end)
+  "Perform a Java-style completion.
+BEG and END are the integer positions within the current
+buffer marking the region which is replaced."
   (let ((completion (buffer-substring-no-properties beg end)))
     (cond ((string-match "\\(.*?\\) :.*- Override method" completion)
            (let ((sig (eclim--java-parse-method-signature (match-string 1 completion))))
@@ -218,6 +225,9 @@ The result is also stored in `eclim--completion-start'."
                                                                (length insertion)))))))))))
 
 (defun eclim--completion-action-xml (beg end)
+  "Perform an XML-style completion.
+BEG and END are the integer positions within the current
+buffer marking the region which is replaced."
   (when (string-match "[\n[:blank:]]" (char-to-string (char-before beg)))
     ;; we are completing an attribute; let's use yasnippet to get som nice completion going
     (let* ((c (buffer-substring-no-properties beg end))
@@ -229,6 +239,12 @@ The result is also stored in `eclim--completion-start'."
           (insert completion))))))
 
 (defun eclim--completion-action-default ()
+  "Perform a generalized completion.
+BEG and END are the integer positions within the current
+buffer marking the region which is replaced.
+
+If enabled by `eclim-use-yasnippet', yasnippet will be used
+to perform the completion."
   (when (and (= 40 (char-before)) (not (looking-at ")")))
     ;; we've inserted an open paren, so let's close it
     (if (and eclim-use-yasnippet (featurep 'yasnippet) yas-minor-mode)
@@ -238,6 +254,9 @@ The result is also stored in `eclim--completion-start'."
         (backward-char)))))
 
 (defun eclim--completion-action (beg end)
+  "Perform a completion.
+BEG and END are the integer positions within the current
+buffer marking the region which is replaced."
   (let ((eclim--is-completing t)) ;; an import should not refresh problems
     (cl-case major-mode
       ('java-mode (eclim--completion-action-java beg end))

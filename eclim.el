@@ -51,6 +51,9 @@
   :group 'tools)
 
 (defun eclim-toggle-print-debug-messages ()
+  "Enable or disable printing debug messages.
+The value of the variable `eclim-print-debug-messages' is
+inverted by this function."
   (interactive)
   (message "Debug messages %s."
            (if (setq eclim-print-debug-messages (not eclim-print-debug-messages))
@@ -63,7 +66,10 @@ instead of burying it."
   (interactive "P")
   (quit-window kill-buffer (selected-window)))
 
-(defvar eclim--currently-running-async-calls nil)
+(defvar eclim--currently-running-async-calls nil
+  "The list of currently running asynchronous commands.
+This allows preventing multiple executions of the same
+command from running concurrently.")
 
 (defun eclim--call-process-async (callback &rest args)
   "Call eclim asynchronously with the supplied arguments.
@@ -94,7 +100,21 @@ it is asynchronous."
 ;; Commands
 
 (defun eclim-file-locate (pattern &optional case-insensitive)
+  "Find all files in the current workspace which match PATTERN.
+PATTERN is a regular expression, not a glob pattern.  Also,
+unlike Emacs, eclim does not require special characters such
+as \"(\" or \".\" to be escaped, unless the intent is to
+match those characters literally.
+
+If CASE-INSENSITIVE is provided and non-nil, the case of the
+file name is not important to the match.
+
+If multiple files are found, a list is displayed from which
+the user may select which file to visit.  However, if only
+one file matching PATTERN, that file will be opened
+immediately."
   (interactive (list (read-string "Pattern: ") "P"))
+  (message "'%s' '%s'" pattern case-insensitive)
   (eclim/with-results hits ("locate_file" ("-p" (concat "^.*" pattern ".*$")) ("-s" "workspace") (if case-insensitive '("-i" "")))
     (eclim--find-display-results pattern
                                  (apply #'vector
@@ -127,14 +147,22 @@ resolve exception stack traces, for example."
 
 ;;;###autoload
 (defun eclim/workspace-dir ()
+  "Return the path of the current eclim workspace directory."
   (eclim--call-process "workspace_dir"))
 
 (defun eclim/jobs (&optional family)
+  "Return all active eclim jobs.
+If the optional argument FAMILY is provided, only return
+jobs belonging to FAMILY.  FAMILY may be one of
+\"auto_build\", \"auto_refresh\", \"manual_build\" or
+\"manual_refresh\".  It is possible that the eclimd server
+may define more families in the future."
   (eclim/execute-command "jobs" ("-f" family)))
 
 ;;** The minor mode and its keymap
 
-(defvar eclim-mode-hook nil)
+(defvar eclim-mode-hook nil
+  "Hook run after entering eclim mode.")
 
 ;;;###autoload
 (define-minor-mode eclim-mode
@@ -156,6 +184,7 @@ resolve exception stack traces, for example."
 
 ;; Request an eclipse source update when files are saved
 (defun eclim--after-save-hook ()
+  "Update an eclim buffer after saving."
   (when (eclim--accepted-p (buffer-file-name))
     (ignore-errors
       (apply 'eclim--call-process
@@ -171,6 +200,11 @@ resolve exception stack traces, for example."
   t)
 
 (defun eclim--maybe-create-project ()
+  "Create a project if the current file does not belong to one.
+If the file already belongs to a project, no action is
+taken.  Otherwise, the user will be prompted as to whether
+or not a new project should be created to contain the
+current file."
   (when (and (not (eclim-project-name))
              (y-or-n-p "Eclim mode was enabled in a buffer \
 that is not organized in a Eclipse project. Create a new project? "))
@@ -213,6 +247,7 @@ required to be running and will thus be autostarted."
 (require 'eclim-scala)
 
 (defun eclim-modeline-string ()
+  "Return the string to display as eclim's modeline."
   (when eclim-mode
     (concat " Eclim" (eclim-problems-modeline-string))))
 

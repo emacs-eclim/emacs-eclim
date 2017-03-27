@@ -75,20 +75,31 @@ accept commands with this variable."
 (defvar eclimd-process nil
   "The active eclimd process.")
 
-(defvar eclimd-port nil)
+(defvar eclimd-port nil
+  "The port on which eclimd is serving.
+This is nil unless the eclimd server is running and ready.")
 
-(defconst eclimd-process-buffer-name "eclimd")
+(defconst eclimd-process-buffer-name "eclimd"
+  "The name to use for the eclimd process buffer.")
 
 (defun eclimd--executable-path ()
+  "Return path to the eclimd executable.
+This can be set explicitly with `eclimd-executable'.  If
+that variable is not set, this function will attempt to
+discover the actual path."
   (if eclimd-executable
       (executable-find eclimd-executable)
     (let ((eclim-prog (executable-find eclim-executable)))
       (expand-file-name "eclimd" (file-name-directory eclim-prog)))))
 
 (defconst eclimd--started-regexp
-  "Eclim Server Started on\\(?: port\\|:\\) \\(?:\\(?:[0-9]+\\.\\)\\{3\\}[0-9]+:\\)?\\([0-9]+\\)")
+  "Eclim Server Started on\\(?: port\\|:\\) \\(?:\\(?:[0-9]+\\.\\)\\{3\\}[0-9]+:\\)?\\([0-9]+\\)"
+  "Regular expression to detect when eclimd has finished starting.
+The one and only capturing subgroup matches the port number
+on which eclimd is serving.")
 
 (defun eclimd--read-workspace-dir ()
+  "Prompt the user for the workspace directory and return it."
   (read-directory-name "Eclimd workspace directory: "
                        eclimd-default-workspace nil t))
 
@@ -104,6 +115,10 @@ a workspace as with regular calls to `start-eclimd'."
   :group 'eclimd)
 
 (defun eclimd--autostart-workspace ()
+  "Return the workspace to use when autostarting eclimd.
+If `eclimd-autostart-with-default-workspace' is nil, the
+user is asked to provide the workspace.  Otherwise,
+`eclimd-default-workspace' is assumed."
   (if eclimd-autostart-with-default-workspace
       eclimd-default-workspace
     (eclimd--read-workspace-dir)))
@@ -131,13 +146,31 @@ removed from the list, but functions returning non-nil are
 kept.")
 
 (defun eclimd--process-sentinel (proc state)
+  "The sentinel used to process events from the eclimd buffer.
+PROC is the eclimd process and STATE describes the change of
+state.
+
+Each of `eclimd--process-event-functions' will be called
+with PROC and STATE.  The output string will be nil.  Any
+of these functions which return non-nil will be removed from
+the list."
   (setq eclimd--process-event-functions
         (cl-remove-if-not (lambda (fun) (funcall fun proc nil state))
                           eclimd--process-event-functions)))
 
-(defvar eclimd--comint-process-filter nil)
+(defvar eclimd--comint-process-filter nil
+  "The default process filter for the eclimd process buffer.")
 
 (defun eclimd--process-filter (proc string)
+  "Fitler eclimd process output.
+PROC is the eclimd process and STRING is a line of output
+from eclimd.  STRING is output to the eclimd process buffer
+if one exists.
+
+Each of `eclimd--process-event-functions' will be called
+with PROC and STRING.  The process state will be nil.  Any
+of these functions which return non-nil will be removed from
+the list."
   (setq eclimd--process-event-functions
         (cl-remove-if-not (lambda (fun) (funcall fun proc string nil))
                           eclimd--process-event-functions))

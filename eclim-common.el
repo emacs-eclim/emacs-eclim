@@ -46,7 +46,8 @@
     map)
   "The keymap used in `eclim-mode'.")
 
-(defvar eclimd-process)
+(defvar eclimd-process nil
+  "The active eclimd process.")
 
 (defvar eclim--file-coding-system-mapping
   '(("undecided-dos" . "iso-8859-1")
@@ -54,17 +55,29 @@
     ("undecided-unix" . "iso-8859-1")
     ("utf-8-dos" . "utf-8")
     ("utf-8-unix" . "utf-8")
-    ("utf-8-emacs-unix" . "utf-8")))
+    ("utf-8-emacs-unix" . "utf-8"))
+  "Associates Emacs coding system names with equivalent Java names.")
 
 (defvar eclim--compressed-urls-regexp
-  "^\\(\\(?:jar\\|file\\|zip\\):\\(?:file:\\)?//\\)")
+  "^\\(\\(?:jar\\|file\\|zip\\):\\(?:file:\\)?//\\)"
+  "Matches a prefix of a URL which identifies a file in an archive.
+This allows removing the prefix so that only the archived
+file path remains.")
 
-(defvar eclim--compressed-file-path-replacement-regexp "\\\\")
+(defvar eclim--compressed-file-path-replacement-regexp "\\\\"
+  "Matches Windows-style path separators.
+This allows replacing any Windows-style path separators with
+Unix-style path separators in archived file name.")
 
-(defvar eclim--compressed-file-path-removal-regexp "^/")
+(defvar eclim--compressed-file-path-removal-regexp "^/"
+  "Matches the leading path separator in archived file paths.
+This allows removing the leading path separator so that
+archived file paths can be treated as relative paths and not
+absolute paths.")
 
 
-(defvar eclim-projects-for-archive-file (make-hash-table :test 'equal))
+(defvar eclim-projects-for-archive-file (make-hash-table :test 'equal)
+  "Hash table mapping archived file paths to enclosing project names.")
 
 (defvar eclim--default-args
   '(("-n" . (eclim-project-name))
@@ -77,19 +90,44 @@
 The values are actually expressions which evaluate to the
 default value of the corresponding argument.")
 
-(defvar eclim--projects-cache nil)
+(defvar eclim--projects-cache nil
+  "A cache of the names of the projects in the workspace.
+Nil means the cache is not set.  If non-nil, the value will
+be a list of strings which are the names of all the projects
+in the current workspace.")
 
-(defvar eclim--is-completing nil)
+(defvar eclim--is-completing nil
+  "Non-nil means that a completion operation is in progress.")
 
-(defvar eclim-autoupdate-problems t)
+(defvar eclim-autoupdate-problems t
+  "Non-nil means the problems buffer will be automatically updated.")
 
-(defvar eclim--problems-project nil) ;; problems are relative to this project
+(defvar eclim--problems-project nil
+  "The project to which the current problems apply.
+The value is set to the current project each time the
+problems buffer is updated.  This way, even if the current
+project changes during and update, the problems buffer can
+still be interpreted correctly.")
 
-(defvar eclim--problems-file nil) ;; problems are relative to this file (when eclim--problems-filefilter is non-nil)
+(defvar eclim--problems-file nil
+  "The file to which the current problems apply.
+This is only meaningful if `eclim--problems-filefilter' is
+non-nil.")
 
-(defvar eclim--problems-refreshing nil) ;; Set to true while refreshing probs.
+(defvar eclim--problems-refreshing nil
+  "Non-nil means the problems buffer is being refreshed.
+This isn't important from a control-flow perspective, but it
+allows us to give useful indication to the user.")
 
-(defvar eclim--problems-list nil)
+(defvar eclim--problems-list nil
+  "The list of current problems.
+Each problem is an association list with the following
+symbolic keys:
+- filename: The path of the file where the problem exists.
+- line: The line number of the problem.
+- column: The column number of the problem.
+- message: The description of the problem.
+- warning: :json-false if the problem is an error.")
 
 (defvar eclim--problems-filter nil
   "Defines a problem filter by problem type.
@@ -98,11 +136,19 @@ A value of nil means all problems will be shown.  A value of
 warnings."
   )
 
-(defvar eclim--problems-filefilter nil) ;; should filter by file name
+(defvar eclim--problems-filefilter nil
+  "Non-nil means only keep problems which apply to the current file.")
 
-(defvar eclim--problems-filter-description "")
+(defvar eclim--problems-filter-description ""
+  "Describes the kind of problems filter current in use.
+Simultaneously indicates, in a human-readable form, the
+values of `eclim--problems-filter' and
+`eclim--problems-filefilter'.")
 
-(defvar eclim--project-natures-cache nil)
+(defvar eclim--project-natures-cache nil
+  "A cache of the available project nature aliases.
+For example, the \"java\" might be an alias for the nature
+ID \"org.eclipse.jdt.core.javanature\".")
 
 (defcustom eclim-eclipse-dirs '("/Applications/eclipse" "/usr/lib/eclipse"
                                 "/usr/local/lib/eclipse" "/usr/share/eclipse"
@@ -201,16 +247,38 @@ most of the time, but it also works globally."
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
-(defvar-local eclim--project-name nil)
+(defvar-local eclim--project-name nil
+  "The cached name of the project to which the current file belongs.")
 
-(defvar-local eclim--project-current-file nil)
+(defvar-local eclim--project-current-file nil
+  "The cached path of the current file relative to the project.")
 
 (defun eclim--command-should-sync-p (cmd args)
+  "Return non-nil if buffers must be saved before executing CMD.
+This decision depends on the whether CMD might need an
+up-to-date version of a file.  In turn, this could depend on
+the ARGS which are passed to CMD.  If CMD could possibly
+require an up-to-date version of a file, all applicable
+buffers must be saved before executing CMD."
   (and (eclim--args-contains args '("-f" "-o"))
        (not (or (string= cmd "project_by_resource")
                 (string= cmd "project_link_resource")))))
 
 (defun eclim/project-info (project)
+  "Return information about PROJECT.
+The return value is an association list.  The returned value
+will always contain the following keys and values:
+- name: The name of the project.
+- open: Non-nil if the project is currently open.
+- path: The full path to the project root directory.
+- workspace: The workspace which contains the project.
+
+The following optional keys and values may also be returned:
+- depends: List of project names on which the project
+           depends.
+- natures: List of project natures assigned to the project.
+
+It is an error if PROJECT is not a recognized project name."
   (eclim--check-project project)
   (eclim--call-process "project_info" "-p" project))
 
@@ -253,6 +321,7 @@ where <encoding> is the corresponding java name for this encoding." e e)))
              (t (error result)))))))
 
 (defun eclim--completing-read (prompt choices)
+  "Show an interactive PROMPT with completion for a list of CHOICES."
   (funcall eclim-interactive-completion-function prompt choices))
 
 (defun eclim--call-process (&rest args)
@@ -262,6 +331,7 @@ argument expansion, error checking, and some other niceties."
   (eclim--parse-result (apply 'eclim--call-process-no-parse args)))
 
 (defun eclim--connected-p ()
+  "Return non-nil if connected to the eclim server."
   (condition-case nil
       (progn (eclim--call-process "ping") t)
     ('eclim--connection-refused-error nil)))
@@ -309,12 +379,27 @@ saved as well."
     (when save-others (save-some-buffers nil (lambda () (string-match "\\.java$" (buffer-file-name)))))))
 
 (defun eclim--check-project (project)
+  "Throw error if PROJECT is not a recognized project name."
   (let ((projects (or eclim--projects-cache
                       (setq eclim--projects-cache (mapcar (lambda (p) (assoc-default 'name p)) (eclim/project-list))))))
     (when (not (assoc-string project projects))
       (error (concat "invalid project: " project))))) ;
 
 (defun eclim--execute-command-internal (executor cmd args)
+  "Invoke an eclim server command, returning the parsed output.
+
+EXECUTOR is a function which takes two arguments.  The first
+is a list of strings which are the command line tokens to
+pass to the eclim server.  The second is a callback function
+which must be invoked with no arguments upon completion of
+the command invocation.  The return value must be the parsed
+output of the command.
+
+CMD is the eclim server command to invoke.
+
+ARGS is the command line arguments to pass to the invocation
+of CMD.  Each argument will be expanded using
+`eclim--expand-args' to provide default values as necessary."
   (let* ((expargs (eclim--expand-args args))
          (sync (eclim--command-should-sync-p cmd args))
          (check (eclim--args-contains args '("-p"))))
@@ -336,6 +421,7 @@ saved as well."
 
 
 (defun eclim/project-list ()
+  "Return the names of the projects in the current workspace."
   (eclim/execute-command "project_list"))
 
 (defun eclim--project-dir (&optional projectname)
@@ -345,7 +431,13 @@ project's root directory."
   (assoc-default 'path (eclim/project-info (or projectname (eclim-project-name)))))
 
 (defun eclim--byte-offset (&optional _text)
-  ;; TODO: restricted the ugly newline counting to dos buffers => remove it all the way later
+  "Return the current position in the buffer in bytes.
+
+For DOS buffers, account for newlines being two characters
+rather than a single line feed character.
+
+TODO: Remove the unused argument _TEXT.
+TODO: Remove ugly newline counting altogether."
   (let ((current-offset (1-(position-bytes (point)))))
     (when (not current-offset) (setq current-offset 0))
     (if (string-match "dos" (symbol-name buffer-file-coding-system))
@@ -353,6 +445,7 @@ project's root directory."
       current-offset)))
 
 (defun eclim-homedir-executable-find ()
+  "Attempt to find the eclim executable in the user home directory."
   (let ((file "~/.eclipse"))
     (and (file-exists-p
           (setq file (expand-file-name file)))
@@ -364,6 +457,7 @@ project's root directory."
          file)))
 
 (defun eclim-executable-find ()
+  "Attempt to find the eclim executable in one of `eclim-eclipse-dirs'."
   (let (file)
     (dolist (eclipse-root eclim-eclipse-dirs)
       (and (file-exists-p
@@ -401,6 +495,7 @@ the output from eclim is returned as a string."
     (shell-command-to-string cmd)))
 
 (defun eclim--project-current-file ()
+  "Return the path of the current file relative to the project."
   (or eclim--project-current-file
       (setq eclim--project-current-file
             (eclim/execute-command "project_link_resource" ("-f" buffer-file-name)))
@@ -408,6 +503,7 @@ the output from eclim is returned as a string."
       (and buffer-file-name (gethash buffer-file-name eclim-projects-for-archive-file) buffer-file-name)))
 
 (defun eclim--current-encoding ()
+  "Return the encoding of the current file."
   (let* ((coding-system (symbol-name buffer-file-coding-system))
          (mapped-coding-system (cdr (assoc
                                      coding-system
@@ -415,6 +511,7 @@ the output from eclim is returned as a string."
     (if mapped-coding-system mapped-coding-system coding-system)))
 
 (defun eclim--find-file (path-to-file)
+  "Visit a file identified by PATH-TO-FILE even if it is in an archive."
   (if (not (string-match-p "!" path-to-file))
       (unless (and (buffer-file-name) (file-equal-p path-to-file (buffer-file-name)))
         (find-file path-to-file))
@@ -434,6 +531,12 @@ the output from eclim is returned as a string."
         (kill-buffer old-buffer)))))
 
 (defun eclim--visit-declaration (line)
+  "Visit a position determined by LINE, possibly in another file.
+LINE is an association list with the following keys and
+values:
+- filename: The path to the file which should be visited.
+- line: The line within the file to visit.
+- column: The column within the line to visit."
   (if (boundp 'find-tag-marker-ring)
       (ring-insert find-tag-marker-ring (point-marker))
     (xref-push-marker-stack))
@@ -443,6 +546,7 @@ the output from eclim is returned as a string."
   (move-to-column (1- (assoc-default 'column line))))
 
 (defun eclim-java-archive-file (file)
+  "Read the contents of an archive FILE into the current project."
   (let ((eclim-auto-save nil))
     (eclim/with-results tmp-file ("archive_read" ("-f" file))
       ;; archive file's project should be same as current context.
@@ -450,6 +554,17 @@ the output from eclim is returned as a string."
       tmp-file)))
 
 (defun eclim--format-find-result (line &optional directory)
+  "Render a search result a string.
+
+LINE is an association list with the following keys and
+values:
+- filename: The path of the file in which the result occurs.
+- line: The line number of the result.
+- column: The column number of the result.
+- message: The message associated with the result.
+
+DIRECTORY is the optional base directory which should be
+removed from the beginning of file paths if possible."
   (let* ((converted-directory (replace-regexp-in-string "\\\\" "/" (assoc-default 'filename line)))
          (parts (split-string converted-directory "!"))
          (filename (replace-regexp-in-string
@@ -470,6 +585,20 @@ the output from eclim is returned as a string."
               (assoc-default 'message line)))))
 
 (defun eclim--find-display-results (pattern results &optional open-single-file)
+  "Display the results of a search operation.
+
+PATTERN is the original pattern used for the search.
+
+RESULTS is a list of \"lines\", where each line is an
+association list with the following symbolic keys:
+- filename: The path of the file where the match was found.
+- line: The line where the match was found.
+- column: The column where the match was found.
+- message: The message associated with the result.
+
+If OPEN-SINGLE-FILE is non-nil and only a single result
+exists, the corresponding file will be opened and the cursor
+will be moved to the location of the result."
   (let ((results
          (cl-loop for result across results
                   for file = (cdr (assoc 'filename result))
@@ -477,7 +606,7 @@ the output from eclim is returned as a string."
                   do (setf (cdr (assoc 'filename result)) (eclim-java-archive-file file))
                   finally (return results))))
     (if (and (= 1 (length results)) open-single-file)
-      (eclim--visit-declaration (elt results 0))
+        (eclim--visit-declaration (elt results 0))
       (pop-to-buffer (get-buffer-create "*eclim: find"))
       (let ((buffer-read-only nil))
         (erase-buffer)
@@ -565,6 +694,13 @@ The delay is specified by `eclim-problems-refresh-delay'."
                      warning-count))))))
 
 (defun eclim-java-correct (line offset)
+  "Show a menu with possible correction at a given point.
+LINE is the line on which the correction will apply.  OFFSET
+is the byte offset into the buffer at which the correction
+will apply.
+
+When a correction is selected, it will be automatically
+applied to the buffer."
   (eclim/with-results correction-info ("java_correct" "-p" "-f" ("-l" line) ("-o" offset))
     (if (stringp correction-info)
         (message correction-info)
@@ -584,6 +720,8 @@ The delay is specified by `eclim-problems-refresh-delay'."
         (message "No automatic corrections found. Sorry")))))
 
 (defun eclim--problems-update-filter-description ()
+  "Update the mode-line description of the current problem filters.
+See `eclim--problems-filter-description' for more information."
   (if eclim--problems-filefilter
       (if eclim--problems-filter
           (setq eclim--problems-filter-description (concat "(file-" eclim--problems-filter ")"))
@@ -612,6 +750,10 @@ The delay is specified by `eclim-problems-refresh-delay'."
         (forward-line (1- line-number))))))
 
 (defun eclim--problems-filecol-size ()
+  "Compute the width of the problems buffer column for file names.
+If `eclim-problems-resize-file-column' is non-nil, the
+column will be dynamically sized based on the actual file
+names.  Otherwise, a static column width is used."
   (if eclim-problems-resize-file-column
       (min 40
            (apply #'max 0
@@ -645,6 +787,17 @@ Highlighting only occurs if it is allowed by
                  do (eclim--problems-insert-highlight problem))))))
 
 (defun eclim--insert-problem (problem filecol-size)
+  "Add a problem line to the problems buffer.
+
+PROBLEM is an association list with the following symbolic
+keys:
+- filename: The path of the file where the problem exists.
+- line: The line number of the problem.
+- column: The column number of the problem.
+- message: The description of the problem.
+- warning: :json-false if the problem is an error.
+
+FILECOL-SIZE is the width of the column reserved for displaying file names."
   (let* ((filecol-format-string (concat "%-" (number-to-string filecol-size) "s"))
          (problem-new-line-pos (cl-position ?\n (assoc-default 'message problem)))
          (problem-message
@@ -680,6 +833,13 @@ This is temporary until the next refresh."
   (remove-overlays nil nil 'category 'eclim-problem))
 
 (defun eclim--problems-insert-highlight (problem)
+  "Add highlighting to the current buffer to indicate PROBLEM.
+
+PROBLEM is an association list with the following symbolic
+keys:
+- line: The line number of the problem.
+- column: The column number of the problem.
+- message: The description of the problem."
   (save-excursion
     (eclim--problem-goto-pos problem)
     (let* ((id (eclim--java-identifier-at-point t t))
@@ -694,15 +854,37 @@ This is temporary until the next refresh."
         (overlay-put highlight 'kbd-help (assoc-default 'message problem))))))
 
 (defun eclim--problems-cleanup-filename (filename)
+  "Trim the directory (and optionally the extension) from FILENAME.
+
+Whether or not the file extension is removed is controlled
+by `eclim-problems-show-file-extension'."
   (let ((x (file-name-nondirectory filename)))
     (if eclim-problems-show-file-extension x (file-name-sans-extension x))))
 
 (defun eclim--filter-problems (type-filter file-filter file problems)
+  "Filter the problem set as configured by the user.
+
+TYPE-FILTER determines how to filter problems by type.  See
+`eclim--problems-filter' for more details.
+
+FILE-FILTER determines how to filter problems by file name.
+See `eclim--problems-filefilter' for more details.
+
+FILE is the current file.  That is, if file filtering is
+enabled, this is the path which all problem file names must
+match.
+
+PROBLEMS is the list of problems."
   (let ((type-filterp (eclim--choose-type-filter type-filter))
         (file-filterp (eclim--choose-file-filter file-filter file)))
     (cl-remove-if-not (lambda (x) (and (funcall type-filterp x) (funcall file-filterp x))) problems)))
 
 (defun eclim--problem-goto-pos (p)
+  "Move the cursor in the current buffer to position P.
+
+P is an association list with the following symbolic keys:
+- line: The line number of the desired position.
+- column: The column number of the desired position."
   (save-restriction
     (widen)
     (goto-char (point-min))
@@ -711,20 +893,41 @@ This is temporary until the next refresh."
       (forward-char))))
 
 (defun eclim--choose-type-filter (type-filter)
+  "Return a type filtering predicate.
+
+If TYPE-FILTER is nil, the predicate always returns non-nil.
+If TYPE-FILTER is \"e\", the predicate only returns non-nil
+for errors.
+If TYPE-FILTER is \"w\", the predicate only returns non-nil
+for warnings."
   (cond
    ((not type-filter) '(lambda (_) t))
    ((string= "e" type-filter) 'eclim--error-filterp)
    (t 'eclim--warning-filterp)))
 
 (defun eclim--choose-file-filter (file-filter file)
+  "Return a file name filtering predicate.
+
+The predicate accepts a single parameter which is an
+association list containing the following symbolic keys and
+corresponding values:
+- filename: The filename to filter against.
+
+If FILE-FILTER is nil, the predicate always returns non-nil.
+Otherwise the predicate returns non-nil only if the
+argument's file name is the same as FILE."
   (if (not file-filter)
       '(lambda (_) t)
     `(lambda (x) (string= (assoc-default 'filename x) ,file))))
 
 (defun eclim--string-strip (content)
+  "Remove trailing whitespace from CONTENT."
   (replace-regexp-in-string "\s*$" "" content))
 
 (defun eclim-debug/jdb (command)
+  "Execute the jdb with COMMAND as the command line.
+
+Jdb is run in another window."
   (let ((buffer (current-buffer)))
     ;;(toggle-maximize-buffer) - Fixme: I don't know where this function is defined - NL 2016-08-31
     (switch-to-buffer-other-window buffer t)

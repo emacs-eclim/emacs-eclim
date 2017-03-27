@@ -47,9 +47,11 @@
   "Face used for highlighting warnings in code."
   :group 'eclim-problems)
 
-(defvar eclim-problems-mode-hook nil)
+(defvar eclim-problems-mode-hook nil
+  "Hook run after entering `eclim-problems-mode'.")
 
 (defvar eclim-problems-mode-map
+  "The local key map to use in `eclim-problems-mode'."
       (let ((map (make-keymap)))
         (suppress-keymap map t)
         (define-key map (kbd "a") 'eclim-problems-show-all)
@@ -65,10 +67,19 @@
 (define-key eclim-mode-map (kbd "C-c C-e b") 'eclim-problems)
 (define-key eclim-mode-map (kbd "C-c C-e o") 'eclim-problems-open)
 
-(defconst eclim--problems-buffer-name "*eclim: problems*")
-(defconst eclim--problems-compilation-buffer-name "*compilation: eclim*")
+(defconst eclim--problems-buffer-name "*eclim: problems*"
+  "The name to use for the problems buffer.")
+
+(defconst eclim--problems-compilation-buffer-name "*compilation: eclim*"
+  "The name to use for the compilation buffer.")
 
 (defun eclim--problems-mode ()
+  "Activate `eclim-problems-mode' on the current buffer.
+
+This is not a real major mode, though it behaves like one.
+In particular, note that the activated mode is
+`eclim-problems-mode', but there is no major mode by that
+name."
   (kill-all-local-variables)
   (buffer-disable-undo)
   (setq major-mode 'eclim-problems-mode
@@ -102,36 +113,57 @@
   (run-mode-hooks 'eclim-problems-mode-hook))
 
 (defun eclim--problems-apply-filter (f)
+  "Set the problems filter to F.
+If F is nil, all problems will be reported.  A value of \"e\"
+means that only errors are reported.  A value of \"w\" means
+that only warnings are reported."
   (setq eclim--problems-filter f)
   (eclim-problems-buffer-refresh))
 
 (defun eclim-problems-show-errors ()
+  "Set the problems filter to only report errors."
   (interactive)
   (eclim--problems-apply-filter "e"))
 
 (defun eclim-problems-toggle-filefilter ()
+  "Toggle whether to only report problems for the current file."
   (interactive)
   (setq eclim--problems-filefilter (not eclim--problems-filefilter))
   (eclim--problems-buffer-redisplay))
 
 (defun eclim-problems-show-warnings ()
+  "Set the problems filter to only report warnings."
   (interactive)
   (eclim--problems-apply-filter "w"))
 
 (defun eclim-problems-show-all ()
+  "Set the problems filter to show both errors and warnings."
   (interactive)
   (eclim--problems-apply-filter nil))
 
 (defadvice find-file (after eclim-problems-highlight-on-find-file activate)
+  "Highlight problems in a source buffer once it is opened."
   (eclim-problems-highlight))
+
 (defadvice find-file-other-window (after eclim-problems-highlight-on-find-file-other-window activate)
+  "Highlight problems in a source buffer once it is opened."
   (eclim-problems-highlight))
+
 (defadvice other-window (after eclim-problems-highlight-on-other-window activate)
+  "Highlight problems in a source buffer when switching windows."
   (eclim-problems-highlight))
+
 (defadvice switch-to-buffer (after eclim-problems-highlight-switch-to-buffer activate)
+  "Highlight problems in a source buffer when switching buffers."
   (eclim-problems-highlight))
 
 (defun eclim--problems-get-current-problem ()
+  "Return the problem at the current position.
+
+If the problems buffer is the current buffer, return the
+problem on the current line.  Otherwise, return the problem
+corresponding to the current source position.  An error is
+raised if no problem corresponds to the current position."
   (let ((buf (eclim--get-problems-buffer)))
     (if (eq buf (current-buffer))
         ;; we are in the problems buffer
@@ -150,6 +182,10 @@
               (error "No problem on this line")))))))
 
 (defun eclim-problems-open-current (&optional same-window)
+  "Jump to the file and location of the current problem.
+If SAME-WINDOW is provided and non-nil, the file will be
+opened in the current window.  Otherwise, it is opened in
+another window."
   (interactive)
   (let* ((p (eclim--problems-get-current-problem)))
     (funcall (if same-window
@@ -176,9 +212,11 @@ source code buffer."
       (eclim-java-correct (cdr (assoc 'line p)) (eclim--byte-offset)))))
 
 (defun eclim--warning-filterp (x)
+  "Return non-nil if the problem X is a warning."
   (eq t (assoc-default 'warning x)))
 
 (defun eclim--error-filterp (x)
+  "Return non-nil if the problem X is an error."
   (not (eclim--warning-filterp x)))
 
 (defun eclim--get-problems-buffer ()
@@ -232,6 +270,7 @@ problems."
                        (eclim--get-problems-buffer-create))))
 
 (defun eclim-problems-refocus ()
+  "Change the project and source file for the problems buffer."
   (interactive)
   (when (eclim--project-dir)
     (setq eclim--problems-project (eclim-project-name))
@@ -240,6 +279,10 @@ problems."
       (eclim-problems-buffer-refresh))))
 
 (defun eclim-problems-next (&optional same-window)
+  "Jump to the location of the next problem.
+If SAME-WINDOW is provided and non-nil, the location of the
+problem is opened in the current window.  Otherwise, it is
+opened in another window."
   (interactive)
   (let ((prob-buf (get-buffer eclim--problems-buffer-name)))
     (when prob-buf
@@ -251,6 +294,10 @@ problems."
       (eclim-problems-open-current same-window))))
 
 (defun eclim-problems-previous (&optional same-window)
+  "Jump to the location of the previous problem.
+If SAME-WINDOW is provided and non-nil, the location of the
+problem is opened in the current window.  Otherwise, it is
+opened in another window."
   (interactive)
   (let ((prob-buf (get-buffer eclim--problems-buffer-name)))
     (when prob-buf
@@ -260,10 +307,14 @@ problems."
       (eclim-problems-open-current same-window))))
 
 (defun eclim-problems-next-same-window ()
+  "In the current window, jump to the next problem.
+See `eclim-problems-next'."
   (interactive)
   (eclim-problems-next t))
 
 (defun eclim-problems-previous-same-window ()
+  "In the current window, jump to the previous problem.
+See `eclim-problems-previous'."
   (interactive)
   (eclim-problems-previous t))
 
@@ -325,6 +376,12 @@ errors using `next-error' (\\[next-error])."
             (goto-char saved-user-pos)))))))
 
 (defun eclim--insert-problem-compilation (problem _filecol-size project-directory)
+  "Add PROBLEM to the compilation buffer.
+_FILECOL-SIZE is the width to make the filename column.  It
+is currently not respected, however.
+PROJECT-DIRECTORY is the path to the project root directory.
+It will be stripped from file names before they are
+displayed."
   (let ((filename (cl-first (split-string (assoc-default 'filename problem) project-directory t)))
         (description (assoc-default 'message problem))
         (type (if (eq t (assoc-default 'warning problem)) "W" "E")))
@@ -333,10 +390,12 @@ errors using `next-error' (\\[next-error])."
       (insert (format "%s:%s:%s: %s: %s\n" filename line col (upcase type) description)))))
 
 (defun eclim--count-current-errors ()
+  "Count the number of problems which are errors."
   (length
    (eclim--filter-problems "e" t (buffer-file-name (current-buffer)) eclim--problems-list)))
 
 (defun eclim--count-current-warnings ()
+  "Count the number of problems which are warnings."
   (length
    (eclim--filter-problems "w" t (buffer-file-name (current-buffer)) eclim--problems-list)))
 
