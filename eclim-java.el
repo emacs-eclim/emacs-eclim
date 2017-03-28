@@ -274,7 +274,8 @@ has been found."
 
 (defun eclim-java-constructor ()
   (interactive)
-  (eclim/execute-command "java_constructor" "-p" "-f" "-o"))
+  (let ((fields (eclim--java-get-selected-fields)))
+    (eclim/execute-command "java_constructor" "-p" "-f" "-o" (when fields (list "-r" (json-encode fields))))))
 
 (defun eclim--java-get-selected-fields ()
   "Return the names of the fields in the current selection."
