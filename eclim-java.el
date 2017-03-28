@@ -276,6 +276,33 @@ has been found."
   (interactive)
   (eclim/execute-command "java_constructor" "-p" "-f" "-o"))
 
+(defun eclim--java-get-selected-fields ()
+  "Return the names of the fields in the current selection."
+  (when (use-region-p)
+    (let ((region (eclim--current-region-no-properties)))
+      ;; Remove all block comments.
+      ;; TODO This doesn't account for finding an unclosed "/*" inside a string.
+      (setf region (replace-regexp-in-string "/\\*\\(?:.\\|\n\\)*?\\*/" "" region))
+      ;; Remove all single line comments,
+      (setf region (replace-regexp-in-string "//.*" "" region))
+      ;; Remove all double quoted strings, accounting for escaped quotes.
+      (setf region (replace-regexp-in-string "\"\\(?:[^\"\\\\]\\|\\\\.\\)*?\"" "" region))
+      ;; Remove all single quoted characters, accounting for escaped quotes.
+      (setf region (replace-regexp-in-string "'\\(?:[^'\\\\]\\|\\\\.\\)*?'" "" region))
+      ;; Now that string and char literals are gone, we can freely match special characters.
+      ;; Split fields onto their own lines, ensuring each is ended with a semicolon.
+      (setf region (replace-regexp-in-string "\\(?:,\\|;\\)[^\n]?" ";\n" region))
+      ;; Remove trailing whitespace.
+      (setf region (replace-regexp-in-string "\\s-*$" "" region))
+      ;; Remove the assignment portions, any whitespace between the field and the semicolon, and any whitespace after the semicolon.
+      (setf region (replace-regexp-in-string "\\s-*\\(?:=[^;]*\\)?;\\s-*$" ";" region))
+      ;; Remove any line which does not end with a semicolon, since it is not a (complete) field declaration.
+      (setf region (replace-regexp-in-string "^[^\n]*[^;\n]$" "" region))
+      ;; Each line is now an identifier (field name) followed by a semicolon, with possible whitespace. Extract the field name.
+      (setf region (replace-regexp-in-string "^.*?\\(\\S-*\\)\\s-*;$" "\\1" region))
+      ;; Split into lines, trimming whitespace and removing empty lines. This leaves only the field names.
+      (split-string region "\n" t "\\s-*"))))
+
 (defun eclim/java-call-hierarchy (project file offset length encoding)
   (eclim--call-process "java_callhierarchy"
                        "-p" project
