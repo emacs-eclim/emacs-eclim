@@ -253,6 +253,16 @@ most of the time, but it also works globally."
 (defvar-local eclim--project-current-file nil
   "The cached path of the current file relative to the project.")
 
+(defun eclim--current-region ()
+  "Return the contents of the current region as a string.
+The result includes the text properties of the region."
+  (buffer-substring (region-beginning) (region-end)))
+
+(defun eclim--current-region-no-properties ()
+  "Return the contents of the current region as a string.
+The result does not include the text properties of the region."
+  (buffer-substring-no-properties (region-beginning) (region-end)))
+
 (defun eclim--command-should-sync-p (cmd args)
   "Return non-nil if buffers must be saved before executing CMD.
 This decision depends on the whether CMD might need an
