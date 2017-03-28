@@ -51,7 +51,6 @@
   "Hook run after entering `eclim-problems-mode'.")
 
 (defvar eclim-problems-mode-map
-  "The local key map to use in `eclim-problems-mode'."
       (let ((map (make-keymap)))
         (suppress-keymap map t)
         (define-key map (kbd "a") 'eclim-problems-show-all)
@@ -62,7 +61,8 @@
         (define-key map (kbd "f") 'eclim-problems-toggle-filefilter)
         (define-key map (kbd "c") 'eclim-problems-correct)
         (define-key map (kbd "RET") 'eclim-problems-open-current)
-        map))
+        map)
+  "The local key map to use in `eclim-problems-mode'.")
 
 (define-key eclim-mode-map (kbd "C-c C-e b") 'eclim-problems)
 (define-key eclim-mode-map (kbd "C-c C-e o") 'eclim-problems-open)
