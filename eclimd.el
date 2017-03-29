@@ -32,6 +32,7 @@
 
 (require 'eclim-common)
 (require 'cl-lib)
+(require 'dash)
 (eval-when-compile (require 'eclim-macros))
 
 (defgroup eclimd nil
@@ -188,6 +189,7 @@ corresponding return value as argument."
   (let* ((output "")
          (terminated-p)
          (finished-p)
+         (match-data)
          (closure (lambda (proc string _state)
                     (setf output (concat output string))
                     (setf terminated-p (not (eq 'run (process-status proc))))
@@ -197,9 +199,14 @@ corresponding return value as argument."
                                          ;; filters/sentinels, one such call may
                                          ;; execute multiple closures.
                                          (save-match-data
-                                           (string-match regexp output))))
+                                           (-when-let (match-pos (string-match regexp output))
+                                             ;; Remember the match data so the closure can access it.
+                                             (setf match-data (match-data))
+                                             match-pos))))
                     (when (and finished-p callback)
-                      (funcall callback (unless terminated-p output)))
+                      (save-match-data
+                        (set-match-data match-data)
+                        (funcall callback (unless terminated-p output))))
                     ;; Remove the closure from the hook when it has finished.
                     (not finished-p))))
 
