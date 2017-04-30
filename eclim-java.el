@@ -484,7 +484,9 @@ undo history."
                                    (delete-region beg (point))
                                    imports)))
                            (progn
-                             (forward-line 1)
+                             (goto-char (point-min))
+                             (if (re-search-forward "^package" nil t)
+                                 (forward-line 1))
                              (delete-blank-lines)
                              (insert "\n\n\n")
                              (forward-line -2)))))
