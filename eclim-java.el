@@ -466,7 +466,7 @@ be made CASE-INSENSITIVE."
     (if (re-search-forward "package \\(.*?\\);" (point-max) t)
         (match-string-no-properties 1))))
 
-(defun eclim-soft-revert-imports ()
+(defun eclim-soft-revert-imports (ignore-auto noconfirm)
   "Can be used as a REVERT-BUFFER-FUNCTION to only replace the
 imports section of a java source file. This will preserve the
 undo history."
