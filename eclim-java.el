@@ -471,6 +471,8 @@ be made CASE-INSENSITIVE."
 imports section of a java source file. This will preserve the
 undo history."
   (interactive)
+  (ignore ignore-auto noconfirm)
+  ;; these variable assignments are only here so that the compiler will not generate an error about unused variables
   (cl-flet ((cut-imports ()
                          (goto-char (point-min))
                          (if (re-search-forward "^import" nil t)
