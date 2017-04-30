@@ -558,7 +558,7 @@ values:
 (defun eclim-java-archive-file (file)
   "Read the contents of an archive FILE into the current project."
   (let ((eclim-auto-save nil))
-    (eclim/with-results tmp-file ("archive_read" ("-f" file))
+    (eclim/with-results tmp-file ("archive_read" (list "-f" file))
       ;; archive file's project should be same as current context.
       (setf (gethash tmp-file eclim-projects-for-archive-file) (eclim-project-name))
       tmp-file)))

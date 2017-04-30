@@ -152,7 +152,7 @@
   (eclim--project-clear-cache)
   (eclim--call-process "project_import" "-f" (expand-file-name folder)))
 
-(defun eclim/project-create (folder natures name &optional target package application depends)
+(defun eclim/project-create (folder natures name &optional target package application)
   ;; TODO: allow multiple natures
   ;; add the vars target,package,application for android project
   (eclim--project-clear-cache)
