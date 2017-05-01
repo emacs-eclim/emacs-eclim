@@ -352,7 +352,9 @@ If the optional argument FILENAME is given, return that
 file's project name.  Otherwise return the current file's
 project name."
   (cl-labels ((get-project-name (file)
-                                (eclim/execute-command "project_by_resource" ("-f" file))))
+                                (if (not (string= file buffer-auto-save-file-name))
+                                    (eclim/execute-command "project_by_resource" ("-f" file))
+                                  nil)))
     (if filename
         (get-project-name filename)
       (or eclim--project-name
