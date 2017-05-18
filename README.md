@@ -81,7 +81,7 @@ emacs-eclim requires Emacs version 24.5 or later.
     (global-eclim-mode)
     ```
 
-    If you wish to not start
+    If you wish to start
     the [Eclim Server](http://eclim.org/#how-do-i-get-install-it)
     outside of Emacs, then set `eclimd-autostart` to `nil`.
 
