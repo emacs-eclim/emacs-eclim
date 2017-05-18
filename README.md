@@ -62,13 +62,28 @@ emacs-eclim requires Emacs version 24.5 or later.
           script.
        1. Make sure all dependencies are available, see
           [`eclim-pkg.el`](eclim-pkg.el).
-1. Add the following code to your emacs startup script
+1. Add the following code to your emacs startup script:
 
-```emacs-lisp
-(require 'eclim)
-(setq eclimd-autostart t)
-(global-eclim-mode)
-```
+    ```emacs-lisp
+    (require 'eclim)
+    (setq eclimd-autostart t)
+
+    (defun my-java-mode-hook ()
+        (eclim-mode t))
+
+    (add-hook 'java-mode-hook 'my-java-mode-hook)
+    ```
+    Or, if you prefer to enable eclim-mode globally:
+
+    ```emacs-lisp
+    (require 'eclim)
+    (setq eclimd-autostart t)
+    (global-eclim-mode)
+    ```
+
+    If you wish to not start
+    the [Eclim Server](http://eclim.org/#how-do-i-get-install-it)
+    outside of Emacs, then set `eclimd-autostart` to `nil`.
 
 Now every time you open a file that belongs to a Eclipse project eclim mode is
 enabled.
