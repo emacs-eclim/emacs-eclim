@@ -1,5 +1,13 @@
 == In Git
 
+== 0.5
+
+=== New features
+ * New custom varible: eclim-eclimrc. Used to specify an eclimrc file
+   for the Eclim executable to use.
+ * New custom variable: eclim-nailgun-port. used to specify the
+   port the Eclimd is using when run using Nailgun.
+
 == 0.4
 
 === New features

@@ -157,6 +157,17 @@ ID \"org.eclipse.jdt.core.javanature\".")
   :type '(sexp)
   :group 'eclim)
 
+(defcustom eclim-eclimrc nil
+  "The file containing the run commands that Eclim will use when
+invoked. See http://eclim.org/eclimd.html#eclimrc."
+  :group 'eclim
+  :type 'string)
+
+(defcustom eclim-nailgun-port nil
+  "The port that is used to start Eclimd when using Nailgun."
+  :group 'eclim
+  :type 'integer)
+
 (defcustom eclim-auto-save t
   "Non-nil means the buffer is saved before retrieving completions.
 Eclim can only complete correctly when the buffer has been
@@ -484,6 +495,17 @@ TODO: Remove ugly newline counting altogether."
   :group 'eclim
   :type 'file)
 
+(defun eclim-executable-get-command ()
+  "Returns the Eclim executable command. If \"eclim-eclimrc\" and /
+or \"eclim-nailgun-port\" are defined, then these are appended to
+the command."
+  (when (not eclim-executable)
+    (error "Eclim installation not found. Please set eclim-executable."))
+  (let ((command eclim-executable))
+    (when eclim-eclimrc (setq command (concat command " -f " eclim-eclimrc)))
+    (when eclim-nailgun-port (setq command (concat command " --nailgun-port " (number-to-string eclim-nailgun-port))))
+    command))
+
 (defun eclim--make-command (args)
   "Create a command string that can be executed from the shell.
 The first element in ARGS is the name of the eclim
@@ -492,7 +514,7 @@ eclimd."
   (when (not eclim-executable)
     (error "Eclim installation not found. Please set eclim-executable."))
   (cl-reduce (lambda (a b) (format "%s %s" a b))
-          (append (list eclim-executable "-command" (first args))
+          (append (list (eclim-executable-get-command) "-command" (first args))
                   (cl-loop for a = (cdr args) then (cdr (cdr a))
                            for arg = (first a)
                            for val = (second a)
