@@ -38,19 +38,20 @@
 (require 'eclim-problems)
 (eval-when-compile (require 'eclim-macros))
 
-(define-key eclim-mode-map (kbd "C-c C-e s") 'eclim-java-method-signature-at-point)
+(define-key eclim-mode-map (kbd "C-c C-e d")   'eclim-java-doc-comment)
 (define-key eclim-mode-map (kbd "C-c C-e f d") 'eclim-java-find-declaration)
-(define-key eclim-mode-map (kbd "C-c C-e f r") 'eclim-java-find-references)
-(define-key eclim-mode-map (kbd "C-c C-e f t") 'eclim-java-find-type)
 (define-key eclim-mode-map (kbd "C-c C-e f f") 'eclim-java-find-generic)
-(define-key eclim-mode-map (kbd "C-c C-e r") 'eclim-java-refactor-rename-symbol-at-point)
-(define-key eclim-mode-map (kbd "C-c C-e i") 'eclim-java-import-organize)
-(define-key eclim-mode-map (kbd "C-c C-e h") 'eclim-java-hierarchy)
-(define-key eclim-mode-map (kbd "C-c C-e z") 'eclim-java-implement)
-(define-key eclim-mode-map (kbd "C-c C-e d") 'eclim-java-doc-comment)
+(define-key eclim-mode-map (kbd "C-c C-e f r") 'eclim-java-find-references)
 (define-key eclim-mode-map (kbd "C-c C-e f s") 'eclim-java-format)
-(define-key eclim-mode-map (kbd "C-c C-e g") 'eclim-java-generate-getter-and-setter)
-(define-key eclim-mode-map (kbd "C-c C-e t") 'eclim-run-junit)
+(define-key eclim-mode-map (kbd "C-c C-e f t") 'eclim-java-find-type)
+(define-key eclim-mode-map (kbd "C-c C-e g")   'eclim-java-generate-getter-and-setter)
+(define-key eclim-mode-map (kbd "C-c C-e h")   'eclim-java-hierarchy)
+(define-key eclim-mode-map (kbd "C-c C-e i")   'eclim-java-import-organize)
+(define-key eclim-mode-map (kbd "C-c C-e n")   'eclim-java-new)
+(define-key eclim-mode-map (kbd "C-c C-e r")   'eclim-java-refactor-rename-symbol-at-point)
+(define-key eclim-mode-map (kbd "C-c C-e s")   'eclim-java-method-signature-at-point)
+(define-key eclim-mode-map (kbd "C-c C-e t")   'eclim-run-junit)
+(define-key eclim-mode-map (kbd "C-c C-e z")   'eclim-java-implement)
 
 (defvar eclim-java-show-documentation-map
   (let ((map (make-keymap)))
@@ -87,6 +88,8 @@ Java documentation under Android docs, so don't forget to set
   "Root directory of Android HTML documentation."
   :group 'eclim-java
   :type 'directory)
+
+(defvar eclim--java-new-types '("class" "interface" "abstract" "enum" "@interface"))
 
 (defvar eclim--java-search-types '("all"
                                    "annotation"
@@ -319,6 +322,10 @@ has been found."
                        "-o" (number-to-string offset)
                        "-e" encoding))
 
+(defun eclim/java-src-dirs (project)
+  "Queries Eclimd for the list of source directories in the project."
+  (split-string (eclim--call-process "java_src_dirs" "-p" project) "\n"))
+
 (defun eclim-java-refactor-rename-symbol-at-point ()
   "Rename the java symbol at point."
   (interactive)
@@ -527,6 +534,17 @@ sorts import statements. "
           (eclim-java-import-organize
            (mapcar (lambda (imports) (eclim--completing-read "Import: " (append imports '()))) res)))))))
 
+
+(defun eclim-java-new (project type name-with-package)
+  "Creates a new class"
+  (interactive (list (eclim-project-name)
+                     (eclim--completing-read "Type: " eclim--java-new-types)
+                     (read-string "Name: " (eclim--java-current-package))))
+  (let ((root-dir (eclim--completing-read "Root: " (eclim/java-src-dirs project))))
+    (message "eclim-java-new: project: %s, type: %s, file: %s" project type name-with-package)
+    (eclim/with-results new-file ("java_new" ("-p" project) ("-t" type) ("-n" name-with-package) ("-r" root-dir))
+      (eclim--find-file new-file)
+    )))
 
 (defun eclim--signature-has-keyword (sig java-keyword)
   "Returns true if a method signature SIG has the keyword JAVA-KEYWORD."
