@@ -541,7 +541,8 @@ sorts import statements. "
                      (eclim--completing-read "Type: " eclim--java-new-types)
                      (read-string "Name: " (eclim--java-current-package))))
   (let ((root-dir (eclim--completing-read "Root: " (eclim/java-src-dirs project))))
-    (message "eclim-java-new: project: %s, type: %s, file: %s" project type name-with-package)
+    (when eclim-print-debug-messages
+      (message "eclim-java-new: project: %s, type: %s, file: %s" project type name-with-package))
     (eclim/with-results new-file ("java_new" ("-p" project) ("-t" type) ("-n" name-with-package) ("-r" root-dir))
       (eclim--find-file new-file)
     )))
