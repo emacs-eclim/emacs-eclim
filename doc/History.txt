@@ -1,5 +1,8 @@
 == In Git
 
+=== New features
+ * Added support for python
+
 == 0.5
 
 === New features

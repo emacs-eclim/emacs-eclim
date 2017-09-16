@@ -73,7 +73,9 @@ which removes all arguments before inserting.")
               (scala-mode
                (eclim/execute-command "scala_complete" "-p" "-f" "-e" ("-l" "standard") "-o"))
               ((c++-mode c-mode)
-               (eclim/execute-command "c_complete" "-p" "-f" "-e" ("-l" "standard") "-o"))))
+               (eclim/execute-command "c_complete" "-p" "-f" "-e" ("-l" "standard") "-o"))
+              (python-mode
+               (eclim/execute-command "python_complete" "-p" "-f" "-e" "-o"))))
     (setq eclim--is-completing nil)))
 
 (defun eclim--completion-candidates-filter (c)
@@ -177,7 +179,7 @@ The result is also stored in `eclim--completion-start'."
   (setq eclim--completion-start
         (save-excursion
           (cl-case major-mode
-            ((java-mode javascript-mode js-mode ruby-mode groovy-mode php-mode c-mode c++-mode scala-mode)
+            ((java-mode javascript-mode js-mode ruby-mode groovy-mode php-mode c-mode c++-mode scala-mode python-mode)
              (progn
                ;; Allow completion after open bracket. Eclipse/eclim do.
                (when (or (eq ?\( (char-before))

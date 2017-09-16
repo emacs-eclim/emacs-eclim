@@ -77,6 +77,9 @@
 (defun ac-emacs-eclim-scala-setup ()
   (add-to-list 'ac-sources 'ac-source-emacs-eclim))
 
+(defun ac-emacs-eclim-python-setup ()
+  (add-to-list 'ac-sources 'ac-source-emacs-eclim))
+
 ;;;###autoload
 (defun ac-emacs-eclim-config ()
   (add-hook 'java-mode-hook 'ac-emacs-eclim-java-setup)
@@ -89,6 +92,7 @@
   (add-hook 'c-mode-hook 'ac-emacs-eclim-c-setup)
   (add-hook 'c++-mode-hook 'ac-emacs-eclim-c-setup)
   (add-hook 'scala-mode-hook 'ac-emacs-eclim-scala-setup))
+  (add-hook 'python-mode-hook 'ac-emacs-eclim-python-setup))
 
 (provide 'ac-emacs-eclim)
 ;;; ac-emacs-eclim.el ends here

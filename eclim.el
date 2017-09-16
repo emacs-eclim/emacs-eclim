@@ -195,7 +195,8 @@ may define more families in the future."
                (php-mode "php_src_update")
                (scala-mode "scala_src_update")
                ((c-mode c++-mode) "c_src_update")
-               ((javascript-mode js-mode) "javascript_src_update"))
+               ((javascript-mode js-mode) "javascript_src_update")
+               (python-mode "python_src_update"))
              (eclim--expand-args (list "-p" "-f")))))
   t)
 
