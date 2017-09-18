@@ -1,12 +1,18 @@
 language: emacs-lisp
 sudo: false
+dist: trusty
 env:
   global:
     - CI=true
   matrix:
     - EVM_EMACS=emacs-24.5-travis
+    - EVM_EMACS=emacs-25.1-travis
     - EVM_EMACS=emacs-25.2-travis
     - EVM_EMACS=emacs-git-snapshot-travis
+
+matrix:
+  allow_failures:
+    - env: EVM_EMACS=emacs-git-snapshot-travis
 
 notifications:
   webhooks:
@@ -17,24 +23,27 @@ notifications:
     on_start: never     # default: false
 
 before_install:
-  - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > travis.sh && source ./travis.sh
+  - export PATH="/home/travis/.evm/bin:/home/travis/.cask/bin:$PATH"
+  - git clone https://github.com/rejeep/evm.git /home/travis/.evm
+  - evm config path /tmp
+  - evm install emacs-24.3-travis --use --skip
+  - git clone https://github.com/cask/cask.git /home/travis/.cask
   - evm install "$EVM_EMACS" --use --skip
 install:
-  - cask install
-  - cask update
+  - EMACS="/home/travis/.evm/bin/emacs" cask install
 #  - cd /tmp
 #  - mkdir /home/travis/opt && wget http://download.eclipse.org/technology/epp/downloads/release/luna/R/eclipse-java-luna-R-linux-gtk-x86_64.tar.gz -O eclipse.tar.gz && tar -xf eclipse.tar.gz -C /home/travis/opt
 #  - wget http://sourceforge.net/projects/eclim/files/latest/download -O eclim.jar && java -Dvim.skip=true -Declipse.home=/home/travis/opt/eclipse -jar eclim.jar install
 #  - cd - && cd test && git clone https://github.com/nschum/elisp-lint.git
 #  - cd -
 script:
-  - make compile
-  - make lint
-  - make clean # Required for working test coverage report.
-  - make specs
+  - make EMACS="/home/travis/.evm/bin/emacs" compile
+  - make EMACS="/home/travis/.evm/bin/emacs" lint
+  - make EMACS="/home/travis/.evm/bin/emacs" clean # Required for working test coverage report.
+  - make EMACS="/home/travis/.evm/bin/emacs" specs
   # Workaround for 24.5, see https://github.com/cask/cask/issues/241
   - find .cask -name "*.elc" | xargs rm
-  - make test
+  - make EMACS="/home/travis/.evm/bin/emacs" test
 
 branches:
   only:
