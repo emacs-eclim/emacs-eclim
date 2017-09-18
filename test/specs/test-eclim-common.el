@@ -68,14 +68,14 @@
                         (let ((project-name "proj")
                               (reply '((path . tmp))))
                           (spy-on 'eclim--check-project :and-throw-error 'error)
-                          (expect (lambda () (eclim/project-info project-name)) :to-throw 'error)))
+                          (expect (eclim/project-info project-name) :to-throw 'error)))
 
                     (it "errors for invalid response from server"
                         (let ((project-name "proj")
                               (reply '((path . tmp))))
                           (spy-on 'eclim--check-project :and-return-value nil)
                           (spy-on 'eclim--call-process :and-throw-error 'error)
-                          (expect (lambda () (eclim/project-info project-name)) :to-throw 'error)))
+                          (expect (eclim/project-info project-name) :to-throw 'error)))
                     )
 
           (describe "eclim--parse-result"
@@ -91,11 +91,11 @@
                         (expect (eclim--parse-result "\t") :to-equal nil))
 
                     (it "should throw an error for bad encoding"
-                        (expect (lambda () (eclim--parse-result "java.io.UnsupportedEncodingException: bad-encoding"))
+                        (expect (eclim--parse-result "java.io.UnsupportedEncodingException: bad-encoding")
                                 :to-throw 'error))
 
                     (it "should throw an error for a bad command"
-                        (expect (lambda () (eclim--parse-result "No command 'bad_command' found"))
+                        (expect (eclim--parse-result "No command 'bad_command' found")
                                 :to-throw 'error))
 
                     (it "should throw an error for a bad support"
@@ -103,26 +103,25 @@
                                '(xml_complete groovy_complete ruby_complete c_complete php_complete scala_complete)))
                           (loop
                            for support-type in support-types
-                           do (expect (lambda () (eclim--parse-result (format "No command '%s' found" support-type)))
+                           do (expect (eclim--parse-result (format "No command '%s' found" support-type))
                                       :to-throw 'error))))
 
                     (it "should throw an error for an exception"
-                        (expect (lambda () (eclim--parse-result "java.lang.Exception: Parse error at line 32"))
+                        (expect (eclim--parse-result "java.lang.Exception: Parse error at line 32")
                                 :to-throw 'error))
 
                     (it "should throw an error for connection refused when eclim server is starting"
                         (setq eclimd-process nil)
-                        (expect (lambda () (eclim--parse-result "connect: Connection refused"))
+                        (expect (eclim--parse-result "connect: Connection refused")
                                 :to-throw 'error))
 
                     (it "should throw an error for connection refused after eclim server has started"
                         (setq eclimd-process t)
-                        (expect (lambda () (eclim--parse-result "connect: Connection refused"))
+                        (expect (eclim--parse-result "connect: Connection refused")
                                 :to-throw 'error))
 
                     (it "should throw an error for a bad JSON reply"
-                        (expect (lambda () (eclim--parse-result "xyz"))
-                                :to-throw 'error))
+                        (expect (eclim--parse-result "xyz") :to-throw 'error))
                     )
 
           (describe "eclim--call-process"
@@ -146,7 +145,7 @@
 
                     (it "throws an error when Eclim server is not present"
                         (test-eclim-common--fake-error-reply)
-                        (expect (lambda () (eclim--connected-p)) :to-throw 'error))
+                        (expect (eclim--connected-p) :to-throw 'error))
                     )
           (describe "eclim-project-name"
                     (it "returns the project name for a file in the project"
