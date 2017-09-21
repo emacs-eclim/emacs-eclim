@@ -183,7 +183,7 @@
 
 (defun eclim/project-setting-set (project setting value)
   (eclim--check-project project)
-  (eclim--call-process "project_setting" "-p" project "-s" setting "-v" (concat "[\"" value "\"]")))
+  (eclim--call-process "project_setting" "-p" project "-s" setting "-v" value))
 
 (defun eclim/project-nature-add (project nature)
   (eclim--check-project project)
