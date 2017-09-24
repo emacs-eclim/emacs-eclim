@@ -91,7 +91,7 @@
   (add-hook 'ruby-mode-hook 'ac-emacs-eclim-ruby-setup)
   (add-hook 'c-mode-hook 'ac-emacs-eclim-c-setup)
   (add-hook 'c++-mode-hook 'ac-emacs-eclim-c-setup)
-  (add-hook 'scala-mode-hook 'ac-emacs-eclim-scala-setup))
+  (add-hook 'scala-mode-hook 'ac-emacs-eclim-scala-setup)
   (add-hook 'python-mode-hook 'ac-emacs-eclim-python-setup))
 
 (provide 'ac-emacs-eclim)
