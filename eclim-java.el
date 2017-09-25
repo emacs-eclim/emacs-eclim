@@ -137,7 +137,7 @@ sources."
     (when (buffer-modified-p) (save-buffer)) ;; auto-save current buffer, prompt on saving others
     (when save-others (save-some-buffers nil (lambda () (string-match "\\.java$" (buffer-file-name)))))))
 
-(defadvice delete-file (around eclim--delete-file activate)
+(defun eclim-java-delete-file (orig-function filename &optional trash)
   "Advice the `delete-file' function to trigger a source update
 in eclim when appropriate."
   (let ((pr nil)
@@ -145,7 +145,7 @@ in eclim when appropriate."
     (ignore-errors
       (and (setq pr (eclim-project-name filename))
            (setq fn (file-relative-name filename (eclim--project-dir pr)))))
-    ad-do-it
+    (funcall orig-function filename trash)
     (when (and pr fn)
       (ignore-errors (apply 'eclim--call-process (list "java_src_update" "-p" pr "-f" fn))))))
 

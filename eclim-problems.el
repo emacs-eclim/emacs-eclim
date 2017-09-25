@@ -141,19 +141,19 @@ that only warnings are reported."
   (interactive)
   (eclim--problems-apply-filter nil))
 
-(defadvice find-file (after eclim-problems-highlight-on-find-file activate)
+(defun eclim-problems-advice-find-file (_filename &optional _wildcards)
   "Highlight problems in a source buffer once it is opened."
   (eclim-problems-highlight))
 
-(defadvice find-file-other-window (after eclim-problems-highlight-on-find-file-other-window activate)
+(defun eclim-problems-advice-find-file-other-window (_filename &optional _wildcards)
   "Highlight problems in a source buffer once it is opened."
   (eclim-problems-highlight))
 
-(defadvice other-window (after eclim-problems-highlight-on-other-window activate)
+(defun eclim-problems-advice-other-window (_count &optional _all-frames)
   "Highlight problems in a source buffer when switching windows."
   (eclim-problems-highlight))
 
-(defadvice switch-to-buffer (after eclim-problems-highlight-switch-to-buffer activate)
+(defun eclim-problems-advice-switch-to-buffer (_buffer-or-name &optional _norecord _force-same-window)
   "Highlight problems in a source buffer when switching buffers."
   (eclim-problems-highlight))
 
@@ -264,10 +264,11 @@ problems."
     (eclim-problems)
     (select-window w)))
 
-(add-hook 'find-file-hook
-          (lambda () (when (eclim--accepted-p (buffer-file-name))
-                       ;; Ensure the problems buffer exists.
-                       (eclim--get-problems-buffer-create))))
+(defun eclim-problems-find-file-hook ()
+  "Hook to run when a file is opened."
+  (when (eclim--accepted-p (buffer-file-name))
+      ;; Ensure the problems buffer exists.
+      (eclim--get-problems-buffer-create)))
 
 (defun eclim-problems-refocus ()
   "Change the project and source file for the problems buffer."
