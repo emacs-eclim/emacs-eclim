@@ -332,14 +332,14 @@ where <encoding> is the corresponding java name for this encoding." e e)))
                                         ("php_complete" "PHP" "Eclipse PHP Development Tools")
                                         ("scala_complete" "Scala" "Eclipse Scala Development Tools")))))
                 (if c (error "Eclim was not installed with %s support. Please make sure that %s are installed, then reinstall eclim." (first c) (second c))
-                  (error result))))
+                  (error "%s" result))))
              ((string-match ".*Exception: \\(.*\\)" result)
-              (error (match-string 1 result)))
+              (error "%s" (match-string 1 result)))
              ((string-match "connect: Connection refused" result)
               (if eclimd-process
                   (signal 'eclim--eclimd-starting-error nil)
                 (signal 'eclim--connection-refused-error nil)))
-             (t (error result)))))))
+             (t (error "%s" result)))))))
 
 (defun eclim--completing-read (prompt choices)
   "Show an interactive PROMPT with completion for a list of CHOICES."
@@ -406,7 +406,7 @@ saved as well."
   (let ((projects (or eclim--projects-cache
                       (setq eclim--projects-cache (mapcar (lambda (p) (assoc-default 'name p)) (eclim/project-list))))))
     (when (not (assoc-string project projects))
-      (error (concat "invalid project: " project))))) ;
+      (error "Invalid project: %s" project))))
 
 (defun eclim--execute-command-internal (executor cmd args)
   "Invoke an eclim server command, returning the parsed output.

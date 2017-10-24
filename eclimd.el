@@ -303,7 +303,7 @@ not be started / is already running, CALLBACK is not executed."
           (let ((eclimd-wait-for-process (not async)))
             (start-eclimd (eclimd--autostart-workspace) callback))
         (let ((msg "Autostarting of eclimd is disabled, please start eclimd manually."))
-          (if async (message msg) (error msg)))))))
+          (if async (message msg) (error "%s" msg)))))))
 
 (defun stop-eclimd ()
   "Gracefully terminate the eclimd process.

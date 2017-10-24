@@ -170,7 +170,7 @@ raised if no problem corresponds to the current position."
         (let ((problems (eclim--problems-filtered))
               (index (1- (line-number-at-pos))))
           (if (>= index (length problems))
-              (error "No problem on this line.")
+              (error "No problem on this line")
             (aref problems index)))
       ;; we need to figure out which problem corresponds to this pos
       (save-restriction

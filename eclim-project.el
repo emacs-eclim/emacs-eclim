@@ -81,7 +81,7 @@
   (let ((natures (or eclim--project-natures-cache
                     (setq eclim--project-natures-cache (eclim/project-nature-aliases)))))
     (when (not (member nature (append natures nil)))
-      (error (concat "invalid project nature: " nature)))))
+      (error "Invalid project nature: %s" nature))))
 
 (defun eclim--project-read (&optional single)
   (interactive)
