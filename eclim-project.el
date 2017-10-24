@@ -324,6 +324,15 @@
     (eclim/project-refresh project))
   (eclim--project-buffer-refresh))
 
+(defun eclim-project-refresh-file (projects)
+  (interactive (list (eclim--project-read)))
+  (when (not (listp projects)) (setq projects (list projects)))
+  (dolist (project projects)
+    (let ((file (buffer-file-name (current-buffer)))
+          (project-dir (concat (file-name-as-directory (eclim/workspace-dir)) project)))
+      (eclim/project-refresh-file project (substring file (- (string-width project-dir) (string-width file)) nil))))
+  (eclim--project-buffer-refresh))
+
 (defun eclim-project-mark-current ()
   (interactive)
   (eclim--project-insert-mark-current 'dired-mark)
