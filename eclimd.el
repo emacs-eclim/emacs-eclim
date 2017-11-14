@@ -254,6 +254,8 @@ To stop the server, you should use `stop-eclimd'."
   (let ((eclimd-prog (eclimd--executable-path)))
     (if (not eclimd-prog)
         (message "Cannot start eclimd: check eclimd-executable variable.")
+      (when (and eclimd-process (not (process-live-p eclimd-process)))
+        (setq eclimd-process nil))
       (if eclimd-process
           (message "Cannot start eclimd: eclimd was already started.")
         (message (concat "Starting eclimd for workspace: " workspace-dir "..."))
