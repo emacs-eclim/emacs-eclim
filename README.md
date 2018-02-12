@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/emacs-eclim/emacs-eclim/badge.svg?branch=master)](https://coveralls.io/github/emacs-eclim/emacs-eclim?branch=master)
 [![MELPA](http://melpa.org/packages/eclim-badge.svg)](http://melpa.org/#/eclim)
 [![MELPA Stable](http://stable.melpa.org/packages/eclim-badge.svg)](http://stable.melpa.org/#/eclim)
+[![Open Source Helpers](https://www.codetriage.com/emacs-eclim/emacs-eclim/badges/users.svg)](https://www.codetriage.com/emacs-eclim/emacs-eclim)
 
 # Overview
 
