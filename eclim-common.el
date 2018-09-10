@@ -37,6 +37,8 @@
 ;;(eval-when-compile (require 'eclim-macros))
 (require 'eclim-macros)
 
+(declare-function eclim--get-problems-buffer-create "eclim-problems")
+
 ;;;###autoload
 (defvar eclim-mode-map
   (let ((map (make-sparse-keymap)))
