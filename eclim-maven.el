@@ -27,17 +27,19 @@
 ;;
 ;;; Code:
 
+(eval-when-compile (require 'eclim-macros))
 (require 'compile)
 (require 'eclim-common)
+
+(eclim-bind-keys (:map eclim-maven-keymap :prefix "m" :doc "Eclim Maven")
+  ("p" . eclim-maven-lifecycle-phase-run)
+  ("r" . eclim-maven-run))
 
 ;; Add regexp to make compilation-mode understand maven2 errors
 (setq compilation-error-regexp-alist
       (append (list
                '("\\[ERROR]\\ \\(\/.*\\):\\[\\([0-9]*\\),\\([0-9]*\\)]" 1 2 3))
               compilation-error-regexp-alist))
-
-(define-key eclim-mode-map (kbd "C-c C-e m p") 'eclim-maven-lifecycle-phase-run)
-(define-key eclim-mode-map (kbd "C-c C-e m r") 'eclim-maven-run)
 
 (defvar eclim-maven-lifecycle-phases
   '("validate" "compile" "test" "package" "integration" "verify" "install" "deploy")

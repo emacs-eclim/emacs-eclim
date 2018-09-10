@@ -63,14 +63,17 @@
 (defvar eclim-project-info-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map special-mode-map)
-        map))
+    map))
 
-(define-key eclim-mode-map (kbd "C-c C-e g") 'eclim-project-goto)
-(define-key eclim-mode-map (kbd "C-c C-e p p") 'eclim-project-mode)
-(define-key eclim-mode-map (kbd "C-c C-e p m") 'eclim-project-mode)
-(define-key eclim-mode-map (kbd "C-c C-e p i") 'eclim-project-import)
-(define-key eclim-mode-map (kbd "C-c C-e p c") 'eclim-project-create)
-(define-key eclim-mode-map (kbd "C-c C-e p g") 'eclim-project-goto)
+(eclim-bind-keys (:map eclim-command-map)
+  ("g" . eclim-project-goto))
+
+(eclim-bind-keys (:map eclim-project-keymap :prefix "p" :doc "Eclim Project")
+  ("p" . eclim-project-goto)
+  ("m" . eclim-project-mode)
+  ("i" . eclim-project-import)
+  ("c" . eclim-project-create)
+  ("g" . eclim-project-goto))
 
 ;; Clear project caches.
 (defun eclim--project-clear-cache ()

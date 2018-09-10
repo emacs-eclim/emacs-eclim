@@ -27,9 +27,10 @@
 
 (require 'popup)
 (require 'hl-line)
-(require 'cl-lib)
 (require 'eclim-common)
-(eval-when-compile (require 'eclim-macros))
+(eval-when-compile
+  (require 'eclim-macros)
+  (require 'cl-lib))
 
 (defgroup eclim-problems nil
   "Settings for displaying problems in code and the problems buffer."
@@ -62,8 +63,9 @@
         map)
   "The local key map to use in `eclim-problems-mode'.")
 
-(define-key eclim-mode-map (kbd "C-c C-e b") 'eclim-problems)
-(define-key eclim-mode-map (kbd "C-c C-e o") 'eclim-problems-open)
+(eclim-bind-keys (:map eclim-command-map)
+  ("b" . eclim-problems)
+  ("o" . eclim-problems-open))
 
 (defconst eclim--problems-buffer-name "*eclim: problems*"
   "The name to use for the problems buffer.")

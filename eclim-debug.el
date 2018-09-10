@@ -32,19 +32,19 @@
 ;; support debugging
 ;;
 ;;; Code:
-
+(eval-when-compile (require 'eclim-macros))
+(require 'eclim-common)
 (require 'eclim-project)
 (require 'eclim-java)
 (require 'eclim-maven)
 (require 'eclim-ant)
 (require 'eclim-java-run)
-(require 'eclim-common)
 (require 'gud)
-(require 'dash)
 (require 's)
 
-(define-key eclim-mode-map (kbd "C-c C-e p t") 'eclim-debug-test)
-(define-key eclim-mode-map (kbd "C-c C-e p a") 'eclim-debug-attach)
+(eclim-bind-keys (:map eclim-debug-keymap :prefix "p" :doc "Eclim Debug")
+  ("t" . eclim-debug-test)
+  ("a" . eclim-debug-attach))
 
 (defun eclim--debug-jdb-run-command (project main-class args)
   (let ((config `((name . ,(concat "*Debug - " main-class "*"))

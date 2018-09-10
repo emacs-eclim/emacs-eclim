@@ -32,13 +32,16 @@
 ;;
 ;;; Code:
 
+(eval-when-compile 'eclim-macros)
+(require 'eclim-common)
 (require' eclim-project)
 (require 'eclim-java)
 (require 's)
 (require 'dash)
 (require 'xml)
 
-(define-key eclim-mode-map (kbd "C-c C-e u r") 'eclim-java-run-run)
+(eclim-bind-keys (:map java-run-keymap :prefix "u" :doc "Eclim Java Run")
+  ("r" . eclim-java-run-run))
 
 (defun eclim-java-run-sourcepath (project)
   (let ((projects (-snoc (eclim-project-dependencies project) project)))

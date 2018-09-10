@@ -27,17 +27,18 @@
 ;;; Commentary:
 ;;
 ;;; Code:
-
+(eval-when-compile (require 'eclim-macros))
 (require 'eclim-common)
-
-(define-key eclim-mode-map (kbd "C-c C-e a c") 'eclim-ant-clear-cache)
-(define-key eclim-mode-map (kbd "C-c C-e a r") 'eclim-ant-run)
-(define-key eclim-mode-map (kbd "C-c C-e a a") 'eclim-ant-run)
-(define-key eclim-mode-map (kbd "C-c C-e a v") 'eclim-ant-validate)
 
 (defgroup eclim-ant nil
   "Build java projects using Apache Ant."
   :group 'eclim)
+
+(eclim-bind-keys (:map eclim-ant-keymap :prefix "a" :doc "Eclim Ant")
+  ("c" . eclim-ant-clear-cache)
+  ("r" . eclim-ant-run)
+  ("a" . eclim-ant-run)
+  ("v" . eclim-ant-validate))
 
 (defcustom eclim-ant-directory ""
   "This variable contains the location, where the main buildfile is stored.

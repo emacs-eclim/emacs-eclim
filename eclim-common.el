@@ -28,13 +28,13 @@
 ;;
 ;;; Code:
 
-(eval-when-compile (require 'cl-lib))
+(eval-when-compile
+  (require 'cl-lib)
+  (require 'dash))
 (require 'etags)
 (require 'json)
 (require 'arc-mode)
 (require 'popup)
-(require 'dash)
-;;(eval-when-compile (require 'eclim-macros))
 (require 'eclim-macros)
 
 (declare-function eclim--get-problems-buffer-create "eclim-problems")
@@ -45,6 +45,21 @@
     (define-key map (kbd "M-TAB") 'eclim-complete)
     map)
   "The keymap used in command `eclim-mode'.")
+
+(defcustom eclim-keymap-prefix "C-c C-e"
+  "Eclim keymap prefix."
+  :type 'string
+  :group 'eclim
+  :set (lambda (var key)
+         (when (and (boundp var) (symbol-value var))
+           (define-key eclim-mode-map (read-kbd-macro (symbol-value var))
+             'eclim-command-map))
+         (when key
+           (define-key eclim-mode-map (read-kbd-macro key) 'eclim-command-map))
+         (set var key)))
+
+(define-prefix-command 'eclim-command-map nil "Eclim command map")
+(define-key eclim-mode-map (kbd eclim-keymap-prefix) 'eclim-command-map)
 
 (defvar eclimd-process nil
   "The active eclimd process.")
