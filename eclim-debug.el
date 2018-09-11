@@ -19,7 +19,6 @@
 ;;
 ;;; Contributors
 ;;
-;;
 ;;; Commentary:
 ;;
 ;;; Conventions
@@ -32,6 +31,7 @@
 ;; eclim-debug.el -- emacs-eclim integration with gud and jdb to
 ;; support debugging
 ;;
+;;; Code:
 
 (require 'eclim-project)
 (require 'eclim-java)
@@ -51,7 +51,8 @@
                   (debug . t)
                   (main-class . ,main-class)
                   (program-args . ,args)
-                  (vm-args . ,(concat "-sourcepath" (eclim-java-run-sourcepath project)))))
+                  (vm-args . ,(concat "-sourcepath"
+                                      (eclim-java-run-sourcepath project)))))
         (classpath (eclim/java-classpath project)))
     (eclim-java-run--command config (eclim-java-run--java-vm-args classpath))))
 
@@ -70,14 +71,16 @@
 
 (defun eclim--debug-maven-run ()
   (concat "mvn -f " (eclim--maven-pom-path)
-          "clean test -Dmaven.surefire.debug -Dtest=" (file-name-base)))
+          "clean test -Dmaven.surefire.debug -Dtest="
+          (file-name-base (buffer-file-name))))
 
 (defun eclim--debug-project-maven? ()
   (eclim--debug-file-exists-in-project-root? "pom.xml"))
 
 (defun eclim--debug-ant-run ()
   (let ((default-directory (eclim--ant-buildfile-path)))
-    "ANT_OPTS=\"$ANT_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005\" ant test"))
+    "ANT_OPTS=\"$ANT_OPTS -Xdebug \
+-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005\" ant test"))
 
 (defun eclim--debug-project-ant? ()
   (eclim--debug-file-exists-in-project-root? "build.xml"))
@@ -96,6 +99,7 @@
                 (lambda (txt) (eclim--debug-attach-when-ready txt project port))))))
 
 (defun eclim-debug-junit ()
+  "Debug Junit test."
   (interactive)
   (let ((project (eclim-project-name))
         (classes (eclim-package-and-class)))
@@ -103,22 +107,28 @@
      (eclim--debug-jdb-run-command project "org.junit.runner.JUnitCore" classes))))
 
 (defun eclim-debug-maven-test ()
+  "Debug maven test."
   (interactive)
   (eclim--debug-run-process-and-attach (eclim--debug-maven-run) 5005))
 
 (defun eclim-debug-ant-test ()
+  "Debug ant test."
   (interactive)
   (eclim--debug-run-process-and-attach (eclim--debug-ant-run) 5005))
 
 (defun eclim-debug-attach (port project)
+  "Attach debugger for PROJECT to PORT."
   (interactive (list (read-number "Port: " 5005) (eclim-project-name)))
   (eclim-debug/jdb (eclim--debug-jdb-attach-command project port)))
 
 (defun eclim-debug-test ()
+  "Debug test based on availability."
   (interactive)
   (cond ((eclim-java-junit-buffer?) (eclim-debug-junit))
         ((eclim--debug-project-maven?) (eclim-debug-maven-test))
         ((eclim--debug-project-ant?) (eclim-debug-ant-test))
-        (t (message "I can't debug this. I wasn't program smart enough. Please help me"))))
+        (t (message "I can't debug this. I wasn't program smart enough. \
+Please help me"))))
 
 (provide 'eclim-debug)
+;;; eclim-debug.el ends here

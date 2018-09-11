@@ -1,4 +1,4 @@
-;;; eclim-problems.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
+;;; eclim-problems.el --- Eclipse IDE interface -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2009, 2012  Tassilo Horn <tassilo@member.fsf.org>
 ;;
@@ -23,8 +23,6 @@
 ;;  - Alessandro Arzilli <alessandro.arzilli * gmail com>
 ;;
 ;;; Commentary:
-;;
-;;
 ;;; Code:
 
 (require 'popup)
@@ -153,7 +151,9 @@ that only warnings are reported."
   "Highlight problems in a source buffer when switching windows."
   (eclim-problems-highlight))
 
-(defun eclim-problems-advice-switch-to-buffer (_buffer-or-name &optional _norecord _force-same-window)
+(defun eclim-problems-advice-switch-to-buffer (_buffer-or-name
+                                               &optional _norecord
+                                               _force-same-window)
   "Highlight problems in a source buffer when switching buffers."
   (eclim-problems-highlight))
 
@@ -176,8 +176,10 @@ raised if no problem corresponds to the current position."
       (save-restriction
         (widen)
         (let ((line (line-number-at-pos)))
-          (or (cl-find-if (lambda (p) (and (string= (assoc-default 'filename p) (file-truename buffer-file-name))
-                                           (= (assoc-default 'line p) line)))
+          (or (cl-find-if (lambda (p)
+                            (and (string= (assoc-default 'filename p)
+                                          (file-truename buffer-file-name))
+                                 (= (assoc-default 'line p) line)))
                           eclim--problems-list)
               (error "No problem on this line")))))))
 
@@ -201,7 +203,8 @@ source code buffer."
   (interactive)
   (let ((p (eclim--problems-get-current-problem)))
     (unless (string-match "\\.\\(groovy\\|java\\)$" (cdr (assoc 'filename p)))
-      (error "Not a Java or Groovy file.  Corrections are currently supported only for Java or Groovy"))
+      (error "Not a Java or Groovy file.  \
+Corrections are currently supported only for Java or Groovy"))
     (if (eq major-mode 'eclim-problems-mode)
         (let ((p-buffer (find-file-other-window (assoc-default 'filename p))))
           (with-selected-window (get-buffer-window p-buffer t)
@@ -251,7 +254,8 @@ If the problems buffer does not exist yet, it is created."
   (interactive)
   (if (eclim-project-name)
       (eclim--problems-mode-init)
-    (error "Could not figure out the current project. Is this an eclim managed buffer?")))
+    (error "Could not figure out the current project.  \
+Is this an eclim managed buffer?")))
 
 (defun eclim-problems-open ()
   "Switch to the problems buffer in a new Emacs window.
@@ -383,22 +387,27 @@ is currently not respected, however.
 PROJECT-DIRECTORY is the path to the project root directory.
 It will be stripped from file names before they are
 displayed."
-  (let ((filename (cl-first (split-string (assoc-default 'filename problem) project-directory t)))
+  (let ((filename
+         (cl-first (split-string (assoc-default 'filename problem)
+                                 project-directory t)))
         (description (assoc-default 'message problem))
         (type (if (eq t (assoc-default 'warning problem)) "W" "E")))
     (let ((line (assoc-default 'line problem))
           (col (assoc-default 'column problem)))
-      (insert (format "%s:%s:%s: %s: %s\n" filename line col (upcase type) description)))))
+      (insert
+       (format "%s:%s:%s: %s: %s\n" filename line col (upcase type) description)))))
 
 (defun eclim--count-current-errors ()
   "Count the number of problems which are errors."
   (length
-   (eclim--filter-problems "e" t (buffer-file-name (current-buffer)) eclim--problems-list)))
+   (eclim--filter-problems
+    "e" t (buffer-file-name (current-buffer)) eclim--problems-list)))
 
 (defun eclim--count-current-warnings ()
   "Count the number of problems which are warnings."
   (length
-   (eclim--filter-problems "w" t (buffer-file-name (current-buffer)) eclim--problems-list)))
+   (eclim--filter-problems
+    "w" t (buffer-file-name (current-buffer)) eclim--problems-list)))
 
 (defun eclim-problems-next-same-file (&optional up)
   "Move to the next problem in the current file, with wraparound.

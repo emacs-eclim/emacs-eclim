@@ -1,25 +1,27 @@
 # makefie for emacs-eclim
 
-EL_FILES := $(sort $(wildcard *.el))
-ELC_FILES := $(EL_FILES:.el=.elc)
+EL_FILES        := $(sort $(wildcard *.el))
+ELC_FILES       := $(EL_FILES:.el=.elc)
 
-EMACS := emacs
-CASK := cask
-LOAD_PATH := -L .
-EMACS_OPTS :=
-EMACS_BATCH := $(EMACS) -Q -batch -L . $(EMACS_OPTS)
+EMACS           := emacs
+CASK            := cask
+LOAD_PATH       := -L .
+EMACS_OPTS      :=
+EMACS_BATCH     := $(EMACS) -Q -batch -L . $(EMACS_OPTS)
+
 LINT_LOAD_FILES = -l maint/eclim-lint.el
+LINT_FILES      = $(filter-out %-pkg.el,${EL_FILES})
 
 # Program availability
 ifdef CASK
-RUN_EMACS = $(CASK) exec $(EMACS_BATCH)
-HAVE_CASK := $(shell sh -c "command -v $(CASK)")
+RUN_EMACS       = $(CASK) exec $(EMACS_BATCH)
+HAVE_CASK       := $(shell sh -c "command -v $(CASK)")
 ifndef HAVE_CASK
 $(warning "$(CASK) is not available.  Please run make help")
 endif
 endif
 
-VPATH := .
+VPATH           := .
 
 all: test
 
@@ -33,8 +35,8 @@ test:
 specs:
 	$(CASK) exec buttercup -L . -L ./test/specs
 
-lint: $(EL_FILES)
-	$(RUN_EMACS) $(LINT_LOAD_FILES) -f eclim-lint-files $(EL_FILES)
+lint: $(LINT_FILES)
+	$(RUN_EMACS) $(LINT_LOAD_FILES) -f eclim-lint-files $(LINT_FILES)
 
 package-lint: $(EL_FILES)
 	$(RUN_EMACS) $(LINT_LOAD_FILES) -f eclim-package-lint $(EL_FILES)

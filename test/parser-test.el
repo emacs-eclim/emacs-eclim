@@ -21,7 +21,7 @@
 
 ;;; Code:
 
-(ert-deftest java-parser-read-complex-signarure()
+(ert-deftest java-parser-read-complex-signarure ()
   (should (equal (eclim--java-parser-read "public Message<?> preSend(org.springframework.integration.Message<?>,org.springframework.integration.MessageChannel)")
                  '(public Message ((\?)) preSend ((org\.springframework\.integration\.Message ((\?))) (org\.springframework\.integration\.MessageChannel))))))
 

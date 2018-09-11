@@ -101,7 +101,7 @@
                     (it "should throw an error for a bad support"
                         (let ((support-types
                                '(xml_complete groovy_complete ruby_complete c_complete php_complete scala_complete)))
-                          (loop
+                          (cl-loop
                            for support-type in support-types
                            do (expect (eclim--parse-result (format "No command '%s' found" support-type))
                                       :to-throw 'error))))

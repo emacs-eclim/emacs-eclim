@@ -1,4 +1,4 @@
-;; eclim-java-run.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t; -*-
+;; eclim-java-run.el --- Eclipse IDE interface. -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2015 Łukasz Klich
 ;;
@@ -19,7 +19,6 @@
 ;;
 ;;; Contributors
 ;;
-;;
 ;;; Commentary:
 ;;
 ;;; Conventions
@@ -31,6 +30,7 @@
 ;;
 ;; eclim-java-run.el -- java run configurations for eclim
 ;;
+;;; Code:
 
 (require' eclim-project)
 (require 'eclim-java)
@@ -49,15 +49,15 @@
 
 (defun eclim-java-run--project-sourcepath (project)
   (eclim-java-run--read-sourcepath
-   (concat (eclim-java-run--project-dir project)
-           ".classpath")))
+   (concat (eclim-java-run--project-dir project) ".classpath")))
 
 (defun eclim-java-run--read-sourcepath (classpath-file)
   (let* ((root (car (xml-parse-file classpath-file)))
          (classpathentries (xml-get-children root 'classpathentry))
          (srcs (-filter 'eclim-java-run--src?? classpathentries))
          (paths-relative (-map 'eclim-java-run--get-path srcs))
-         (paths-absolute (--map (concat (file-name-directory classpath-file) it) paths-relative)))
+         (paths-absolute (--map (concat (file-name-directory classpath-file) it)
+                                paths-relative)))
     paths-absolute))
 
 (defun eclim-java-run--src?? (classpathentry)
@@ -76,8 +76,10 @@
     (buffer-string)))
 
 (defun eclim-java-run--load-configurations (project)
-  (let* ((configurations-path (concat (eclim-java-run--project-dir project) ".eclim"))
-         (configurations (read (eclim-java-run--get-string-from-file configurations-path))))
+  (let* ((configurations-path
+          (concat (eclim-java-run--project-dir project) ".eclim"))
+         (configurations
+          (read (eclim-java-run--get-string-from-file configurations-path))))
     configurations))
 
 (defun eclim-java-run--get-value (key alist)
@@ -108,21 +110,24 @@
                 (eclim-java-run--get-value 'program-args config)))))
 
 (defun eclim-java-run--run-jdb (config classpath sourcepath project-dir)
-  (let* ((command (eclim-java-run--command config
-                                           (eclim-java-run--debug-vm-args classpath sourcepath))))
+  (let* ((command (eclim-java-run--command
+                   config
+                   (eclim-java-run--debug-vm-args classpath sourcepath))))
     (with-temp-buffer
       (setq default-directory project-dir)
       (eclim-debug/jdb command))))
 
 (defun eclim-java-run--run-java (config classpath project-dir)
   (let* ((name (eclim-java-run--get-value 'name config))
-         (command (eclim-java-run--command config (eclim-java-run--java-vm-args classpath)))
+         (command (eclim-java-run--command
+                   config (eclim-java-run--java-vm-args classpath)))
          (new-buffer-name (concat "*" name "*")))
     (when (buffer-live-p (get-buffer new-buffer-name)) (kill-buffer new-buffer-name))
     (with-temp-buffer
       (setq default-directory project-dir)
-      (switch-to-buffer (process-buffer
-                         (start-process-shell-command name new-buffer-name command))))))
+      (switch-to-buffer
+       (process-buffer
+        (start-process-shell-command name new-buffer-name command))))))
 
 (defun eclim-java-run--configuration (name confs)
   (car
@@ -135,9 +140,12 @@
                    nil t))
 
 (defun eclim-java-run-run (configuration-name)
+  "Run current project using configurations from CONFIGURATION-NAME."
   (interactive (list (eclim-java-run--ask-which-configuration)))
-  (let* ((configurations (eclim-java-run--load-configurations (eclim-project-name)))
-         (configuration (eclim-java-run--configuration configuration-name configurations))
+  (let* ((configurations
+          (eclim-java-run--load-configurations (eclim-project-name)))
+         (configuration
+          (eclim-java-run--configuration configuration-name configurations))
          (project-dir (eclim-java-run--project-dir (eclim-project-name)))
          (classpath (eclim/java-classpath (eclim-project-name)))
          (debug? (eclim-java-run--jdb? configuration)))
@@ -151,15 +159,18 @@
                                 project-dir))))
 
 (defun eclim-run-configuration (configuration-name)
-      "Runs the configuration given in CONFIGURATION-NAME in the compilation buffer."
-      (interactive (list (eclim-java-run--ask-which-configuration)))
-      (let* ((configurations (eclim-java-run--load-configurations (eclim-project-name)))
-             (configuration (eclim-java-run--configuration configuration-name configurations))
-             (project-dir (eclim-java-run--project-dir (eclim-project-name)))
-             (classpath (eclim/java-classpath (eclim-project-name)))
-             (default-directory project-dir)
-             (command (eclim-java-run--command configuration (eclim-java-run--java-vm-args classpath))))
-        (compile command)))
+  "Runs the configuration given in CONFIGURATION-NAME in the compilation buffer."
+  (interactive (list (eclim-java-run--ask-which-configuration)))
+  (let* ((configurations
+          (eclim-java-run--load-configurations (eclim-project-name)))
+         (configuration
+          (eclim-java-run--configuration configuration-name configurations))
+         (project-dir (eclim-java-run--project-dir (eclim-project-name)))
+         (classpath (eclim/java-classpath (eclim-project-name)))
+         (default-directory project-dir)
+         (command (eclim-java-run--command
+                   configuration (eclim-java-run--java-vm-args classpath))))
+    (compile command)))
 
 (provide 'eclim-java-run)
 ;;; eclim-java-run.el ends here

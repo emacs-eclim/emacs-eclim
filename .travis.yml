@@ -1,4 +1,4 @@
-language: emacs-lisp
+language: generic
 sudo: false
 dist: trusty
 env:

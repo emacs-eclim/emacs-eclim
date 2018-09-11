@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'company-emacs-eclim)
+(eval-when-compile (require 'cl))
 (require 'noflet)
 
 (ert-deftest compute-full-prefix-when-complete-import ()

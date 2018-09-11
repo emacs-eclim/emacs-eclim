@@ -1,4 +1,4 @@
-;;; company-emacs-eclim.el --- an interface to the Eclipse IDE.  -*- lexical-binding: t -*-
+;;; company-emacs-eclim.el --- Eclipse IDE interface  -*- lexical-binding: t -*-
 ;;
 ;; Copyright (C) 2012   Fredrik Appelberg
 ;;
@@ -30,6 +30,8 @@
 ;; company-emacs-eclim.el -- completion functions used by the company-mode
 ;;    and auto-complete-mode backends.
 ;;
+;;
+;;; Code:
 
 (require 'thingatpt)
 (require 'cl-lib)
@@ -59,11 +61,13 @@ which removes all arguments before inserting.")
             (cl-case major-mode
               (java-mode
                (assoc-default 'completions
-                              (eclim/execute-command "java_complete" "-p" "-f" "-e" ("-l" "standard") "-o")))
+                              (eclim/execute-command "java_complete" "-p" "-f"
+                                                     "-e" ("-l" "standard") "-o")))
               ((xml-mode nxml-mode)
                (eclim/execute-command "xml_complete" "-p" "-f" "-e" "-o"))
               (groovy-mode
-               (eclim/execute-command "groovy_complete" "-p" "-f" "-e" ("-l" "standard") "-o"))
+               (eclim/execute-command "groovy_complete" "-p" "-f" "-e"
+                                      ("-l" "standard") "-o"))
               (ruby-mode
                (eclim/execute-command "ruby_complete" "-p" "-f" "-e" "-o"))
               (php-mode
@@ -71,9 +75,11 @@ which removes all arguments before inserting.")
               ((javascript-mode js-mode)
                (eclim/execute-command "javascript_complete" "-p" "-f" "-e" "-o"))
               (scala-mode
-               (eclim/execute-command "scala_complete" "-p" "-f" "-e" ("-l" "standard") "-o"))
+               (eclim/execute-command "scala_complete" "-p" "-f" "-e"
+                                      ("-l" "standard") "-o"))
               ((c++-mode c-mode)
-               (eclim/execute-command "c_complete" "-p" "-f" "-e" ("-l" "standard") "-o"))
+               (eclim/execute-command "c_complete" "-p" "-f" "-e"
+                                      ("-l" "standard") "-o"))
               (python-mode
                (eclim/execute-command "python_complete" "-p" "-f" "-e" "-o"))))
     (setq eclim--is-completing nil)))
@@ -179,7 +185,8 @@ The result is also stored in `eclim--completion-start'."
   (setq eclim--completion-start
         (save-excursion
           (cl-case major-mode
-            ((java-mode javascript-mode js-mode ruby-mode groovy-mode php-mode c-mode c++-mode scala-mode python-mode)
+            ((java-mode javascript-mode js-mode ruby-mode groovy-mode
+                        php-mode c-mode c++-mode scala-mode python-mode)
              (progn
                ;; Allow completion after open bracket. Eclipse/eclim do.
                (when (or (eq ?\( (char-before))
@@ -196,7 +203,8 @@ The result is also stored in `eclim--completion-start'."
                  (forward-char 1))
                (point)))
             ((xml-mode nxml-mode)
-             (while (not (string-match "[<\n[:blank:]]" (char-to-string (char-before))))
+             (while (not (string-match "[<\n[:blank:]]"
+                                       (char-to-string (char-before))))
                (backward-char))
              (point))))))
 
@@ -206,13 +214,16 @@ BEG and END are the integer positions within the current
 buffer marking the region which is replaced."
   (let ((completion (buffer-substring-no-properties beg end)))
     (cond ((string-match "\\(.*?\\) :.*- Override method" completion)
-           (let ((sig (eclim--java-parse-method-signature (match-string 1 completion))))
+           (let ((sig (eclim--java-parse-method-signature
+                       (match-string 1 completion))))
              (delete-region beg end)
              (eclim-java-implement (symbol-name (assoc-default :name sig)))))
           ((string-match "\\([^-:]+\\) .*?\\(- *\\(.*\\)\\)?" completion)
            (let* ((insertion (match-string 1 completion))
                   (rest (match-string 3 completion))
-                  (package (if (and rest (string-match "\\w+\\(\\.\\w+\\)*" rest)) rest nil))
+                  (package (if (and rest
+                                    (string-match "\\w+\\(\\.\\w+\\)*" rest))
+                               rest nil))
                   (template (eclim--completion-yasnippet-convert insertion)))
              (delete-region beg end)
              (unless (cl-loop for f in eclim-insertion-functions thereis
@@ -223,21 +234,26 @@ buffer marking the region which is replaced."
                (insert insertion)))
              (when package
                (eclim-java-import
-                (concat package "." (substring insertion 0 (or (string-match "[<(]" insertion)
-                                                               (length insertion)))))))))))
+                (concat package "."
+                        (substring insertion 0
+                                   (or (string-match "[<(]" insertion)
+                                       (length insertion)))))))))))
 
 (defun eclim--completion-action-xml (beg end)
   "Perform an XML-style completion.
 BEG and END are the integer positions within the current
 buffer marking the region which is replaced."
   (when (string-match "[\n[:blank:]]" (char-to-string (char-before beg)))
-    ;; we are completing an attribute; let's use yasnippet to get som nice completion going
+    ;; we are completing an attribute; let's use yasnippet to get som nice
+    ;; completion going
     (let* ((c (buffer-substring-no-properties beg end))
            (completion (if (s-ends-with? "\"" c) c (concat c "=\"\""))))
       (when (string-match "\\(.*\\)=\"\\(.*\\)\"" completion)
         (delete-region beg end)
         (if (and eclim-use-yasnippet (featurep 'yasnippet)  yas-minor-mode)
-            (yas-expand-snippet (format "%s=\"${1:%s}\" $0" (match-string 1 completion) (match-string 2 completion)))
+            (yas-expand-snippet
+             (format "%s=\"${1:%s}\" $0"
+                     (match-string 1 completion) (match-string 2 completion)))
           (insert completion))))))
 
 (defun eclim--completion-action-default ()
@@ -272,17 +288,22 @@ buffer marking the region which is replaced."
 The rendering is rather rudimentary."
   (apply #'concat
          (cl-loop for p = 0 then (match-end 0)
-                  while (string-match "[[:blank:]]*\\(.*?\\)\\(</?.*?>\\)" str p) collect (match-string 1 str) into ret
-                  for tag = (downcase (match-string 2 str))
-                  when (or (string= tag "</p>") (string= tag "<p>")) collect "\n" into ret
-                  when (string= tag "<br/>") collect " " into ret
-                  when (string= tag "<li>") collect " * " into ret
-                  finally return (append ret (list (substring str p))))))
+            while (string-match "[[:blank:]]*\\(.*?\\)\\(</?.*?>\\)" str p)
+            collect (match-string 1 str) into ret
+            for tag = (downcase (match-string 2 str))
+            when (or (string= tag "</p>") (string= tag "<p>")) collect "\n" into ret
+            when (string= tag "<br/>") collect " " into ret
+            when (string= tag "<li>") collect " * " into ret
+            finally return (append ret (list (substring str p))))))
 
 (defun eclim--completion-documentation (symbol)
   "Look up the documentation string for the given SYMBOL.
 SYMBOL is looked up in `eclim--completion-condidates'."
-  (let ((doc (assoc-default 'info (cl-find symbol eclim--completion-candidates :test #'string= :key #'eclim--completion-candidate-menu-item))))
+  (let ((doc
+         (assoc-default
+          'info (cl-find symbol eclim--completion-candidates
+                         :test #'string=
+                         :key #'eclim--completion-candidate-menu-item))))
     (when doc
       (eclim--render-doc doc))))
 
@@ -299,3 +320,4 @@ if the argument list is empty.  Meant for use with
   t)
 
 (provide 'eclim-completion)
+;;; eclim-completion.el ends here

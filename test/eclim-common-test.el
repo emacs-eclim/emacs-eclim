@@ -22,7 +22,6 @@
 ;;; Code:
 
 (require 'eclim-common "eclim-common.el")
-(require 'cl)
 
 (ert-deftest java-accepted-filename-p-test ()
   (should (equal (eclim--accepted-filename-p "test.java") t)))

@@ -28,10 +28,8 @@
 ;;
 ;;; Code:
 
-
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl-lib))
 (require 'etags)
-(require 'cl-lib)
 (require 'json)
 (require 'arc-mode)
 (require 'popup)
@@ -44,7 +42,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-TAB") 'eclim-complete)
     map)
-  "The keymap used in `eclim-mode'.")
+  "The keymap used in command `eclim-mode'.")
 
 (defvar eclimd-process nil
   "The active eclimd process.")
@@ -81,7 +79,9 @@ absolute paths.")
 
 (defvar eclim--default-args
   '(("-n" . (eclim-project-name))
-    ("-p" . (or (eclim-project-name) (error "Could not find eclipse project for %s" (buffer-name (current-buffer)))))
+    ("-p" . (or (eclim-project-name)
+                (error "Could not find eclipse project for %s"
+                       (buffer-name (current-buffer)))))
     ("-e" . (eclim--current-encoding))
     ("-f" . (eclim--project-current-file))
     ("-o" . (eclim--byte-offset))
@@ -158,8 +158,8 @@ ID \"org.eclipse.jdt.core.javanature\".")
   :group 'eclim)
 
 (defcustom eclim-eclimrc nil
-  "The file containing the run commands that Eclim will use when
-invoked. See http://eclim.org/eclimd.html#eclimrc."
+  "The file containing the run commands that Eclim will use when invoked.
+See http://eclim.org/eclimd.html#eclimrc."
   :group 'eclim
   :type 'string)
 
@@ -182,7 +182,8 @@ saved."
   :type '(choice (const :tag "Off" nil)
                  (const :tag "On" t)))
 
-(defcustom eclim-interactive-completion-function (if ido-mode 'ido-completing-read 'completing-read)
+(defcustom eclim-interactive-completion-function
+  (if ido-mode 'ido-completing-read 'completing-read)
   "The function eclim should use to complete interactive choices."
   :group 'eclim
   :type 'function)
@@ -194,7 +195,8 @@ saved."
                  (const :tag "On" t)))
 
 (defcustom eclim-accepted-file-regexps
-  '("\\.java$" "\\.js$" "\\.xml$" "\\.rb$" "\\.groovy$" "\\.php$" "\\.c$" "\\.cc$" "\\.h$" "\\.scala$")
+  '("\\.java$" "\\.js$" "\\.xml$" "\\.rb$" "\\.groovy$" "\\.php$"
+    "\\.c$" "\\.cc$" "\\.h$" "\\.scala$")
   "List of filename patterns which cause eclim to be enabled.
 Each element is a regular expression which is matched
 against filenames to decide if eclim should be automatically
@@ -304,7 +306,8 @@ It is an error if PROJECT is not a recognized project name."
   (eclim--call-process "project_info" "-p" project))
 
 (define-error 'eclim--connection-refused-error
-  "Eclim was unable to connect to eclimd. You can start eclimd using M-x start-eclimd")
+  "Eclim was unable to connect to eclimd. You can start eclimd using \
+M-x eclimd-start")
 
 (define-error 'eclim--eclimd-starting-error
   "Eclimd is currently being started. Please wait for it to be ready and retry."
@@ -313,25 +316,32 @@ It is an error if PROJECT is not a recognized project name."
 (defun eclim--parse-result (result)
   "Parse the result of an eclim operation.
 Raises An error if RESULT is not valid JSON."
-  (if (string-match (rx string-start (zero-or-more (any " " "\n" "\t")) string-end) result)
+  (if (string-match
+       (rx string-start (zero-or-more (any " " "\n" "\t")) string-end) result)
       nil
     (condition-case nil
         (json-read-from-string result)
       ('json-readtable-error
        (cond ((string-match "java.io.UnsupportedEncodingException: \\(.*\\)" result)
               (let ((e (match-string 1 result)))
-                (error "Eclim doesn't know how to handle the encoding %s. You can avoid this by
-evaluating (add-to-list 'eclim--file-coding-system-mapping '(\"%s\" . \"<encoding>\"))
-where <encoding> is the corresponding java name for this encoding." e e)))
+                (error "Eclim doesn't know how to handle the encoding %s.  \
+You can avoid this by evaluating
+(add-to-list 'eclim--file-coding-system-mapping '(\"%s\" . \"<encoding>\"))
+where <encoding> is the corresponding java name for this encoding" e e)))
              ((string-match "No command '\\(.*\\)' found" result)
-              (let ((c (assoc-default (match-string 1 result)
-                                      '(("xml_complete" "XML" "Eclipse Web Developer Tools")
-                                        ("groovy_complete" "Groovy" "Eclipse Groovy Development Tools")
-                                        ("ruby_complete" "Ruby" "Eclipse Ruby Development Tools")
-                                        ("c_complete" "C/C++" "Eclipse C/C++ Development Tools")
-                                        ("php_complete" "PHP" "Eclipse PHP Development Tools")
-                                        ("scala_complete" "Scala" "Eclipse Scala Development Tools")))))
-                (if c (error "Eclim was not installed with %s support. Please make sure that %s are installed, then reinstall eclim." (first c) (second c))
+              (let ((c (assoc-default
+                        (match-string 1 result)
+                        '(("xml_complete" "XML" "Eclipse Web Developer Tools")
+                          ("groovy_complete" "Groovy"
+                           "Eclipse Groovy Development Tools")
+                          ("ruby_complete" "Ruby" "Eclipse Ruby Development Tools")
+                          ("c_complete" "C/C++" "Eclipse C/C++ Development Tools")
+                          ("php_complete" "PHP" "Eclipse PHP Development Tools")
+                          ("scala_complete" "Scala"
+                           "Eclipse Scala Development Tools")))))
+                (if c (error "Eclim was not installed with %s support.  \
+Please make sure that %s are installed, then reinstall eclim"
+                             (cl-first c) (cl-second c))
                   (error "%s" result))))
              ((string-match ".*Exception: \\(.*\\)" result)
               (error "%s" (match-string 1 result)))
@@ -363,14 +373,16 @@ If the optional argument FILENAME is given, return that
 file's project name.  Otherwise return the current file's
 project name."
   (cl-labels ((get-project-name (file)
-                                (if (not (string= file buffer-auto-save-file-name))
-                                    (eclim/execute-command "project_by_resource" ("-f" file))
-                                  nil)))
+                (if (not (string= file buffer-auto-save-file-name))
+                    (eclim/execute-command "project_by_resource" ("-f" file))
+                  nil)))
     (if filename
         (get-project-name filename)
       (or eclim--project-name
-          (and buffer-file-name (setq eclim--project-name (get-project-name buffer-file-name)))
-          (and buffer-file-name (gethash buffer-file-name eclim-projects-for-archive-file))))))
+          (and buffer-file-name
+               (setq eclim--project-name (get-project-name buffer-file-name)))
+          (and buffer-file-name
+               (gethash buffer-file-name eclim-projects-for-archive-file))))))
 
 (defun eclim--expand-args (args)
   "Supply missing default values for eclim arguments.
@@ -381,15 +393,18 @@ in `eclim--default-args' and used to construct a list.  The
 argument lists are then appended together."
   (mapcar (lambda (arg) (if (numberp arg) (number-to-string arg) arg))
           (cl-loop for arg in args
-                   append (if (stringp arg)
-                              (list arg (eval (cdr (or (assoc arg eclim--default-args)
-                                                       (error "No default value for %s found" arg)))))
-                            (assert (listp arg))
-                            (when arg
-                              (assert (stringp (car arg)))
-                              (assert (or (stringp (cadr arg))
-                                          (numberp (cadr arg)))))
-                            arg))))
+             append
+               (if (stringp arg)
+                   (list arg
+                         (eval (cdr
+                                (or (assoc arg eclim--default-args)
+                                    (error "No default value for %s found" arg)))))
+                 (cl-assert (listp arg))
+                 (when arg
+                   (cl-assert (stringp (car arg)))
+                   (cl-assert (or (stringp (cadr arg))
+                                  (numberp (cadr arg)))))
+                 arg))))
 
 (defun eclim--src-update (&optional save-others)
   "Automatically save the current buffer before calling eclim.
@@ -398,13 +413,19 @@ non-nil.  Additionally, if automatic saving is enabled and
 SAVE-OTHERS is non-nil, any other unsaved Java buffers are
 saved as well."
   (when eclim-auto-save
-    (when (buffer-modified-p) (save-buffer)) ;; auto-save current buffer, prompt on saving others
-    (when save-others (save-some-buffers nil (lambda () (string-match "\\.java$" (buffer-file-name)))))))
+    ;; auto-save current buffer, prompt on saving others
+    (when (buffer-modified-p) (save-buffer))
+    (when save-others
+      (save-some-buffers
+       nil (lambda () (string-match "\\.java$" (buffer-file-name)))))))
 
 (defun eclim--check-project (project)
   "Throw error if PROJECT is not a recognized project name."
   (let ((projects (or eclim--projects-cache
-                      (setq eclim--projects-cache (mapcar (lambda (p) (assoc-default 'name p)) (eclim/project-list))))))
+                      (setq eclim--projects-cache
+                            (mapcar (lambda (p)
+                                      (assoc-default 'name p))
+                                    (eclim/project-list))))))
     (when (not (assoc-string project projects))
       (error "Invalid project: %s" project))))
 
@@ -429,7 +450,8 @@ of CMD.  Each argument will be expanded using
     (when sync (eclim--src-update))
     (when check
       (ignore-errors
-        (eclim--check-project (if (listp check) (eval (second check)) (eclim-project-name)))))
+        (eclim--check-project (if (listp check) (eval (cl-second check))
+                                (eclim-project-name)))))
     (let ((attrs-before (if sync (file-attributes (buffer-file-name)) nil)))
       (funcall executor (cons cmd expargs)
                (lambda ()
@@ -438,10 +460,13 @@ of CMD.  Each argument will be expanded using
                      (when (and (file-exists-p (buffer-file-name))
                                 attrs-before
                                 (or
-                                 (not (= (second (sixth attrs-before)) (second (sixth attrs-curr)))) ;; mod time
-                                 (not (= (eighth attrs-before) (eighth attrs-curr))))) ;; size time
+                                 ;; mod time
+                                 (not (= (cl-second (cl-sixth attrs-before))
+                                         (cl-second (cl-sixth attrs-curr))))
+                                 ;; size time
+                                 (not (= (cl-eighth attrs-before)
+                                         (cl-eighth attrs-curr)))))
                        (revert-buffer t t t)))))))))
-
 
 (defun eclim/project-list ()
   "Return the names of the projects in the current workspace."
@@ -449,8 +474,8 @@ of CMD.  Each argument will be expanded using
 
 (defun eclim--project-dir (&optional projectname)
   "Return this project's root directory.
-If the optional argument PROJECTNAME is given, return that
-project's root directory."
+If the optional argument PROJECTNAME is given, return that project's root
+directory."
   (assoc-default 'path (eclim/project-info (or projectname (eclim-project-name)))))
 
 (defun eclim--byte-offset (&optional _text)
@@ -481,44 +506,51 @@ TODO: Remove ugly newline counting altogether."
 
 (defun eclim-executable-find ()
   "Attempt to find the eclim executable in one of `eclim-eclipse-dirs'."
-  (let (file)
-    (dolist (eclipse-root eclim-eclipse-dirs)
-      (and (file-exists-p
-            (setq file (expand-file-name "plugins" eclipse-root)))
-           (setq file (car (last (directory-files file t "^org.eclim_"))))
-           (file-exists-p (setq file (expand-file-name "bin/eclim" file)))
-           (return file)))))
+  (cl-block nil
+    (let (file)
+      (dolist (eclipse-root eclim-eclipse-dirs)
+        (and (file-exists-p
+              (setq file (expand-file-name "plugins" eclipse-root)))
+             (setq file (car (last (directory-files file t "^org.eclim_"))))
+             (file-exists-p (setq file (expand-file-name "bin/eclim" file)))
+             (cl-return file))))))
 
 (defcustom eclim-executable
-  (or (executable-find "eclim") (eclim-homedir-executable-find) (eclim-executable-find))
+  (or (executable-find "eclim")
+      (eclim-homedir-executable-find)
+      (eclim-executable-find))
   "Location of eclim executable."
   :group 'eclim
   :type 'file)
 
 (defun eclim-executable-get-command ()
-  "Returns the Eclim executable command. If \"eclim-eclimrc\" and /
-or \"eclim-nailgun-port\" are defined, then these are appended to
-the command."
+  "Returns the Eclim executable command.
+If \"eclim-eclimrc\" and/or \"eclim-nailgun-port\" are defined, then these
+are appended to the command."
   (when (not eclim-executable)
-    (error "Eclim installation not found. Please set eclim-executable."))
+    (error "Eclim installation not found.  Please set eclim-executable"))
   (let ((command eclim-executable))
     (when eclim-eclimrc (setq command (concat command " -f " eclim-eclimrc)))
-    (when eclim-nailgun-port (setq command (concat command " --nailgun-port " (number-to-string eclim-nailgun-port))))
+    (when eclim-nailgun-port
+      (setq command (concat command " --nailgun-port "
+                            (number-to-string eclim-nailgun-port))))
     command))
 
 (defun eclim--make-command (args)
   "Create a command string that can be executed from the shell.
-The first element in ARGS is the name of the eclim
-operation.  The rest are flags/values to be passed on to
-eclimd."
+The first element in ARGS is the name of the eclim operation.
+The rest are flags/values to be passed on to eclimd."
   (when (not eclim-executable)
-    (error "Eclim installation not found. Please set eclim-executable."))
+    (error "Eclim installation not found.  Please set eclim-executable"))
   (cl-reduce (lambda (a b) (format "%s %s" a b))
-          (append (list (eclim-executable-get-command) "-command" (first args))
-                  (cl-loop for a = (cdr args) then (cdr (cdr a))
-                           for arg = (first a)
-                           for val = (second a)
-                           while arg append (if val (list arg (shell-quote-argument val)) (list arg))))))
+             (append (list
+                      (eclim-executable-get-command) "-command" (cl-first args))
+                     (cl-loop for a = (cdr args) then (cdr (cdr a))
+                        for arg = (cl-first a)
+                        for val = (cl-second a)
+                        while arg append (if val
+                                             (list arg (shell-quote-argument val))
+                                           (list arg))))))
 
 (defun eclim--call-process-no-parse (&rest args)
   "Call eclim using ARGS as command line arguments.
@@ -533,8 +565,11 @@ the output from eclim is returned as a string."
   (or eclim--project-current-file
       (setq eclim--project-current-file
             (eclim/execute-command "project_link_resource" ("-f" buffer-file-name)))
-      ;; command archive_read will extract archive file to /tmp directory, which is out of current project directory.
-      (and buffer-file-name (gethash buffer-file-name eclim-projects-for-archive-file) buffer-file-name)))
+      ;; command archive_read will extract archive file to /tmp directory, which
+      ;; is out of current project directory.
+      (and buffer-file-name
+           (gethash buffer-file-name eclim-projects-for-archive-file)
+           buffer-file-name)))
 
 (defun eclim--current-encoding ()
   "Return the encoding of the current file."
@@ -547,18 +582,21 @@ the output from eclim is returned as a string."
 (defun eclim--find-file (path-to-file)
   "Visit a file identified by PATH-TO-FILE even if it is in an archive."
   (if (not (string-match-p "!" path-to-file))
-      (unless (and (buffer-file-name) (file-equal-p path-to-file (buffer-file-name)))
+      (unless (and (buffer-file-name)
+                   (file-equal-p path-to-file (buffer-file-name)))
         (find-file path-to-file))
     (let* ((parts (split-string path-to-file "!"))
-           (archive-name (replace-regexp-in-string eclim--compressed-urls-regexp "" (first parts)))
-           (file-name (second parts)))
+           (archive-name (replace-regexp-in-string
+                          eclim--compressed-urls-regexp "" (cl-first parts)))
+           (file-name (cl-second parts)))
       (find-file-other-window archive-name)
       (goto-char (point-min))
       (re-search-forward (replace-regexp-in-string
                           eclim--compressed-file-path-removal-regexp ""
-                          (regexp-quote (replace-regexp-in-string
-                                         eclim--compressed-file-path-replacement-regexp
-                                         "/" file-name))))
+                          (regexp-quote
+                           (replace-regexp-in-string
+                            eclim--compressed-file-path-replacement-regexp
+                            "/" file-name))))
       (let ((old-buffer (current-buffer)))
         (archive-extract)
         (goto-char (point-min))
@@ -599,14 +637,16 @@ values:
 
 DIRECTORY is the optional base directory which should be
 removed from the beginning of file paths if possible."
-  (let* ((converted-directory (replace-regexp-in-string "\\\\" "/" (assoc-default 'filename line)))
+  (let* ((converted-directory
+          (replace-regexp-in-string "\\\\" "/" (assoc-default 'filename line)))
          (parts (split-string converted-directory "!"))
          (filename (replace-regexp-in-string
-                    eclim--compressed-urls-regexp "" (first parts)))
+                    eclim--compressed-urls-regexp "" (cl-first parts)))
          (filename-in-dir (if directory
-                (replace-regexp-in-string (concat (regexp-quote directory) "/?")
-                                          "" filename)
-              filename)))
+                              (replace-regexp-in-string
+                               (concat (regexp-quote directory) "/?")
+                               "" filename)
+                            filename)))
     (if (cdr parts)
         ;; Just put the jar path, since there's no easy way to instruct
         ;; compile-mode to go into an archive. Better than nothing.
@@ -635,21 +675,22 @@ exists, the corresponding file will be opened and the cursor
 will be moved to the location of the result."
   (let ((results
          (cl-loop for result across results
-                  for file = (cdr (assoc 'filename result))
-                  if (string-match (rx bol (or "jar" "zip") ":") file)
-                  do (setf (cdr (assoc 'filename result)) (eclim-java-archive-file file))
-                  finally (return results))))
+            for file = (cdr (assoc 'filename result))
+            if (string-match (rx bol (or "jar" "zip") ":") file)
+            do (setf (cdr (assoc 'filename result)) (eclim-java-archive-file file))
+            finally (return results))))
     (if (and (= 1 (length results)) open-single-file)
         (eclim--visit-declaration (elt results 0))
       (pop-to-buffer (get-buffer-create "*eclim: find"))
       (let ((buffer-read-only nil))
         (erase-buffer)
-        (insert (concat "-*- mode: eclim-find; default-directory: " default-directory " -*-"))
+        (insert (concat "-*- mode: eclim-find; default-directory: "
+                        default-directory " -*-"))
         (newline 2)
         (insert (concat "eclim java_search -p " pattern))
         (newline)
         (cl-loop for result across results
-                 do (insert (eclim--format-find-result result default-directory)))
+           do (insert (eclim--format-find-result result default-directory)))
         (goto-char 0)
         (grep-mode)))))
 
@@ -711,7 +752,8 @@ The delay is specified by `eclim-problems-refresh-delay'."
              eclim-autoupdate-problems)
     (setq eclim--problems-project (eclim-project-name))
     (setq eclim--problems-file buffer-file-name)
-    (run-with-idle-timer eclim-problems-refresh-delay nil (lambda () (eclim-problems-buffer-refresh)))))
+    (run-with-idle-timer eclim-problems-refresh-delay nil
+                         (lambda () (eclim-problems-buffer-refresh)))))
 
 (defun eclim-problems-buffer-refresh ()
   "Refresh the problem list and draw it on screen."
@@ -721,8 +763,10 @@ The delay is specified by `eclim-problems-refresh-delay'."
     (if (not (minibuffer-window-active-p (minibuffer-window)))
         (if (string= "e" eclim--problems-filter)
             (message "Eclim reports %d errors." (length problems))
-          (let ((warning-count (length (cl-remove-if-not (lambda (problem) (eq t (assoc-default 'warning problem)))
-                                                         problems))))
+          (let ((warning-count
+                 (length (cl-remove-if-not (lambda (problem)
+                                             (eq t (assoc-default 'warning problem)))
+                                           problems))))
             (message "Eclim reports %d errors, %d warnings."
                      (- (length problems) warning-count)
                      warning-count))))))
@@ -735,7 +779,8 @@ will apply.
 
 When a correction is selected, it will be automatically
 applied to the buffer."
-  (eclim/with-results correction-info ("java_correct" "-p" "-f" ("-l" line) ("-o" offset))
+  (eclim/with-results correction-info ("java_correct" "-p" "-f" ("-l" line)
+                                       ("-o" offset))
     (if (stringp correction-info)
         (message correction-info)
       (-if-let* ((corrections (cdr (assoc 'corrections correction-info)))
@@ -758,10 +803,12 @@ applied to the buffer."
 See `eclim--problems-filter-description' for more information."
   (if eclim--problems-filefilter
       (if eclim--problems-filter
-          (setq eclim--problems-filter-description (concat "(file-" eclim--problems-filter ")"))
+          (setq eclim--problems-filter-description
+                (concat "(file-" eclim--problems-filter ")"))
         (setq eclim--problems-filter-description "(file)"))
     (if eclim--problems-filter
-        (setq eclim--problems-filter-description (concat eclim--problems-project "(" eclim--problems-filter ")"))
+        (setq eclim--problems-filter-description
+              (concat eclim--problems-project "(" eclim--problems-filter ")"))
       (setq eclim--problems-filter-description eclim--problems-project))))
 
 (defun eclim--problems-buffer-redisplay ()
@@ -779,7 +826,7 @@ See `eclim--problems-filter-description' for more information."
             (filecol-size (eclim--problems-filecol-size)))
         (erase-buffer)
         (cl-loop for problem across (eclim--problems-filtered)
-                 do (eclim--insert-problem problem filecol-size))
+           do (eclim--insert-problem problem filecol-size))
         (goto-char (point-min))
         (forward-line (1- line-number))))))
 
@@ -792,7 +839,8 @@ names.  Otherwise, a static column width is used."
       (min 40
            (apply #'max 0
                   (mapcar (lambda (problem)
-                            (length (eclim--problems-cleanup-filename (assoc-default 'filename problem))))
+                            (length (eclim--problems-cleanup-filename
+                                     (assoc-default 'filename problem))))
                           (eclim--problems-filtered))))
     40))
 
@@ -803,7 +851,9 @@ Filtering is controlled by two variables:
 `eclim--problems-filter' and `eclim--problems-filefilter'.
 See the documentation for those variables for an explanation
 of their effects."
-  (eclim--filter-problems eclim--problems-filter eclim--problems-filefilter eclim--problems-file eclim--problems-list))
+  (eclim--filter-problems
+   eclim--problems-filter eclim--problems-filefilter
+   eclim--problems-file eclim--problems-list))
 
 (defun eclim-problems-highlight ()
   "Highlight the currently active problems in the current buffer.
@@ -817,8 +867,12 @@ Highlighting only occurs if it is allowed by
       (unless (if (functionp eclim-problems-suppress-highlights)
                   (funcall eclim-problems-suppress-highlights)
                 eclim-problems-suppress-highlights)
-        (cl-loop for problem across (cl-remove-if-not (lambda (p) (string= (assoc-default 'filename p) (file-truename (buffer-file-name)))) eclim--problems-list)
-                 do (eclim--problems-insert-highlight problem))))))
+        (cl-loop for problem across
+             (cl-remove-if-not (lambda (p)
+                                 (string= (assoc-default 'filename p)
+                                          (file-truename (buffer-file-name))))
+                               eclim--problems-list)
+           do (eclim--problems-insert-highlight problem))))))
 
 (defun eclim--insert-problem (problem filecol-size)
   "Add a problem line to the problems buffer.
@@ -841,7 +895,8 @@ FILECOL-SIZE is the width of the column reserved for displaying file names."
                       "...")
             (assoc-default 'message problem)))
          (filename (truncate-string-to-width
-                    (eclim--problems-cleanup-filename (assoc-default 'filename problem))
+                    (eclim--problems-cleanup-filename
+                     (assoc-default 'filename problem))
                     40 0 nil t))
          (text (if eclim-problems-show-pos
                    (format (concat filecol-format-string
@@ -855,7 +910,8 @@ FILECOL-SIZE is the width of the column reserved for displaying file names."
                                  " | %s")
                          filename
                          problem-message))))
-    (when (and eclim-problems-hl-errors (eq :json-false (assoc-default 'warning problem)))
+    (when (and eclim-problems-hl-errors
+               (eq :json-false (assoc-default 'warning problem)))
       (put-text-property 0 (length text) 'face 'bold text))
     (insert text)
     (insert "\n")))
@@ -911,7 +967,10 @@ match.
 PROBLEMS is the list of problems."
   (let ((type-filterp (eclim--choose-type-filter type-filter))
         (file-filterp (eclim--choose-file-filter file-filter file)))
-    (cl-remove-if-not (lambda (x) (and (funcall type-filterp x) (funcall file-filterp x))) problems)))
+    (cl-remove-if-not (lambda (x)
+                        (and (funcall type-filterp x)
+                             (funcall file-filterp x)))
+                      problems)))
 
 (defun eclim--problem-goto-pos (p)
   "Move the cursor in the current buffer to position P.
@@ -963,7 +1022,8 @@ argument's file name is the same as FILE."
 
 Jdb is run in another window."
   (let ((buffer (current-buffer)))
-    ;;(toggle-maximize-buffer) - Fixme: I don't know where this function is defined - NL 2016-08-31
+    ;;(toggle-maximize-buffer) - Fixme: I don't know where this function is
+    ;;defined - NL 2016-08-31
     (switch-to-buffer-other-window buffer t)
     (jdb command)
     (switch-to-buffer-other-window buffer t)))

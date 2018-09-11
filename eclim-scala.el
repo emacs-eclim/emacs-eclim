@@ -19,7 +19,6 @@
 ;;
 ;; - Shuai Lin <linshuai2012@gmail.com>
 ;;
-;;
 ;;; Commentary:
 ;;
 ;;; Conventions
@@ -27,6 +26,8 @@
 ;; Conventions used in this file: Name internal variables and functions
 ;; "eclim--<descriptive-name>", and name eclim command invocations
 ;; "eclim/command-name", like eclim/project-list.
+;;
+;;; Code:
 
 ;;* Eclim Scala
 
@@ -49,3 +50,4 @@
       (eclim--find-display-results (cdr i) hits t))))
 
 (provide 'eclim-scala)
+;;; eclim-scala.el ends here

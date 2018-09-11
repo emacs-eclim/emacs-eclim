@@ -27,14 +27,17 @@
 ;; Macros used by this package.
 ;;
 ;;; Code:
+(eval-when-compile (require 'cl-lib))
 
 (defun eclim--args-contains (args flags)
   "Validate that ARGS (not expanded) has the specified FLAGS."
   (cl-loop for f in flags
-           return (cl-find f args :test #'string= :key (lambda (a) (if (listp a) (car a) a)))))
+     return (cl-find f args
+                     :test #'string=
+                     :key (lambda (a) (if (listp a) (car a) a)))))
 
 (defun eclim--evaluating-args-form (args)
-  "Return a form which evaluates the elements of the list ARGS.
+  "Returns a form which evaluates the elements of the list ARGS.
 If a list element is of the form (STRING EXPRESSION), only
 EXPRESSION will be evaluated by the form to some RESULT,
 and \(STRING RESULT) will be the element contained in the
@@ -132,10 +135,13 @@ and also bound to PROBLEMS while evaluating BODY."
   (let ((res (cl-gensym)))
     `(when eclim--problems-project
        (setq eclim--problems-refreshing t)
-       (eclim/with-results-async ,res ("problems" ("-p" eclim--problems-project) (when (string= "e" eclim--problems-filter) '("-e" "true")))
+       (eclim/with-results-async ,res
+         ("problems" ("-p" eclim--problems-project)
+          (when (string= "e" eclim--problems-filter)
+            '("-e" "true")))
          (cl-loop for problem across ,res
-                  do (let ((filecell (assq 'filename problem)))
-                       (when filecell (setcdr filecell (file-truename (cdr filecell))))))
+            do (let ((filecell (assq 'filename problem)))
+                 (when filecell (setcdr filecell (file-truename (cdr filecell))))))
          (setq eclim--problems-list ,res)
          (let ((,problems ,res))
            (setq eclim--problems-refreshing nil)
@@ -155,4 +161,4 @@ current buffer is still live when the closure is called."
              ,@body))))))
 
 (provide 'eclim-macros)
-;;;
+;;; eclim-macros.el ends here

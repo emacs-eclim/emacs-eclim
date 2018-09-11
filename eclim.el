@@ -30,19 +30,20 @@
 ;;
 ;;; Commentary:
 ;;
-;; Emacs-eclim uses the Eclim Server to integrate eclipse with Emacs.  This project wants to bring
-;; some of the invaluable features from Eclipse to Emacs.  Please note, the eclim package is limited
-;; to mostly Java support at this time.
+;; Emacs-eclim uses the Eclim Server to integrate eclipse with Emacs.  This
+;; project wants to bring some of the invaluable features from Eclipse to Emacs.
+;; Please note, the eclim package is limited to mostly Java support at this
+;; time.
 ;;
 ;;; Code:
 
-(eval-when-compile (require 'cl))
-(require 'cl-lib)
 (require 's)
 (require 'json)
 (require 'eclimd)
 (require 'eclim-common)
-(eval-when-compile (require 'eclim-macros))
+(eval-when-compile
+  (require 'eclim-macros)
+  (require 'cl-lib))
 
 ;;** Basics
 
@@ -87,14 +88,20 @@ it is asynchronous."
           (message "Executing: %s" cmd)
           (message "Using async buffer %s" buf))
         (push cmd eclim--currently-running-async-calls)
-        (let ((proc (start-process-shell-command "eclim" buf (eclim--make-command args))))
-          (let ((sentinel (lambda (process _signal)
-                            (unwind-protect
-                                (save-excursion
-                                  (setq eclim--currently-running-async-calls (cl-remove-if (lambda (x) (string= cmd x)) eclim--currently-running-async-calls))
-                                  (set-buffer (process-buffer process))
-                                  (funcall handler (eclim--parse-result (buffer-substring 1 (point-max)))))
-                              (kill-buffer buf)))))
+        (let ((proc (start-process-shell-command
+                     "eclim" buf (eclim--make-command args))))
+          (let ((sentinel
+                 (lambda (process _signal)
+                   (unwind-protect
+                       (save-excursion
+                         (setq eclim--currently-running-async-calls
+                               (cl-remove-if (lambda (x)
+                                               (string= cmd x))
+                                             eclim--currently-running-async-calls))
+                         (set-buffer (process-buffer process))
+                         (funcall handler (eclim--parse-result
+                                           (buffer-substring 1 (point-max)))))
+                     (kill-buffer buf)))))
             (set-process-sentinel proc sentinel)))))))
 
 ;; Commands
@@ -115,15 +122,19 @@ one file matching PATTERN, that file will be opened
 immediately."
   (interactive (list (read-string "Pattern: ") "P"))
   (message "'%s' '%s'" pattern case-insensitive)
-  (eclim/with-results hits ("locate_file" ("-p" (concat "^.*" pattern ".*$")) ("-s" "workspace") (if case-insensitive '("-i" "")))
-    (eclim--find-display-results pattern
-                                 (apply #'vector
-                                        (mapcar (lambda (hit) (list (cons 'filename (assoc-default 'path hit))
-                                                                    (cons 'line 1)
-                                                                    (cons 'column 1)
-                                                                    (cons 'message "")))
-                                                hits))
-                                 t)))
+  (eclim/with-results hits ("locate_file"
+                            ("-p" (concat "^.*" pattern ".*$"))
+                            ("-s" "workspace")
+                            (if case-insensitive '("-i" "")))
+    (eclim--find-display-results
+     pattern
+     (apply #'vector
+            (mapcar (lambda (hit) (list (cons 'filename (assoc-default 'path hit))
+                                   (cons 'line 1)
+                                   (cons 'column 1)
+                                   (cons 'message "")))
+                    hits))
+     t)))
 
 (defun eclim-find-file-path-strict (filename &optional project directory)
   "Locate a file with the basename FILENAME in Eclipse.
@@ -179,9 +190,11 @@ may define more families in the future."
         (add-hook 'after-save-hook 'eclim--problems-update-maybe nil t)
         (add-hook 'after-save-hook 'eclim--after-save-hook nil t)
         (advice-add 'find-file :after #'eclim-problems-advice-find-file)
-        (advice-add 'find-file-other-window :after #'eclim-problems-advice-find-file-other-window)
+        (advice-add 'find-file-other-window
+                    :after #'eclim-problems-advice-find-file-other-window)
         (advice-add 'other-window :after #'eclim-problems-advice-other-window)
-        (advice-add 'switch-to-buffer :after #'eclim-problems-advice-switch-to-buffer)
+        (advice-add 'switch-to-buffer
+                    :after #'eclim-problems-advice-switch-to-buffer)
         (advice-add 'delete-file :around #'eclim-java-delete-file)
         (eclimd--ensure-started t (eclim--lambda-with-live-current-buffer
                                     (eclim--maybe-create-project))))
@@ -190,7 +203,8 @@ may define more families in the future."
     (remove-hook 'after-save-hook 'eclim--after-save-hook t)
     (advice-remove 'find-file #'eclim-problems-highlight)
     (advice-remove 'find-file #'eclim-problems-advice-find-file)
-    (advice-remove 'find-file-other-window #'eclim-problems-advice-find-file-other-window)
+    (advice-remove 'find-file-other-window
+                   #'eclim-problems-advice-find-file-other-window)
     (advice-remove 'other-window #'eclim-problems-advice-other-window)
     (advice-remove 'switch-to-buffer #'eclim-problems-advice-switch-to-buffer)
     (advice-remove 'delete-file #'eclim-java-delete-file)))
@@ -221,7 +235,7 @@ or not a new project should be created to contain the
 current file."
   (when (and (not (eclim-project-name))
              (y-or-n-p "Eclim mode was enabled in a buffer \
-that is not organized in a Eclipse project. Create a new project? "))
+that is not organized in a Eclipse project.  Create a new project? "))
     (call-interactively 'eclim-project-create)))
 
 ;;;###autoload
@@ -232,10 +246,10 @@ that is not organized in a Eclipse project. Create a new project? "))
   "Used to prevent recursive calls to function `global-eclim-mode'.
 Such recursive calls are possible because
 `eclimd--ensure-started' may create a comint buffer for
-which Emacs checks whether `eclim-mode' should be enabled.")
+which Emacs checks whether command `eclim-mode' should be enabled.")
 
 (defun eclim--enable-for-accepted-files-in-project ()
-  "Enable `eclim-mode' in accepted files that belong to a project.
+  "Enable command `eclim-mode' in accepted files that belong to a project.
 A file is accepted if it's name is matched by any of
 `eclim-accepted-file-regexps' elements.  Note that in order
 to determine if a file is managed by a project, eclimd is
@@ -246,10 +260,12 @@ required to be running and will thus be autostarted."
       (let ((eclim--enable-for-accepted-files-in-project-running t))
         (when (and buffer-file-name
                    (eclim--accepted-filename-p buffer-file-name))
-          (eclimd--ensure-started t (eclim--lambda-with-live-current-buffer
-                                      (when (and (eclim--file-managed-p buffer-file-name)
-                                                 (eclim--project-dir))
-                                        (eclim-mode 1)))))))))
+          (eclimd--ensure-started
+           t
+           (eclim--lambda-with-live-current-buffer
+             (when (and (eclim--file-managed-p buffer-file-name)
+                        (eclim--project-dir))
+               (eclim-mode 1)))))))))
 
 (require 'eclim-ant)
 (require 'eclim-debug)

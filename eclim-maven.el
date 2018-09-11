@@ -17,7 +17,6 @@
 ;;
 ;;; Contributors
 ;;
-;;
 ;;; Commentary:
 ;;
 ;;; Conventions
@@ -25,8 +24,8 @@
 ;; Conventions used in this file: Name internal variables and functions
 ;; "eclim--<descriptive-name>", and name eclim command invocations
 ;; "eclim/command-name", like eclim/project-list.
-
-;;* Eclim Maven
+;;
+;;; Code:
 
 (require 'compile)
 (require 'eclim-common)
@@ -41,7 +40,8 @@
 (define-key eclim-mode-map (kbd "C-c C-e m r") 'eclim-maven-run)
 
 (defvar eclim-maven-lifecycle-phases
-  '("validate" "compile" "test" "package" "integration" "verify" "install" "deploy"))
+  '("validate" "compile" "test" "package" "integration" "verify" "install" "deploy")
+  "Maven lifecycle phases.")
 
 (defun eclim--maven-lifecycle-phase-read ()
   (completing-read "Phase: " eclim-maven-lifecycle-phases))
@@ -53,18 +53,17 @@
   (let ((default-directory (eclim--project-dir)))
     (compile (concat "mvn -f " (eclim--maven-pom-path) " " command))))
 
-
-
 (defun eclim-maven-run (goal)
-  "Execute a specific Maven goal in the context of the current
-project. The build output is displayed in the *compilation* buffer."
+  "Execute a specific Maven GOAL in the context of the current project.
+The build output is displayed in the *compilation* buffer."
   (interactive "MGoal: ")
   (eclim--maven-execute goal))
 
 (defun eclim-maven-lifecycle-phase-run (phase)
-  "Run any given Maven life-cycle phase in the context of the current
-project. The build output is displayed in the *compilation* buffer."
+  "Run any given Maven life-cycle PHASE in the context of the current project.
+The build output is displayed in the *compilation* buffer."
   (interactive (list (eclim--maven-lifecycle-phase-read)))
   (eclim-maven-run phase))
 
 (provide 'eclim-maven)
+;;; eclim-maven.el ends here
