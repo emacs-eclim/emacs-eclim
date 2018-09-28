@@ -765,7 +765,7 @@ containing non-ASCII characters)."
 The refresh is only triggered if auto-updated is enabled.
 The delay is specified by `eclim-problems-refresh-delay'."
   (when (and (not eclim--is-completing)
-             (eclim--project-dir)
+             (ignore-errors (eclim--project-dir)) ;dont error when not in project
              eclim-autoupdate-problems)
     (setq eclim--problems-project (eclim-project-name))
     (setq eclim--problems-file buffer-file-name)
