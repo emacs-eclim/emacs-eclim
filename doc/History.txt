@@ -3,6 +3,10 @@
 === New features
  * Added support for python
 
+=== Bugfixes
+ * Run Maven in batch mode to avoid colour escape sequences from being
+   displayed.
+
 == 0.5
 
 === New features

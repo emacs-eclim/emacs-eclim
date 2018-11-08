@@ -53,7 +53,7 @@
 
 (defun eclim--maven-execute (command)
   (let ((default-directory (eclim--project-dir)))
-    (compile (concat "mvn -f " (eclim--maven-pom-path) " " command))))
+    (compile (concat "mvn -B -f " (eclim--maven-pom-path) " " command))))
 
 (defun eclim-maven-run (goal)
   "Execute a specific Maven GOAL in the context of the current project.

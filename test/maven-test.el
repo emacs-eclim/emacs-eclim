@@ -31,5 +31,11 @@
     (should (string-equal line "22"))
     (should (string-equal column "12"))))
 
+(ert-deftest maven-command-runs-in-batch-mode ()
+  (cl-letf (((symbol-function 'eclim--project-dir) (lambda (&optional project-name) "foo"))
+         ((symbol-function 'compile) (lambda (command) command)))
+    (let ((output (eclim--maven-execute "package")))
+      (should (string-equal output "mvn -B -f foo/pom.xml  package")))))
+
 (provide 'maven-tests)
 ;;; maven-tests.el ends here
