@@ -5,6 +5,12 @@
 [![MELPA Stable](http://stable.melpa.org/packages/eclim-badge.svg)](http://stable.melpa.org/#/eclim)
 [![Open Source Helpers](https://www.codetriage.com/emacs-eclim/emacs-eclim/badges/users.svg)](https://www.codetriage.com/emacs-eclim/emacs-eclim)
 
+# No Longer Maintained
+
+This package is no longer maintained.
+
+A better Java programming environment can be set up using [lsp-java](https://github.com/emacs-lsp/lsp-java). Please consider using it instead.
+
 # Overview
 
 [![Join the chat at https://gitter.im/emacs-eclim/emacs-eclim](https://badges.gitter.im/emacs-eclim/emacs-eclim.svg)](https://gitter.im/emacs-eclim/emacs-eclim?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
